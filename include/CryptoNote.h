@@ -57,11 +57,10 @@ struct Transaction : public TransactionPrefix {
 };
 
 struct BlockHeader {
-  uint8_t majorVersion;
-  uint8_t minorVersion;
-  uint32_t nonce;
+  uint64_t nonce;
   uint64_t timestamp;
   Crypto::Hash previousBlockHash;
+  Crypto::Hash merkleRoot;
 };
 
 struct Block : public BlockHeader {

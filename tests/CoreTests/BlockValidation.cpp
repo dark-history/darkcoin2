@@ -20,15 +20,15 @@ namespace {
                           std::vector<uint64_t>& timestamps,
                           std::vector<CryptoNote::difficulty_type>& cummulative_difficulties, test_generator& generator,
                           size_t new_block_count, const CryptoNote::Block blk_last,
-                          const CryptoNote::AccountBase& miner_account, uint8_t block_major_version) {
+                          const CryptoNote::AccountBase& miner_account) {
     CryptoNote::difficulty_type commulative_diffic = cummulative_difficulties.empty() ? 0 : cummulative_difficulties.back();
     CryptoNote::Block blk_prev = blk_last;
     for (size_t i = 0; i < new_block_count; ++i) {
       CryptoNote::Block blk_next;
       CryptoNote::difficulty_type diffic = currency.nextDifficulty(timestamps, cummulative_difficulties);
       if (!generator.constructBlockManually(blk_next, blk_prev, miner_account,
-        test_generator::bf_major_ver | test_generator::bf_timestamp | test_generator::bf_diffic, 
-        block_major_version, 0, blk_prev.timestamp, Crypto::Hash(), diffic)) {
+        test_generator::bf_timestamp | test_generator::bf_diffic, 
+        blk_prev.timestamp, Crypto::Hash(), diffic)) {
         return false;
       }
 
@@ -58,35 +58,6 @@ namespace {
 
 }
 
-
-bool TestBlockMajorVersionAccepted::generate(std::vector<test_event_entry>& events) const {
-  TestGenerator bg(m_currency, events);
-  bg.generateBlocks(1, BLOCK_MAJOR_VERSION_1);
-  DO_CALLBACK(events, "check_block_accepted");
-  return true;
-}
-
-bool TestBlockMajorVersionRejected::generate(std::vector<test_event_entry>& events) const {
-  TestGenerator bg(m_currency, events);
-  bg.generateBlocks(1, BLOCK_MAJOR_VERSION_1 + 1);
-  DO_CALLBACK(events, "check_block_purged");
-  return true;
-}
-
-bool TestBlockBigMinorVersion::generate(std::vector<test_event_entry>& events) const {
-  BLOCK_VALIDATION_INIT_GENERATE();
-
-  CryptoNote::Block blk_1;
-  generator.constructBlockManually(blk_1, blk_0, miner_account,
-    test_generator::bf_major_ver | test_generator::bf_minor_ver, BLOCK_MAJOR_VERSION_1, BLOCK_MINOR_VERSION_0 + 1);
-
-  events.push_back(blk_1);
-
-  DO_CALLBACK(events, "check_block_accepted");
-
-  return true;
-}
-
 bool gen_block_ts_not_checked::generate(std::vector<test_event_entry>& events) const
 {
   BLOCK_VALIDATION_INIT_GENERATE();
@@ -95,7 +66,7 @@ bool gen_block_ts_not_checked::generate(std::vector<test_event_entry>& events) c
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0r, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_timestamp, BLOCK_MAJOR_VERSION_1, 0, blk_0.timestamp - 60 * 60);
+    test_generator::bf_timestamp, blk_0.timestamp - 60 * 60);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_accepted");
@@ -112,7 +83,7 @@ bool gen_block_ts_in_past::generate(std::vector<test_event_entry>& events) const
   uint64_t ts_below_median = boost::get<Block>(events[m_currency.timestampCheckWindow() / 2 - 1]).timestamp;
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0r, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_timestamp, BLOCK_MAJOR_VERSION_1, 0, ts_below_median);
+    test_generator::bf_timestamp, ts_below_median);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -125,8 +96,8 @@ bool gen_block_ts_in_future_rejected::generate(std::vector<test_event_entry>& ev
   BLOCK_VALIDATION_INIT_GENERATE();
 
   Block blk_1;
-  generator.constructBlockManually(blk_1, blk_0, miner_account, test_generator::bf_major_ver | test_generator::bf_timestamp,
-    BLOCK_MAJOR_VERSION_1, 0, time(NULL) + 60 * 60 + m_currency.blockFutureTimeLimit());
+  generator.constructBlockManually(blk_1, blk_0, miner_account, test_generator::bf_timestamp,
+    time(NULL) + 60 * 60 + m_currency.blockFutureTimeLimit());
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -139,8 +110,8 @@ bool gen_block_ts_in_future_accepted::generate(std::vector<test_event_entry>& ev
   BLOCK_VALIDATION_INIT_GENERATE();
 
   Block blk_1;
-  generator.constructBlockManually(blk_1, blk_0, miner_account, test_generator::bf_major_ver | test_generator::bf_timestamp,
-    BLOCK_MAJOR_VERSION_1, 0, time(NULL) - 60 + m_currency.blockFutureTimeLimit());
+  generator.constructBlockManually(blk_1, blk_0, miner_account, test_generator::bf_timestamp,
+    time(NULL) - 60 + m_currency.blockFutureTimeLimit());
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_accepted");
@@ -157,7 +128,7 @@ bool gen_block_invalid_prev_id::generate(std::vector<test_event_entry>& events) 
   Crypto::Hash prev_id = get_block_hash(blk_0);
   reinterpret_cast<char &>(prev_id) ^= 1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_prev_id, BLOCK_MAJOR_VERSION_1, 0, 0, prev_id);
+    test_generator::bf_prev_id, 0, prev_id);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -179,8 +150,7 @@ bool gen_block_invalid_nonce::generate(std::vector<test_event_entry>& events) co
 
   std::vector<uint64_t> timestamps;
   std::vector<difficulty_type> commulative_difficulties;
-  if (!lift_up_difficulty(m_currency, events, timestamps, commulative_difficulties, generator, 2, blk_0, miner_account,
-    BLOCK_MAJOR_VERSION_1)) {
+  if (!lift_up_difficulty(m_currency, events, timestamps, commulative_difficulties, generator, 2, blk_0, miner_account)) {
     return false;
   }
 
@@ -195,7 +165,7 @@ bool gen_block_invalid_nonce::generate(std::vector<test_event_entry>& events) co
     ++timestamp;
     clearTransaction(blk_3.baseTransaction);
     if (!generator.constructBlockManually(blk_3, blk_last, miner_account,
-      test_generator::bf_major_ver | test_generator::bf_diffic | test_generator::bf_timestamp, BLOCK_MAJOR_VERSION_1, 0, timestamp, Crypto::Hash(), diffic))
+      test_generator::bf_diffic | test_generator::bf_timestamp, timestamp, Crypto::Hash(), diffic))
       return false;
   }
   while (0 == blk_3.nonce);
@@ -214,7 +184,7 @@ bool gen_block_no_miner_tx::generate(std::vector<test_event_entry>& events) cons
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -231,7 +201,7 @@ bool gen_block_unlock_time_is_low::generate(std::vector<test_event_entry>& event
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -248,7 +218,7 @@ bool gen_block_unlock_time_is_high::generate(std::vector<test_event_entry>& even
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -265,7 +235,7 @@ bool gen_block_unlock_time_is_timestamp_in_past::generate(std::vector<test_event
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -282,7 +252,7 @@ bool gen_block_unlock_time_is_timestamp_in_future::generate(std::vector<test_eve
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -299,7 +269,7 @@ bool gen_block_height_is_low::generate(std::vector<test_event_entry>& events) co
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -316,7 +286,7 @@ bool gen_block_height_is_high::generate(std::vector<test_event_entry>& events) c
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -336,7 +306,7 @@ bool gen_block_miner_tx_has_2_tx_gen_in::generate(std::vector<test_event_entry>&
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -376,7 +346,7 @@ bool gen_block_miner_tx_has_2_in::generate(std::vector<test_event_entry>& events
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0r, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -419,7 +389,7 @@ bool gen_block_miner_tx_with_txin_to_key::generate(std::vector<test_event_entry>
 
   Block blk_2;
   generator.constructBlockManually(blk_2, blk_1r, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_2);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -436,7 +406,7 @@ bool gen_block_miner_tx_out_is_small::generate(std::vector<test_event_entry>& ev
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -453,7 +423,7 @@ bool gen_block_miner_tx_out_is_big::generate(std::vector<test_event_entry>& even
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -470,7 +440,7 @@ bool gen_block_miner_tx_has_no_out::generate(std::vector<test_event_entry>& even
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_purged");
@@ -500,7 +470,7 @@ bool gen_block_miner_tx_has_out_to_alice::generate(std::vector<test_event_entry>
 
   Block blk_1;
   generator.constructBlockManually(blk_1, blk_0, miner_account, 
-    test_generator::bf_major_ver | test_generator::bf_miner_tx, BLOCK_MAJOR_VERSION_1, 0, 0, Crypto::Hash(), 0, miner_tx);
+    test_generator::bf_miner_tx, 0, Crypto::Hash(), 0, miner_tx);
   events.push_back(blk_1);
 
   DO_CALLBACK(events, "check_block_accepted");
@@ -600,7 +570,7 @@ bool gen_block_invalid_binary_format::generate(std::vector<test_event_entry>& ev
     blk_last = boost::get<Block>(events.back());
     diffic = m_currency.nextDifficulty(timestamps, cummulative_difficulties);
     if (!lift_up_difficulty(m_currency, events, timestamps, cummulative_difficulties, generator, 1, blk_last,
-      miner_account, BLOCK_MAJOR_VERSION_1)) {
+      miner_account)) {
       return false;
     }
     std::cout << "Block #" << events.size() << ", difficulty: " << diffic << std::endl;
@@ -617,8 +587,8 @@ bool gen_block_invalid_binary_format::generate(std::vector<test_event_entry>& ev
   size_t txs_size = getObjectBinarySize(tx_0);
   diffic = m_currency.nextDifficulty(timestamps, cummulative_difficulties);
   if (!generator.constructBlockManually(blk_test, blk_last, miner_account,
-    test_generator::bf_major_ver | test_generator::bf_diffic | test_generator::bf_timestamp | test_generator::bf_tx_hashes, 
-    BLOCK_MAJOR_VERSION_1, 0, blk_last.timestamp, Crypto::Hash(), diffic, Transaction(), tx_hashes, txs_size))
+    test_generator::bf_diffic | test_generator::bf_timestamp | test_generator::bf_tx_hashes, 
+    blk_last.timestamp, Crypto::Hash(), diffic, Transaction(), tx_hashes, txs_size))
     return false;
 
   BinaryArray blob = toBinaryArray(blk_test);

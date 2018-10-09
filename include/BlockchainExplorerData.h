@@ -95,11 +95,10 @@ struct TransactionDetails {
 };
 
 struct BlockDetails {
-  uint8_t majorVersion;
-  uint8_t minorVersion;
   uint64_t timestamp;
   Crypto::Hash prevBlockHash;
-  uint32_t nonce;
+  uint64_t nonce;
+  Crypto::Hash merkleRoot;
   bool isOrphaned;
   uint32_t height;
   Crypto::Hash hash;

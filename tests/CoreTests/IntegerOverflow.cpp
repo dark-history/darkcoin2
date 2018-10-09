@@ -66,21 +66,22 @@ bool gen_uint_overflow_base::mark_last_valid_block(CryptoNote::core& c, size_t e
 
 //======================================================================================================================
 
-bool gen_uint_overflow_1::generate(std::vector<test_event_entry>& events) const
-{
+bool gen_uint_overflow_1::generate(std::vector<test_event_entry>& events) const {
   uint64_t ts_start = 1338224400;
 
   GENERATE_ACCOUNT(miner_account);
   MAKE_GENESIS_BLOCK(events, blk_0, miner_account, ts_start);
+  MAKE_NEXT_BLOCK(events, blk_0f, blk_0, miner_account);
   DO_CALLBACK(events, "mark_last_valid_block");
   MAKE_ACCOUNT(events, bob_account);
   MAKE_ACCOUNT(events, alice_account);
 
   // Problem 1. Miner tx output overflow
-  MAKE_MINER_TX_MANUALLY(miner_tx_0, blk_0);
+  MAKE_MINER_TX_MANUALLY(miner_tx_0, blk_0f);
   split_miner_tx_outs(miner_tx_0, m_currency.moneySupply());
   Block blk_1;
-  if (!generator.constructBlockManually(blk_1, blk_0, miner_account, test_generator::bf_miner_tx, 0, 0, 0, Crypto::Hash(), 0, miner_tx_0))
+  if (!generator.constructBlockManually(blk_1, blk_0f, miner_account, test_generator::bf_miner_tx, 0,
+                                        Crypto::Hash(), 0, miner_tx_0))
     return false;
   events.push_back(blk_1);
 
@@ -88,7 +89,8 @@ bool gen_uint_overflow_1::generate(std::vector<test_event_entry>& events) const
   MAKE_MINER_TX_MANUALLY(miner_tx_1, blk_1);
   split_miner_tx_outs(miner_tx_1, m_currency.moneySupply());
   Block blk_2;
-  if (!generator.constructBlockManually(blk_2, blk_1, miner_account, test_generator::bf_miner_tx, 0, 0, 0, Crypto::Hash(), 0, miner_tx_1))
+  if (!generator.constructBlockManually(blk_2, blk_1, miner_account, test_generator::bf_miner_tx, 0,
+                                        Crypto::Hash(), 0, miner_tx_1))
     return false;
   events.push_back(blk_2);
 
@@ -101,8 +103,10 @@ bool gen_uint_overflow_1::generate(std::vector<test_event_entry>& events) const
   // Problem 2. total_fee overflow, block_reward overflow
   std::list<CryptoNote::Transaction> txs_1;
   // Create txs with huge fee
-  txs_1.push_back(construct_tx_with_fee(m_logger, events, blk_3, bob_account, alice_account, MK_COINS(1), m_currency.moneySupply() - MK_COINS(1)));
-  txs_1.push_back(construct_tx_with_fee(m_logger, events, blk_3, bob_account, alice_account, MK_COINS(1), m_currency.moneySupply() - MK_COINS(1)));
+  txs_1.push_back(construct_tx_with_fee(m_logger, events, blk_3, bob_account, alice_account, MK_COINS(1),
+                                        m_currency.moneySupply() - MK_COINS(1)));
+  txs_1.push_back(construct_tx_with_fee(m_logger, events, blk_3, bob_account, alice_account, MK_COINS(1),
+                                        m_currency.moneySupply() - MK_COINS(1)));
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_4, blk_3r, miner_account, txs_1);
 
   return true;

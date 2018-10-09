@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2016-2018, The Karbowanec developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,3 +11,4 @@
 #define WALLET_RPC_ERROR_CODE_DAEMON_IS_BUSY          -3
 #define WALLET_RPC_ERROR_CODE_GENERIC_TRANSFER_ERROR  -4
 #define WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID        -5
+#define WALLET_RPC_ERROR_CODE_WRONG_MIXIN             -6

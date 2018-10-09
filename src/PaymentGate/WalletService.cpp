@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2016-2018, The Karbowanec developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -288,6 +289,13 @@ std::vector<PaymentService::TransactionHashesInBlockRpcInfo> convertTransactions
   }
 
   return transactionHashes;
+}
+
+void validateMixin(const uint16_t& mixin, const CryptoNote::Currency& currency, Logging::LoggerRef logger) {
+  if (mixin > currency.maxMixin()) {
+    logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Mixin must be less than " << currency.maxMixin();
+    throw std::system_error(make_error_code(CryptoNote::error::MIXIN_COUNT_TOO_BIG));
+  }
 }
 
 void validateAddresses(const std::vector<std::string>& addresses, const CryptoNote::Currency& currency, Logging::LoggerRef logger) {
@@ -817,6 +825,8 @@ std::error_code WalletService::sendTransaction(const SendTransaction::Request& r
     if (!request.changeAddress.empty()) {
       validateAddresses({ request.changeAddress }, currency, logger);
     }
+
+    validateMixin(request.anonymity, currency, logger);
 
     CryptoNote::TransactionParameters sendParams;
     if (!request.paymentId.empty()) {

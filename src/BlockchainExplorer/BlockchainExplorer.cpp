@@ -441,7 +441,7 @@ uint64_t BlockchainExplorer::getRewardBlocksWindow() {
   return parameters::CRYPTONOTE_REWARD_BLOCKS_WINDOW;
 }
 
-uint64_t BlockchainExplorer::getFullRewardMaxBlockSize(uint8_t majorVersion) {
+uint64_t BlockchainExplorer::getFullRewardMaxBlockSize() {
   if (state.load() != INITIALIZED) {
     throw std::system_error(make_error_code(CryptoNote::error::BlockchainExplorerErrorCodes::NOT_INITIALIZED));
   }

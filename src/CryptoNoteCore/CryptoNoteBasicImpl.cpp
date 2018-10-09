@@ -6,6 +6,8 @@
 #include "CryptoNoteFormatUtils.h"
 #include "CryptoNoteTools.h"
 #include "CryptoNoteSerialization.h"
+#include "Common/VectorOutputStream.h"
+#include "Serialization/BinaryOutputStreamSerializer.h"
 
 #include "Common/Base58.h"
 #include "crypto/hash.h"

@@ -69,29 +69,6 @@ protected:
   size_t m_expectedBlockchainHeight;
 };
 
-
-struct TestBlockMajorVersionAccepted : public CheckBlockAccepted {
-  TestBlockMajorVersionAccepted() :
-    CheckBlockAccepted(2) {}
-
-  bool generate(std::vector<test_event_entry>& events) const;
-};
-
-struct TestBlockMajorVersionRejected : public CheckBlockPurged {
-  TestBlockMajorVersionRejected() :
-    CheckBlockPurged(1) {}
-
-  bool generate(std::vector<test_event_entry>& events) const;
-};
-
-struct TestBlockBigMinorVersion : public CheckBlockAccepted {
-
-  TestBlockBigMinorVersion()
-    : CheckBlockAccepted(2) {}
-
-  bool generate(std::vector<test_event_entry>& events) const;
-};
-
 struct gen_block_ts_not_checked : public CheckBlockAccepted
 {
   gen_block_ts_not_checked()

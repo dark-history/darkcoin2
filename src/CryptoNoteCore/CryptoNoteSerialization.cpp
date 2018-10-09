@@ -292,15 +292,10 @@ void serialize(MultisignatureOutput& multisignature, ISerializer& serializer) {
 }
 
 void serializeBlockHeader(BlockHeader& header, ISerializer& serializer) {
-  serializer(header.majorVersion, "major_version");
-  if (header.majorVersion > BLOCK_MAJOR_VERSION_1) {
-    throw std::runtime_error("Wrong major version");
-  }
-
-  serializer(header.minorVersion, "minor_version");
-  serializer(header.timestamp, "timestamp");
   serializer(header.previousBlockHash, "prev_id");
   serializer.binary(&header.nonce, sizeof(header.nonce), "nonce");
+  serializer.binary(&header.timestamp, sizeof(header.timestamp), "timestamp");
+  serializer(header.merkleRoot, "merkle_root");
 }
 
 void serialize(BlockHeader& header, ISerializer& serializer) {

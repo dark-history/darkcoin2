@@ -47,7 +47,7 @@ public:
   virtual bool getPoolState(const std::vector<Crypto::Hash>& knownPoolTransactionHashes, Crypto::Hash knownBlockchainTop, bool& isBlockchainActual, std::vector<TransactionDetails>& newTransactions, std::vector<Crypto::Hash>& removedTransactions) override;
 
   virtual uint64_t getRewardBlocksWindow() override;
-  virtual uint64_t getFullRewardMaxBlockSize(uint8_t majorVersion) override;
+  virtual uint64_t getFullRewardMaxBlockSize() override;
 
   virtual bool isSynchronized() override;
 

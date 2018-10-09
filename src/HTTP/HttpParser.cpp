@@ -103,6 +103,7 @@ void HttpParser::receiveResponse(std::istream& stream, HttpResponse& response) {
 
 
 void HttpParser::readWord(std::istream& stream, std::string& word) {
+
   char c;
 
   stream.get(c);

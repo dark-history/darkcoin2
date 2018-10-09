@@ -55,6 +55,15 @@ namespace Tools
     m_empty = true;
   }
 
+  void PasswordContainer::clear_confirm_password()
+  {
+    if (0 < m_confirm_password.capacity())
+    {
+      m_confirm_password.replace(0, m_confirm_password.capacity(), m_confirm_password.capacity(), '\0');
+      m_confirm_password.resize(0);
+    }
+  }
+
   bool PasswordContainer::read_password()
   {
     clear();
@@ -62,8 +71,8 @@ namespace Tools
     bool r;
     if (is_cin_tty())
     {
-      std::cout << "password: ";
-      r = read_from_tty();
+      std::cout << "Password: ";
+      r = read_password_from_tty();
     }
     else
     {
@@ -80,6 +89,30 @@ namespace Tools
     }
 
     return r;
+  }
+
+  bool PasswordContainer::read_confirm_password()
+  {
+    clear_confirm_password();
+
+    bool r;
+    if (is_cin_tty())
+    {
+      std::cout << "Confirm password: ";
+      r = read_confirm_password_from_tty();
+    }
+
+    if (!r)
+    {
+      clear_confirm_password();
+    }
+
+    return r;
+  }
+
+  bool PasswordContainer::passwords_match()
+  {
+    return m_password == m_confirm_password;
   }
 
   bool PasswordContainer::read_from_file()
@@ -115,7 +148,7 @@ namespace Tools
     }
   }
 
-  bool PasswordContainer::read_from_tty()
+  bool PasswordContainer::read_password_from_tty()
   {
     const char BACKSPACE = 8;
 
@@ -164,6 +197,55 @@ namespace Tools
     return r;
   }
 
+  bool PasswordContainer::read_confirm_password_from_tty()
+  {
+    const char BACKSPACE = 8;
+
+    HANDLE h_cin = ::GetStdHandle(STD_INPUT_HANDLE);
+
+    DWORD mode_old;
+    ::GetConsoleMode(h_cin, &mode_old);
+    DWORD mode_new = mode_old & ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
+    ::SetConsoleMode(h_cin, mode_new);
+
+    bool r = true;
+    m_confirm_password.reserve(max_password_size);
+    while (m_confirm_password.size() < max_password_size)
+    {
+      DWORD read;
+      char ch;
+      r = (TRUE == ::ReadConsoleA(h_cin, &ch, 1, &read, NULL));
+      r &= (1 == read);
+      if (!r)
+      {
+        break;
+      }
+      else if (ch == '\n' || ch == '\r')
+      {
+        std::cout << std::endl;
+        break;
+      }
+      else if (ch == BACKSPACE)
+      {
+        if (!m_confirm_password.empty())
+        {
+          m_confirm_password.back() = '\0';
+          m_confirm_password.resize(m_confirm_password.size() - 1);
+          std::cout << "\b \b";
+        }
+      }
+      else
+      {
+        m_confirm_password.push_back(ch);
+        std::cout << '*';
+      }
+    }
+
+    ::SetConsoleMode(h_cin, mode_old);
+
+    return r;
+  }
+
 #else
 
   namespace
@@ -191,7 +273,7 @@ namespace Tools
     }
   }
 
-  bool PasswordContainer::read_from_tty()
+  bool PasswordContainer::read_password_from_tty()
   {
     const char BACKSPACE = 127;
 
@@ -220,6 +302,42 @@ namespace Tools
       else
       {
         m_password.push_back(ch);
+        std::cout << '*';
+      }
+    }
+
+    return true;
+  }
+
+  bool PasswordContainer::read_confirm_password_from_tty()
+  {
+    const char BACKSPACE = 127;
+
+    m_confirm_password.reserve(max_password_size);
+    while (m_confirm_password.size() < max_password_size)
+    {
+      int ch = getch();
+      if (EOF == ch)
+      {
+        return false;
+      }
+      else if (ch == '\n' || ch == '\r')
+      {
+        std::cout << std::endl;
+        break;
+      }
+      else if (ch == BACKSPACE)
+      {
+        if (!m_confirm_password.empty())
+        {
+          m_confirm_password.back() = '\0';
+          m_confirm_password.resize(m_confirm_password.size() - 1);
+          std::cout << "\b \b";
+        }
+      }
+      else
+      {
+        m_confirm_password.push_back(ch);
         std::cout << '*';
       }
     }

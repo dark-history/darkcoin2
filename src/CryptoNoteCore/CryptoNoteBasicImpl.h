@@ -9,7 +9,6 @@
 #include "crypto/hash.h"
 #include "CryptoNoteCore/CryptoNoteBasic.h"
 
-
 namespace CryptoNote {
   /************************************************************************/
   /*                                                                      */

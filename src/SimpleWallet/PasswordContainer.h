@@ -19,17 +19,22 @@ namespace Tools
     ~PasswordContainer();
 
     void clear();
+    void clear_confirm_password();
     bool empty() const { return m_empty; }
     const std::string& password() const { return m_password; }
     void password(std::string&& val) { m_password = std::move(val); m_empty = false; }
     bool read_password();
+    bool read_confirm_password();
+    bool passwords_match();
 
   private:
     bool read_from_file();
-    bool read_from_tty();
+    bool read_password_from_tty();
+    bool read_confirm_password_from_tty();
 
   private:
     bool m_empty;
     std::string m_password;
+    std::string m_confirm_password;
   };
 }

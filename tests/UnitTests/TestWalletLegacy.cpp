@@ -102,7 +102,11 @@ struct SaveOnInitWalletObserver: public CryptoNote::IWalletLegacyObserver {
   std::stringstream stream;
 };
 
-static const uint64_t TEST_BLOCK_REWARD = 70368744177663;
+// static const uint64_t TEST_BLOCK_REWARD = 70368744177663; // infinite coins, emission speed factor 18, 120 second block times
+// static const uint64_t TEST_BLOCK_REWARD = 5722045898; // 15,000,000 coins, emission speed factor 18, 120 second block times
+// static const uint64_t TEST_BLOCK_REWARD = 89406967; // 15,000,000 coins, emission speed factor 24, 9 second block times
+static const uint64_t TEST_BLOCK_REWARD = 715255737; // 15,000,000 coins, emission speed factor 21, 60 second block times
+
 
 CryptoNote::TransactionId TransferMoney(CryptoNote::WalletLegacy& from, CryptoNote::WalletLegacy& to, int64_t amount, uint64_t fee, uint64_t mixIn = 0, const std::string& extra = "") {
   CryptoNote::WalletLegacyTransfer transfer;
@@ -883,7 +887,7 @@ TEST_F(WalletLegacyApi, sendMoneyToMyself) {
   aliceNode->updateObservers();
   ASSERT_NO_FATAL_FAILURE(WaitWalletSync(aliceWalletObserver.get()));
 
-  CryptoNote::TransactionId txId = TransferMoney(*alice, *alice, 100000000, 100);
+  CryptoNote::TransactionId txId = TransferMoney(*alice, *alice, 10000000, 100);
   ASSERT_NE(txId, CryptoNote::WALLET_LEGACY_INVALID_TRANSACTION_ID);
   ASSERT_NO_FATAL_FAILURE(WaitWalletSend(aliceWalletObserver.get()));
 
@@ -970,7 +974,8 @@ TEST_F(WalletLegacyApi, balanceAfterFailedTransaction) {
   auto actualBalance = alice->actualBalance();
   auto pendingBalance = alice->pendingBalance();
 
-  uint64_t send = 11000000;
+  // uint64_t send = 11000000; // this works for emission speed factor 24 and difficulty target 9
+  uint64_t send = 100000; // this works for emission speed factor 21 and difficulty target 60
   uint64_t fee = m_currency.minimumFee();
 
   CryptoNote::WalletLegacyTransfer tr;
@@ -1040,7 +1045,7 @@ TEST_F(WalletLegacyApi, checkChange) {
   bob->initAndGenerate("pass");
   ASSERT_NO_FATAL_FAILURE(WaitWalletSync(bobWalletObserver.get()));
 
-  uint64_t banknote = 1000000000;
+  uint64_t banknote = 10000000;
   uint64_t sendAmount = 50000;
   uint64_t fee = m_currency.minimumFee();
 
@@ -1072,7 +1077,7 @@ TEST_F(WalletLegacyApi, checkBalanceAfterSend) {
 
   ASSERT_NO_FATAL_FAILURE(WaitWalletSync(aliceWalletObserver.get()));
 
-  uint64_t banknote = 1000000000;
+  uint64_t banknote = 10000000;
 
   CryptoNote::AccountPublicAddress address;
   ASSERT_TRUE(m_currency.parseAccountAddressString(alice->getAddress(), address));
@@ -1086,7 +1091,7 @@ TEST_F(WalletLegacyApi, checkBalanceAfterSend) {
   aliceNode->updateObservers();
   ASSERT_NO_FATAL_FAILURE(WaitWalletSync(aliceWalletObserver.get()));
 
-  const uint64_t sendAmount = 10000000;
+  const uint64_t sendAmount = 100000;
   const uint64_t fee = 100;
   CryptoNote::TransactionId txId = TransferMoney(*alice, *alice, sendAmount, fee);
   ASSERT_NE(txId, CryptoNote::WALLET_LEGACY_INVALID_TRANSACTION_ID);
@@ -1106,7 +1111,7 @@ TEST_F(WalletLegacyApi, moneyInPoolDontAffectActualBalance) {
   bob->initAndGenerate("pass");
   ASSERT_NO_FATAL_FAILURE(WaitWalletSync(bobWalletObserver.get()));
 
-  uint64_t banknote = 1000000000;
+  uint64_t banknote = 10000000;
 
   CryptoNote::AccountPublicAddress address;
   ASSERT_TRUE(m_currency.parseAccountAddressString(alice->getAddress(), address));
@@ -1116,7 +1121,7 @@ TEST_F(WalletLegacyApi, moneyInPoolDontAffectActualBalance) {
   aliceNode->updateObservers();
   ASSERT_NO_FATAL_FAILURE(WaitWalletSync(aliceWalletObserver.get()));
 
-  const uint64_t sendAmount = 10000000;
+  const uint64_t sendAmount = 100000;
   const uint64_t fee = 100;
   aliceNode->setNextTransactionToPool();
   CryptoNote::TransactionId txId = TransferMoney(*alice, *bob, sendAmount, fee);
@@ -1142,7 +1147,7 @@ TEST_F(WalletLegacyApi, balanceAfterTransactionsPlacedInBlockchain) {
   bob->initAndGenerate("pass");
   ASSERT_NO_FATAL_FAILURE(WaitWalletSync(bobWalletObserver.get()));
 
-  uint64_t banknote = 1000000000;
+  uint64_t banknote = 10000000;
 
   CryptoNote::AccountPublicAddress address;
   ASSERT_TRUE(m_currency.parseAccountAddressString(alice->getAddress(), address));
@@ -1152,7 +1157,7 @@ TEST_F(WalletLegacyApi, balanceAfterTransactionsPlacedInBlockchain) {
   aliceNode->updateObservers();
   ASSERT_NO_FATAL_FAILURE(WaitWalletSync(aliceWalletObserver.get()));
 
-  const uint64_t sendAmount = 10000000;
+  const uint64_t sendAmount = 100000;
   const uint64_t fee = 100;
   aliceNode->setNextTransactionToPool();
   CryptoNote::TransactionId txId = TransferMoney(*alice, *bob, sendAmount, fee);

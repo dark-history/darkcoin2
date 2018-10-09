@@ -38,6 +38,7 @@ private:
     std::vector<TransactionDestinationEntry>& splitted_dsts, uint64_t& dust);
   void sendTransactionRandomOutsByAmount(std::shared_ptr<SendTransactionContext> context, std::deque<std::shared_ptr<WalletLegacyEvent>>& events,
       boost::optional<std::shared_ptr<WalletRequest> >& nextRequest, std::error_code ec);
+  bool mixinValid(std::shared_ptr<SendTransactionContext> context);
   void relayTransactionCallback(std::shared_ptr<SendTransactionContext> context, std::deque<std::shared_ptr<WalletLegacyEvent>>& events,
                                 boost::optional<std::shared_ptr<WalletRequest> >& nextRequest, std::error_code ec);
   void notifyBalanceChanged(std::deque<std::shared_ptr<WalletLegacyEvent>>& events);

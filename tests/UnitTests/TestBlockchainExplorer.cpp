@@ -671,13 +671,13 @@ TEST_F(BlockchainExplorerTests, getRewardBlocksWindowNotInited) {
 }
 
 TEST_F(BlockchainExplorerTests, getFullRewardMaxBlockSize) {
-  ASSERT_EQ(blockchainExplorer.getFullRewardMaxBlockSize(1), parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE);
-  ASSERT_EQ(blockchainExplorer.getFullRewardMaxBlockSize(2), parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE);
+  ASSERT_EQ(blockchainExplorer.getFullRewardMaxBlockSize(), parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE);
+  ASSERT_EQ(blockchainExplorer.getFullRewardMaxBlockSize(), parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE);
 }
 
 TEST_F(BlockchainExplorerTests, getFullRewardMaxBlockSizeNotInited) {
   BlockchainExplorer newExplorer(nodeStub, logger);
-  ASSERT_ANY_THROW(newExplorer.getFullRewardMaxBlockSize(1));
+  ASSERT_ANY_THROW(newExplorer.getFullRewardMaxBlockSize());
 }
 
 TEST_F(BlockchainExplorerTests, isSynchronizedFalse) {

@@ -63,7 +63,7 @@ void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threa
   m_logger(Logging::INFO) << "Starting mining for difficulty " << blockMiningParameters.difficulty;
 
   try {
-    blockMiningParameters.blockTemplate.nonce = Crypto::rand<uint32_t>();
+    blockMiningParameters.blockTemplate.nonce = Crypto::rand<uint64_t>();
 
     for (size_t i = 0; i < threadCount; ++i) {
       m_workers.emplace_back(std::unique_ptr<System::RemoteContext<void>> (
@@ -83,7 +83,7 @@ void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threa
   m_miningStopped.set();
 }
 
-void Miner::workerFunc(const Block& blockTemplate, difficulty_type difficulty, uint32_t nonceStep) {
+void Miner::workerFunc(const Block& blockTemplate, difficulty_type difficulty, uint64_t nonceStep) {
   try {
     Block block = blockTemplate;
     Crypto::cn_context cryptoContext;

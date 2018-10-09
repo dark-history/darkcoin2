@@ -18,6 +18,7 @@ namespace CryptoNote {
   public:
     AccountBase();
     void generate();
+    static void viewKeysFromSpendSecretKey(const Crypto::SecretKey& spendSecretKey, Crypto::PublicKey& viewPublicKey, Crypto::SecretKey& viewSecretKey);
 
     const AccountKeys& getAccountKeys() const;
     void setAccountKeys(const AccountKeys& keys);

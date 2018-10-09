@@ -136,6 +136,9 @@ namespace CryptoNote {
       bool keptByBlock;
       time_t receiveTime;
     };
+    
+    void getMemoryPool(std::list<CryptoNote::tx_memory_pool::TransactionDetails> txs) const;
+    std::list<CryptoNote::tx_memory_pool::TransactionDetails> getMemoryPool() const;
 
   private:
 

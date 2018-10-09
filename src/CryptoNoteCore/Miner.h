@@ -62,7 +62,7 @@ namespace CryptoNote {
     std::mutex m_template_lock;
     Block m_template;
     std::atomic<uint32_t> m_template_no;
-    std::atomic<uint32_t> m_starter_nonce;
+    std::atomic<uint64_t> m_starter_nonce;
     difficulty_type m_diffic;
 
     std::atomic<uint32_t> m_threads_total;

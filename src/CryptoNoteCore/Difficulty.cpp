@@ -46,15 +46,15 @@ namespace CryptoNote {
   bool check_hash(const Crypto::Hash &hash, difficulty_type difficulty) {
     uint64_t low, high, top, cur;
     // First check the highest word, this will most likely fail for a random hash.
-    mul(swap64le(((const uint64_t *) &hash)[3]), difficulty, top, high);
+    mul(swap64be(((const uint64_t *) &hash)[0]), difficulty, top, high);
     if (high != 0) {
       return false;
     }
-    mul(swap64le(((const uint64_t *) &hash)[0]), difficulty, low, cur);
-    mul(swap64le(((const uint64_t *) &hash)[1]), difficulty, low, high);
+    mul(swap64be(((const uint64_t *) &hash)[3]), difficulty, low, cur);
+    mul(swap64be(((const uint64_t *) &hash)[2]), difficulty, low, high);
     bool carry = cadd(cur, low);
     cur = high;
-    mul(swap64le(((const uint64_t *) &hash)[2]), difficulty, low, high);
+    mul(swap64be(((const uint64_t *) &hash)[1]), difficulty, low, high);
     carry = cadc(cur, low, carry);
     carry = cadc(high, top, carry);
     return !carry;

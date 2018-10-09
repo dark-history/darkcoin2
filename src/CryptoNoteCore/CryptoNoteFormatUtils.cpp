@@ -16,6 +16,9 @@
 #include "CryptoNoteSerialization.h"
 #include "TransactionExtra.h"
 #include "CryptoNoteTools.h"
+#include "Core.h"
+
+#include "crypto/blake2.h"
 
 #include "CryptoNoteConfig.h"
 
@@ -429,14 +432,21 @@ bool lookup_acc_outs(const AccountKeys& acc, const Transaction& tx, const Public
 }
 
 bool get_block_hashing_blob(const Block& b, BinaryArray& ba) {
-  if (!toBinaryArray(static_cast<const BlockHeader&>(b), ba)) {
+  BlockHeader blockHeader;
+
+  blockHeader.previousBlockHash = b.previousBlockHash;
+  blockHeader.nonce = b.nonce;
+  blockHeader.timestamp = b.timestamp;
+  blockHeader.merkleRoot = get_tx_tree_hash(b);
+
+  if (!toBinaryArray(blockHeader, ba)) {
     return false;
   }
 
-  Hash treeRootHash = get_tx_tree_hash(b);
-  ba.insert(ba.end(), treeRootHash.data, treeRootHash.data + 32);
-  auto transactionCount = asBinaryArray(Tools::get_varint_data(b.transactionHashes.size() + 1));
-  ba.insert(ba.end(), transactionCount.begin(), transactionCount.end());
+  // Hash treeRootHash = get_tx_tree_hash(b);
+  // ba.insert(ba.end(), treeRootHash.data, treeRootHash.data + 32);
+  // auto transactionCount = asBinaryArray(Tools::get_varint_data(b.transactionHashes.size() + 1));
+  // ba.insert(ba.end(), transactionCount.begin(), transactionCount.end());
   return true;
 }
 
@@ -470,7 +480,14 @@ bool get_block_longhash(cn_context &context, const Block& b, Hash& res) {
     return false;
   }
 
-  cn_slow_hash(context, bd.data(), bd.size(), res);
+  size_t hashLength = 32;
+  int result = blake2b(&res, hashLength, bd.data(), bd.size(), nullptr, 0);
+
+  if (result == -1)
+  {
+    return false;
+  }
+
   return true;
 }
 
@@ -503,13 +520,63 @@ Hash get_tx_tree_hash(const std::vector<Hash>& tx_hashes) {
 }
 
 Hash get_tx_tree_hash(const Block& b) {
+  BinaryArray baseTransactionBA;
+ 
+  toBinaryArray(b.baseTransaction, baseTransactionBA);
+
   std::vector<Hash> txs_ids;
-  Hash h = NULL_HASH;
-  getObjectHash(b.baseTransaction, h);
-  txs_ids.push_back(h);
+
+  if (baseTransactionBA.size() > 120)
+  {
+    // Need to split base transaction binary array because Siacoin stratum
+    // protocol and Antminer A3 requires the coinbase transaction size to be less
+    // than or equal to 120 bytes and the cryptonote coinbase transaction size is
+    // much larger (usually over 300 bytes)
+
+    // Base transaction tail binary array is the last 120 bytes or 240 hex characters
+    // of the base transaction binary array
+    // This is what is sent to mining pools for hashing with extra nonce 1 and 2
+    // Tail must be added before head because tail binary array changes when adding extra
+    // nonce 1 and 2 by the mining pools and the hash sent to the mining pool will
+    // be inconsistent
+    BinaryArray baseTransactionTailBA(baseTransactionBA.end() - 120, baseTransactionBA.end()); 
+
+    // Prepend null byte to the base transaction tail binary array to comply with
+    // Siacoin stratum protocol
+    baseTransactionTailBA.insert(baseTransactionTailBA.begin(), 0);
+
+    Hash baseTransactionTailHash = getBinaryArrayHash(baseTransactionTailBA);
+
+    txs_ids.push_back(baseTransactionTailHash);
+
+    // Base transaction head binary array is the first part of the base transaction binary
+    // array that is omitted from baseTransactionTailBA
+    // This is added into the merkle root as a security precaution against possible
+    // attacks
+    BinaryArray baseTransactionHeadBA(baseTransactionBA.begin(), baseTransactionBA.end() - 120);
+
+    Hash baseTransactionHeadHash = getBinaryArrayHash(baseTransactionHeadBA);
+
+    txs_ids.push_back(baseTransactionHeadHash);
+  }
+  else
+  {
+    // Genesis transaction is less than 120 bytes
+    // Need this else clause or genesis block won't load
+
+    // Prepend null byte to the base transaction binary array to comply with
+    // Siacoin stratum protocol
+    baseTransactionBA.insert(baseTransactionBA.begin(), 0);
+
+    Hash baseTransactionHash = getBinaryArrayHash(baseTransactionBA);
+
+    txs_ids.push_back(baseTransactionHash);
+  }
+
   for (auto& th : b.transactionHashes) {
     txs_ids.push_back(th);
   }
+
   return get_tx_tree_hash(txs_ids);
 }
 

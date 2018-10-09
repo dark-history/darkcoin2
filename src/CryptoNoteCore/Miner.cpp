@@ -60,7 +60,7 @@ namespace CryptoNote
     m_template = bl;
     m_diffic = di;
     ++m_template_no;
-    m_starter_nonce = Crypto::rand<uint32_t>();
+    m_starter_nonce = Crypto::rand<uint64_t>();
     return true;
   }
   //-----------------------------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ namespace CryptoNote
 
     m_mine_address = adr;
     m_threads_total = static_cast<uint32_t>(threads_count);
-    m_starter_nonce = Crypto::rand<uint32_t>();
+    m_starter_nonce = Crypto::rand<uint64_t>();
 
     if (!m_template_no) {
       request_block_template(); //lets update block template
@@ -255,9 +255,9 @@ namespace CryptoNote
 
     if (nthreads > 0 && diffic > 5) {
       std::vector<std::future<void>> threads(nthreads);
-      std::atomic<uint32_t> foundNonce;
+      std::atomic<uint64_t> foundNonce;
       std::atomic<bool> found(false);
-      uint32_t startNonce = Crypto::rand<uint32_t>();
+      uint64_t startNonce = Crypto::rand<uint64_t>();
 
       for (unsigned i = 0; i < nthreads; ++i) {
         threads[i] = std::async(std::launch::async, [&, i]() {
@@ -266,7 +266,7 @@ namespace CryptoNote
 
           Block lb(bl); // copy to local block
 
-          for (uint32_t nonce = startNonce + i; !found; nonce += nthreads) {
+          for (uint64_t nonce = startNonce + i; !found; nonce += nthreads) {
             lb.nonce = nonce;
 
             if (!get_block_longhash(localctx, lb, h)) {
@@ -292,7 +292,7 @@ namespace CryptoNote
 
       return found;
     } else {
-      for (; bl.nonce != std::numeric_limits<uint32_t>::max(); bl.nonce++) {
+      for (; bl.nonce != std::numeric_limits<uint64_t>::max(); bl.nonce++) {
         Crypto::Hash h;
         if (!get_block_longhash(context, bl, h)) {
           return false;
@@ -338,7 +338,7 @@ namespace CryptoNote
   bool miner::worker_thread(uint32_t th_local_index)
   {
     logger(INFO) << "Miner thread was started ["<< th_local_index << "]";
-    uint32_t nonce = m_starter_nonce + th_local_index;
+    uint64_t nonce = m_starter_nonce + th_local_index;
     difficulty_type local_diff = 0;
     uint32_t local_template_ver = 0;
     Crypto::cn_context context;

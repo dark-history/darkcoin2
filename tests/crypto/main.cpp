@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "blake2.h"
 #include "crypto/crypto.h"
 #include "crypto/hash.h"
 #include "crypto-tests.h"

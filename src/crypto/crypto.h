@@ -1,3 +1,4 @@
+
 // Copyright (c) 2011-2016 The Cryptonote developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -79,6 +80,8 @@ struct EllipticCurveScalar {
       const PublicKey *const *, size_t, const Signature *);
     friend bool check_ring_signature(const Hash &, const KeyImage &,
       const PublicKey *const *, size_t, const Signature *);
+    static KeyImage scalarmultKey(const KeyImage & P, const KeyImage & a);
+    friend KeyImage scalarmultKey(const KeyImage & P, const KeyImage & a);
   };
 
   /* Generate a value filled with random bytes.
@@ -220,6 +223,10 @@ struct EllipticCurveScalar {
     const PublicKey *const *pubs, size_t pubs_count,
     const Signature *sig) {
     return crypto_ops::check_ring_signature(prefix_hash, image, pubs, pubs_count, sig);
+  }
+
+  inline KeyImage scalarmultKey(const KeyImage & P, const KeyImage & a) {
+    return crypto_ops::scalarmultKey(P, a);
   }
 
   /* Variants with vector<const PublicKey *> parameters.

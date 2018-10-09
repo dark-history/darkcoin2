@@ -50,7 +50,6 @@ public:
   virtual time_t now() override { return timeNow; }
 };
 
-
 class TestTransactionGenerator {
 
 public:
@@ -192,9 +191,7 @@ namespace
     tx_memory_pool pool;
   };
 
-  void InitBlock(Block& bl, uint8_t majorVersion = BLOCK_MAJOR_VERSION_1) {
-    bl.majorVersion = majorVersion;
-    bl.minorVersion = 0;
+  void InitBlock(Block& bl) {
     bl.nonce = 0;
     bl.timestamp = time(0);
     bl.previousBlockHash = NULL_HASH;
@@ -238,7 +235,6 @@ TEST_F(tx_pool, take_tx)
   ASSERT_EQ(tx, txOut);
 };
 
-
 TEST_F(tx_pool, double_spend_tx)
 {
   TxTestBase test(1);
@@ -258,8 +254,8 @@ TEST_F(tx_pool, double_spend_tx)
   ASSERT_TRUE(tvc.m_verifivation_failed);
 }
 
-
-TEST_F(tx_pool, fillblock_same_fee)
+// Disable for MINIMUM_FEE = 0
+TEST_F(tx_pool, DISABLED_fillblock_same_fee)
 {
   TestPool<TransactionValidator, RealTimeProvider> pool(currency, logger);
   uint64_t fee = currency.minimumFee();
@@ -312,8 +308,8 @@ TEST_F(tx_pool, fillblock_same_fee)
   ASSERT_TRUE(maxOuts <= bl.transactionHashes.size());
 }
 
-
-TEST_F(tx_pool, fillblock_same_size)
+// Disable for MINIMUM_FEE = 0
+TEST_F(tx_pool, DISABLED_fillblock_same_size)
 {
   TestPool<TransactionValidator, RealTimeProvider> pool(currency, logger);
 
@@ -371,7 +367,6 @@ TEST_F(tx_pool, fillblock_same_size)
 
 }
 
-
 TEST_F(tx_pool, cleanup_stale_tx)
 {
   TestPool<TransactionValidator, FakeTimeProvider> pool(currency, logger);
@@ -387,7 +382,8 @@ TEST_F(tx_pool, cleanup_stale_tx)
     ASSERT_TRUE(pool.add_tx(tx, tvc, false)); // main chain
     ASSERT_TRUE(tvc.m_added_to_pool);
 
-    pool.timeProvider.timeNow += 60 * 60 * 2; // add 2 hours
+    // pool.timeProvider.timeNow += 60 * 60 * 2; // add 2 hours
+    pool.timeProvider.timeNow += 60 * 30; // add 30 mins because tx in mempool time is set to 1 hour
   }
 
   for (int i = 0; i < 5; ++i) {
@@ -398,7 +394,8 @@ TEST_F(tx_pool, cleanup_stale_tx)
     ASSERT_TRUE(pool.add_tx(tx, tvc, true)); // alternative chain
     ASSERT_TRUE(tvc.m_added_to_pool);
 
-    pool.timeProvider.timeNow += 60 * 60 * 2; // add 2 hours
+    // pool.timeProvider.timeNow += 60 * 60 * 2; // add 2 hours
+    pool.timeProvider.timeNow += 60 * 30; // add 30 mins because tx in mempool time is set to 1 hour
   }
 
 
@@ -663,7 +660,8 @@ TEST_F(tx_pool, TxPoolAcceptsValidFusionTransaction) {
   ASSERT_FALSE(tvc.m_verifivation_impossible);
 }
 
-TEST_F(tx_pool, TxPoolDoesNotAcceptInvalidFusionTransaction) {
+// Disable for MINIMUM_FEE = 0
+TEST_F(tx_pool, DISABLED_TxPoolDoesNotAcceptInvalidFusionTransaction) {
   TransactionValidator validator;
   FakeTimeProvider timeProvider;
   std::unique_ptr<tx_memory_pool> pool(new tx_memory_pool(currency, validator, timeProvider, logger));
@@ -781,7 +779,8 @@ public:
 
 }
 
-TEST_F(TxPool_FillBlockTemplate, TxPoolAddsFusionTransactionsToBlockTemplateNoMoreThanLimit) {
+// Disable for MINIMUM_FEE = 0
+TEST_F(TxPool_FillBlockTemplate, DISABLED_TxPoolAddsFusionTransactionsToBlockTemplateNoMoreThanLimit) {
   ASSERT_NO_FATAL_FAILURE(doTest(TEST_MAX_TX_COUNT_PER_BLOCK,
     TEST_MAX_TX_COUNT_PER_BLOCK,
     TEST_MAX_TX_COUNT_PER_BLOCK - TEST_FUSION_TX_COUNT_PER_BLOCK,
@@ -797,7 +796,8 @@ TEST_F(TxPool_FillBlockTemplate, TxPoolAddsFusionTransactionsUpToMedianIfThereAr
   ASSERT_NO_FATAL_FAILURE(doTest(0, TEST_MAX_TX_COUNT_PER_BLOCK, 0, TEST_TX_COUNT_UP_TO_MEDIAN));
 }
 
-TEST_F(TxPool_FillBlockTemplate, TxPoolContinuesToAddOrdinaryTransactionsUpTo125PerCentOfMedianAfterAddingFusionTransactions) {
+// Disable for MINIMUM_FEE = 0
+TEST_F(TxPool_FillBlockTemplate, DISABLED_TxPoolContinuesToAddOrdinaryTransactionsUpTo125PerCentOfMedianAfterAddingFusionTransactions) {
   size_t fusionTxCount = TEST_FUSION_TX_COUNT_PER_BLOCK - 1;
   ASSERT_NO_FATAL_FAILURE(doTest(TEST_MAX_TX_COUNT_PER_BLOCK,
     fusionTxCount,

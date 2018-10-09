@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2016-2018, The Karbowanec developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,6 +11,7 @@
 #include "../Common/CommandLine.h"
 #include "../Common/Util.h"
 #include "../Common/StringTools.h"
+#include "../Common/Math.h"
 #include "../crypto/crypto.h"
 #include "../CryptoNoteProtocol/CryptoNoteProtocolDefinitions.h"
 #include "../Logging/LoggerRef.h"
@@ -259,6 +261,27 @@ bool core::check_tx_semantic(const Transaction& tx, bool keeped_by_block) {
     return false;
   }
 
+  if (!check_tx_inputs_keyimages_domain(tx))
+  {
+    logger(ERROR) << "tx uses key image not in the valid domain";
+    return false;
+  }
+
+  return true;
+}
+
+bool core::check_tx_mixin(const Transaction& tx) {
+  size_t inputIndex = 0;
+  for (const auto& txin : tx.inputs) {
+    assert(inputIndex < tx.signatures.size());
+    if (txin.type() == typeid(KeyInput)) {
+      uint64_t txMixin = boost::get<KeyInput>(txin).outputIndexes.size() - 1;
+      if (txMixin > m_currency.maxMixin()) {
+        logger(ERROR) << "Mixin for transaction " << getObjectHash(tx) << " is too large, rejected";
+        return false;
+      }
+    }
+  }
   return true;
 }
 
@@ -268,6 +291,24 @@ bool core::check_tx_inputs_keyimages_diff(const Transaction& tx) {
     if (in.type() == typeid(KeyInput)) {
       if (!ki.insert(boost::get<KeyInput>(in).keyImage).second)
         return false;
+    }
+  }
+  return true;
+}
+
+bool core::check_tx_inputs_keyimages_domain(const Transaction& transaction) const
+{
+  static const Crypto::KeyImage I = { {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } };
+  static const Crypto::KeyImage L = { {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10 } };
+
+  for (const auto& in : transaction.inputs)
+  {
+    if (in.type() == typeid(KeyInput))
+    {
+      if (!(scalarmultKey(boost::get<KeyInput>(in).keyImage, L) == I))
+      {
+        return false;
+      }
     }
   }
   return true;
@@ -307,18 +348,38 @@ bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficu
   {
     LockedBlockchainStorage blockchainLock(m_blockchain);
     height = m_blockchain.getCurrentBlockchainHeight();
+
+    b = boost::value_initialized<Block>();
+    b.previousBlockHash = get_tail_id();
+    b.timestamp = time(NULL);
+
+    uint64_t blockchain_timestamp_check_window = 400; // move to CryptoNoteConfig.h
+
+    if(m_blockchain.getCurrentBlockchainHeight() >= blockchain_timestamp_check_window) {
+      std::vector<uint64_t> timestamps;
+      auto h = m_blockchain.getCurrentBlockchainHeight();
+
+      for(size_t offset = h - blockchain_timestamp_check_window; offset < h; offset++)
+      {
+        // timestamps.push_back(m_db->get_block_timestamp(offset));
+        std::list<Block> blocks;
+        m_blockchain.getBlocks(offset, 1, blocks);
+        timestamps.push_back(blocks.front().timestamp);
+      }
+      // uint64_t median_ts = epee::misc_utils::median(timestamps);
+
+      uint64_t medianTimestamp = medianValue<uint64_t>(timestamps);
+
+      if (b.timestamp < medianTimestamp) {
+        b.timestamp = medianTimestamp;
+      }
+    }
+
     diffic = m_blockchain.getDifficultyForNextBlock();
     if (!(diffic)) {
       logger(ERROR, BRIGHT_RED) << "difficulty overhead.";
       return false;
     }
-
-    b = boost::value_initialized<Block>();
-    b.majorVersion = BLOCK_MAJOR_VERSION_1;
-    b.minorVersion = BLOCK_MINOR_VERSION_0;
-
-    b.previousBlockHash = get_tail_id();
-    b.timestamp = time(NULL);
 
     median_size = m_blockchain.getCurrentCumulativeBlocksizeLimit() / 2;
     already_generated_coins = m_blockchain.getCoinsInCirculation();
@@ -372,6 +433,9 @@ bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficu
       }
     }
     if (!(cumulative_size == txs_size + getObjectBinarySize(b.baseTransaction))) { logger(ERROR, BRIGHT_RED) << "unexpected case: cumulative_size=" << cumulative_size << " is not equal txs_cumulative_size=" << txs_size << " + get_object_blobsize(b.baseTransaction)=" << getObjectBinarySize(b.baseTransaction); return false; }
+    
+    b.merkleRoot = get_tx_tree_hash(b);
+
     return true;
   }
 
@@ -556,6 +620,10 @@ std::vector<Transaction> core::getPoolTransactions() {
     result.emplace_back(std::move(tx));
   }
   return result;
+}
+
+std::list<CryptoNote::tx_memory_pool::TransactionDetails> core::getMemoryPool() const {
+	return m_mempool.getMemoryPool();
 }
 
 std::vector<Crypto::Hash> core::buildSparseChain() {
@@ -927,6 +995,7 @@ uint64_t core::getTotalGeneratedAmount() {
 }
 
 bool core::handleIncomingTransaction(const Transaction& tx, const Crypto::Hash& txHash, size_t blobSize, tx_verification_context& tvc, bool keptByBlock) {
+  
   if (!check_tx_syntax(tx)) {
     logger(INFO) << "WRONG TRANSACTION BLOB, Failed to check tx " << txHash << " syntax, rejected";
     tvc.m_verifivation_failed = true;
@@ -935,6 +1004,12 @@ bool core::handleIncomingTransaction(const Transaction& tx, const Crypto::Hash& 
 
   if (!check_tx_semantic(tx, keptByBlock)) {
     logger(INFO) << "WRONG TRANSACTION BLOB, Failed to check tx " << txHash << " semantic, rejected";
+    tvc.m_verifivation_failed = true;
+    return false;
+  }
+
+  if (!check_tx_mixin(tx)) {
+    logger(INFO) << "Mixin for transaction " << txHash << " is too large, rejected";
     tvc.m_verifivation_failed = true;
     return false;
   }

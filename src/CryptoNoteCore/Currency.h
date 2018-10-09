@@ -41,6 +41,7 @@ public:
 
   uint64_t minimumFee() const { return m_mininumFee; }
   uint64_t defaultDustThreshold() const { return m_defaultDustThreshold; }
+  uint64_t maxMixin() const { return m_maxMixin; }
 
   uint64_t difficultyTarget() const { return m_difficultyTarget; }
   size_t difficultyWindow() const { return m_difficultyWindow; }
@@ -131,6 +132,7 @@ private:
 
   uint64_t m_mininumFee;
   uint64_t m_defaultDustThreshold;
+  uint64_t m_maxMixin;
 
   uint64_t m_difficultyTarget;
   size_t m_difficultyWindow;
@@ -203,6 +205,7 @@ public:
 
   CurrencyBuilder& mininumFee(uint64_t val) { m_currency.m_mininumFee = val; return *this; }
   CurrencyBuilder& defaultDustThreshold(uint64_t val) { m_currency.m_defaultDustThreshold = val; return *this; }
+  CurrencyBuilder& maxMixin(uint64_t val) { m_currency.m_maxMixin = val; return *this; }
 
   CurrencyBuilder& difficultyTarget(uint64_t val) { m_currency.m_difficultyTarget = val; return *this; }
   CurrencyBuilder& difficultyWindow(size_t val);

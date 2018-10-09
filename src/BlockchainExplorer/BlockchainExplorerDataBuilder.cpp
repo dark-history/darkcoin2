@@ -80,11 +80,10 @@ size_t BlockchainExplorerDataBuilder::median(std::vector<size_t>& v) {
 bool BlockchainExplorerDataBuilder::fillBlockDetails(const Block &block, BlockDetails& blockDetails) {
   Crypto::Hash hash = get_block_hash(block);
 
-  blockDetails.majorVersion = block.majorVersion;
-  blockDetails.minorVersion = block.minorVersion;
   blockDetails.timestamp = block.timestamp;
   blockDetails.prevBlockHash = block.previousBlockHash;
   blockDetails.nonce = block.nonce;
+  blockDetails.merkleRoot = block.merkleRoot;
   blockDetails.hash = hash;
 
   blockDetails.reward = 0;

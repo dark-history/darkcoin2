@@ -62,6 +62,7 @@ namespace CryptoNote
     bool run_console_handler();
 
     bool new_wallet(const std::string &wallet_file, const std::string& password);
+    bool restore_wallet_from_private_keys(const std::string &wallet_file, const std::string& password);
     bool open_wallet(const std::string &wallet_file, const std::string& password);
     bool close_wallet();
 
@@ -76,6 +77,8 @@ namespace CryptoNote
     bool listTransfers(const std::vector<std::string> &args);
     bool transfer(const std::vector<std::string> &args);
     bool print_address(const std::vector<std::string> &args = std::vector<std::string>());
+    bool print_view_secret_key(const std::vector<std::string> &args);
+    bool print_spend_secret_key(const std::vector<std::string> &args);
     bool save(const std::vector<std::string> &args);
     bool reset(const std::vector<std::string> &args);
     bool set_log(const std::vector<std::string> &args);
@@ -141,6 +144,8 @@ namespace CryptoNote
   private:
     std::string m_wallet_file_arg;
     std::string m_generate_new;
+    std::string m_spend_secret_key;
+    std::string m_view_secret_key;
     std::string m_import_path;
 
     std::string m_daemon_address;

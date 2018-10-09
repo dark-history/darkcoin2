@@ -42,10 +42,10 @@ public:
     generateBlocks(currency().minedMoneyUnlockWindow());
   }
 
-  void generateBlocks(size_t count, uint8_t majorVersion = CryptoNote::BLOCK_MAJOR_VERSION_1) {
+  void generateBlocks(size_t count) {
     while (count--) {
       CryptoNote::Block next;
-      generator.constructBlockManually(next, lastBlock, minerAccount, test_generator::bf_major_ver, majorVersion);
+      generator.constructBlockManually(next, lastBlock, minerAccount);
       lastBlock = next;
       events.push_back(next);
     }

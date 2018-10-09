@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "hash-ops.h"
+#include "blake2.h"
 #include "keccak.h"
 
 void hash_permutation(union hash_state *state) {
@@ -18,7 +19,10 @@ void hash_process(union hash_state *state, const uint8_t *buf, size_t count) {
 }
 
 void cn_fast_hash(const void *data, size_t length, char *hash) {
-  union hash_state state;
-  hash_process(&state, data, length);
-  memcpy(hash, &state, HASH_SIZE);
+  // union hash_state state;
+  // hash_process(&state, data, length);
+  // memcpy(hash, &state, HASH_SIZE);
+
+  size_t hashSize = 32;
+  blake2b((void*)hash, hashSize, data, length, NULL, 0);
 }
