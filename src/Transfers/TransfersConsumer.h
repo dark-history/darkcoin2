@@ -1,4 +1,7 @@
-// Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2011-2016 The Cryptonote developers, The Bytecoin developers
+// Copyright (c) 2018, The BBSCoin Developers
+// Copyright (c) 2018, The Karbo Developers
+
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -31,7 +34,10 @@ public:
   void getSubscriptions(std::vector<AccountPublicAddress>& subscriptions);
 
   void initTransactionPool(const std::unordered_set<Crypto::Hash>& uncommitedTransactions);
-  
+
+  // This function is for fixing the burning bug
+  void addPublicKeysSeen(const Crypto::Hash& transactionHash, const Crypto::PublicKey& outputKey);
+
   // IBlockchainConsumer
   virtual SynchronizationStart getSyncStart() override;
   virtual void onBlockchainDetach(uint32_t height) override;
@@ -61,6 +67,8 @@ private:
   void processTransaction(const TransactionBlockInfo& blockInfo, const ITransactionReader& tx, const PreprocessInfo& info);
   void processOutputs(const TransactionBlockInfo& blockInfo, TransfersSubscription& sub, const ITransactionReader& tx,
     const std::vector<TransactionOutputInformationIn>& outputs, const std::vector<uint32_t>& globalIdxs, bool& contains, bool& updated);
+  std::error_code createTransfers(const AccountKeys& account, const TransactionBlockInfo& blockInfo, const ITransactionReader& tx,
+    const std::vector<uint32_t>& outputs, const std::vector<uint32_t>& globalIdxs, std::vector<TransactionOutputInformationIn>& transfers);
 
   std::error_code getGlobalIndices(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndices);
 

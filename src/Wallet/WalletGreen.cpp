@@ -1,4 +1,7 @@
-// Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2011-2016 The Cryptonote developers, The Bytecoin developers
+// Copyright (c) 2018, The BBSCoin Developers
+// Copyright (c) 2018, The Karbo Developers
+
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -378,6 +381,29 @@ void WalletGreen::load(std::istream& source, const std::string& password) {
   throwIfStopped();
 
   stopBlockchainSynchronizer();
+
+  // This is for fixing the burning bug
+  // Read all output keys in the cache
+  try {
+    std::vector<AccountPublicAddress> subscriptionList;
+    m_synchronizer.getSubscriptions(subscriptionList);
+    for (auto& addr : subscriptionList) {
+      auto sub = m_synchronizer.getSubscription(addr);
+      if (sub != nullptr) {
+         std::vector<TransactionOutputInformation> allTransfers;
+         ITransfersContainer* container = &sub->getContainer();
+         container->getOutputs(allTransfers, ITransfersContainer::IncludeAll);
+         for (auto& o : allTransfers) {
+             if (o.type != TransactionTypes::OutputType::Invalid) {
+                m_synchronizer.addPublicKeysSeen(addr, o.transactionHash, o.outputKey);
+             }
+         }
+      }
+    }
+  } catch (const std::exception& e) {
+    // failed to read output keys
+    throw;
+  }
 
   unsafeLoad(source, password);
 
