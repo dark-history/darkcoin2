@@ -1,7 +1,4 @@
-// Copyright (c) 2011-2016 The Cryptonote developers, The Bytecoin developers
-// Copyright (c) 2018, The BBSCoin Developers
-// Copyright (c) 2018, The Karbo Developers
-
+// Copyright (c) 2011-2016 The Cryptonote developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -41,9 +38,6 @@ public:
 
   void subscribeConsumerNotifications(const Crypto::PublicKey& viewPublicKey, ITransfersSynchronizerObserver* observer);
   void unsubscribeConsumerNotifications(const Crypto::PublicKey& viewPublicKey, ITransfersSynchronizerObserver* observer);
-
-  // This function is for fixing the burning bug
-  void addPublicKeysSeen(const AccountPublicAddress& acc, const Crypto::Hash& transactionHash, const Crypto::PublicKey& outputKey);
 
   // IStreamSerializable
   virtual void save(std::ostream& os) override;

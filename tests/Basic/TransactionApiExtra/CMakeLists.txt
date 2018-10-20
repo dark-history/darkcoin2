@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/HelperFunctions)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE TransactionApiExtra TransactionApiExtra/*)
 
@@ -10,19 +10,15 @@ add_executable(TransactionApiExtra ${TransactionApiExtra})
 
 target_link_libraries(TransactionApiExtra gtest_main CryptoNoteCore Crypto Serialization Logging Common)
 
+add_custom_target(Basic DEPENDS TransactionApiExtra)
+
+set_property(TARGET Basic TransactionApiExtra PROPERTY FOLDER "Basic")
+
+set_property(TARGET TransactionApiExtra PROPERTY OUTPUT_NAME "TransactionApiExtra")
+
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main TransactionApiExtra APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS TransactionApiExtra)
-
-set_property(TARGET
-  tests
- 
-  TransactionApiExtra
-
-PROPERTY FOLDER "tests")
-
-set_property(TARGET TransactionApiExtra PROPERTY OUTPUT_NAME "transactionApiExtra")
-
-add_test(TransactionApiExtra transactionApiExtra)
+add_test(TransactionApiExtra TransactionApiExtra)

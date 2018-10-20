@@ -58,7 +58,7 @@ TEST(SynchronizationState, 3)
 
   BlockchainInterval interval;
   interval.startHeight = 0;
-  interval.blockHashes.push_back(getRandHash());
+  interval.blocks.push_back(getRandHash());
   SynchronizationState::CheckResult check = state.checkInterval(interval);
 
   ASSERT_TRUE(check.detachRequired);

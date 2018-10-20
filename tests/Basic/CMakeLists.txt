@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE RpcServer RpcServer/*)
 

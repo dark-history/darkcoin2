@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/HelperFunctions)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE CryptoNoteTools CryptoNoteTools/*)
 
@@ -10,19 +10,15 @@ add_executable(CryptoNoteTools ${CryptoNoteTools})
 
 target_link_libraries(CryptoNoteTools gtest_main CryptoNoteCore Serialization Common Crypto Logging)
 
+add_custom_target(Basic DEPENDS CryptoNoteTools)
+
+set_property(TARGET Basic CryptoNoteTools PROPERTY FOLDER "Basic")
+
+set_property(TARGET CryptoNoteTools PROPERTY OUTPUT_NAME "CryptoNoteTools")
+
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main CryptoNoteTools APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS CryptoNoteTools)
-
-set_property(TARGET
-  tests
- 
-  CryptoNoteTools
-
-PROPERTY FOLDER "tests")
-
-set_property(TARGET CryptoNoteTools PROPERTY OUTPUT_NAME "cryptoNoteTools")
-
-add_test(CryptoNoteTools cryptoNoteTools)
+add_test(CryptoNoteTools CryptoNoteTools)

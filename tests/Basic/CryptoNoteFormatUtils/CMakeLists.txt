@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE CryptoNoteFormatUtils CryptoNoteFormatUtils/*)
 
@@ -14,11 +14,11 @@ add_custom_target(Basic DEPENDS CryptoNoteFormatUtils)
 
 set_property(TARGET Basic CryptoNoteFormatUtils PROPERTY FOLDER "Basic")
 
-set_property(TARGET CryptoNoteFormatUtils PROPERTY OUTPUT_NAME "cryptoNoteFormatUtils")
+set_property(TARGET CryptoNoteFormatUtils PROPERTY OUTPUT_NAME "CryptoNoteFormatUtils")
 
 if(NOT MSVC)
   # suppress warnings from gtest
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_test(CryptoNoteFormatUtils cryptoNoteFormatUtils)
+add_test(CryptoNoteFormatUtils CryptoNoteFormatUtils)

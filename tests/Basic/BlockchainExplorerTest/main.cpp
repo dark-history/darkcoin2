@@ -335,8 +335,7 @@ TEST(BlockchainExplorer, 14)
 
   ASSERT_NO_THROW(blockchainExplorer.init());
 
-  uint8_t majorVersion = BLOCK_MAJOR_VERSION_1;
-  uint64_t fullRewardMaxBlockSize = blockchainExplorer.getFullRewardMaxBlockSize(majorVersion);
+  uint64_t fullRewardMaxBlockSize = blockchainExplorer.getFullRewardMaxBlockSize();
 
   ASSERT_EQ(parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE, fullRewardMaxBlockSize);
 }

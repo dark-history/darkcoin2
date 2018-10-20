@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE Checkpoints Checkpoints/*)
 
@@ -8,21 +8,17 @@ source_group("" FILES ${Checkpoints})
 
 add_executable(Checkpoints ${Checkpoints})
 
-target_link_libraries(Checkpoints gtest_main CryptoNoteCore Crypto Common Serialization Logging)
-
-if(NOT MSVC)
-  set_property(TARGET gtest gtest_main Checkpoints APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
-endif()
+target_link_libraries(Checkpoints gtest_main CryptoNoteCore Crypto Serialization Common Logging)
 
 add_custom_target(Basic DEPENDS Checkpoints)
 
-set_property(TARGET
-  Basic
- 
-  Checkpoints
+set_property(TARGET Basic Checkpoints PROPERTY FOLDER "Basic")
 
-PROPERTY FOLDER "Basic")
+set_property(TARGET Checkpoints PROPERTY OUTPUT_NAME "Checkpoints")
 
-set_property(TARGET Checkpoints PROPERTY OUTPUT_NAME "checkpoints")
+if(NOT MSVC)
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
+endif()
 
-add_test(Checkpoints checkpoints)
+add_test(Checkpoints Checkpoints)

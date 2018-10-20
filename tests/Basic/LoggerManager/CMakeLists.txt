@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE LoggerManager LoggerManager/*)
 
@@ -10,19 +10,15 @@ add_executable(LoggerManager ${LoggerManager})
 
 target_link_libraries(LoggerManager gtest_main Logging Common ${Boost_LIBRARIES})
 
+add_custom_target(Basic DEPENDS LoggerManager)
+
+set_property(TARGET Basic LoggerManager PROPERTY FOLDER "Basic")
+
+set_property(TARGET LoggerManager PROPERTY OUTPUT_NAME "LoggerManager")
+
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main LoggerManager APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS LoggerManager)
-
-set_property(TARGET
-  tests
- 
-  LoggerManager
-
-PROPERTY FOLDER "tests")
-
-set_property(TARGET LoggerManager PROPERTY OUTPUT_NAME "loggerManager")
-
-add_test(LoggerManager loggerManager)
+add_test(LoggerManager LoggerManager)

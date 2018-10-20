@@ -9,8 +9,8 @@
 
 #include <CryptoNote.h>
 
-#define TX_EXTRA_PADDING_MAX_COUNT          255
-#define TX_EXTRA_NONCE_MAX_COUNT            255
+#define TX_EXTRA_PADDING_MAX_COUNT          15
+#define TX_EXTRA_NONCE_MAX_COUNT            100
 
 #define TX_EXTRA_TAG_PADDING                0x00
 #define TX_EXTRA_TAG_PUBKEY                 0x01

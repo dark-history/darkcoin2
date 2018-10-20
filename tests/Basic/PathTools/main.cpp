@@ -1,5 +1,5 @@
-#include <Common/PathTools.h>
 #include <gtest/gtest.h>
+#include "Common/PathTools.h"
 
 /*
 
@@ -12,7 +12,7 @@ SplitPath()
 CombinePath()
 GetExtension()
 RemoveExtension()
-ReplaceExtension()
+ReplaceExtenstion()
 HasParentPath()
 
 */
@@ -80,12 +80,12 @@ TEST(PathTools, 7)
   ASSERT_EQ("/Hello/World/helloWorld", result);
 }
 
-// ReplaceExtension()
+// ReplaceExtenstion()
 TEST(PathTools, 8)
 {
   const std::string path = "/Hello/World/helloWorld.cpp";
   const std::string extension = ".abc";
-  std::string result = ReplaceExtension(path, extension);
+  std::string result = ReplaceExtenstion(path, extension);
   ASSERT_EQ("/Hello/World/helloWorld.abc", result);
 }
 

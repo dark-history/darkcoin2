@@ -1088,7 +1088,8 @@ TEST(Currency, 54)
     for (difficulty_type currentDifficulty = 0; currentDifficulty < 2; currentDifficulty++)
     {
       Crypto::Hash proofOfWork;
-      ASSERT_TRUE(currency.checkProofOfWork(block, currentDifficulty, proofOfWork));
+      Crypto::cn_context context;
+      ASSERT_TRUE(currency.checkProofOfWork(context, block, currentDifficulty, proofOfWork));
     }
   }
 }

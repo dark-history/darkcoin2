@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/HelperFunctions)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE Core Core/*)
 
@@ -8,21 +8,17 @@ source_group("" FILES ${Core})
 
 add_executable(Core ${Core})
 
-target_link_libraries(Core gtest_main CryptoNoteCore Crypto Serialization Logging System Common ${Boost_LIBRARIES})
+target_link_libraries(Core gtest_main CryptoNoteCore BlockchainExplorer Crypto Serialization Logging System Common ${Boost_LIBRARIES})
+
+add_custom_target(Basic DEPENDS Core)
+
+set_property(TARGET Basic Core PROPERTY FOLDER "Basic")
+
+set_property(TARGET Core PROPERTY OUTPUT_NAME "Core")
 
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main Core APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS Core)
-
-set_property(TARGET
-  tests
- 
-  Core
-
-PROPERTY FOLDER "tests")
-
-set_property(TARGET Core PROPERTY OUTPUT_NAME "core")
-
-add_test(Core core)
+add_test(Core Core)

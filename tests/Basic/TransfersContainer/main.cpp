@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "helperFunctions.h"
+#include "IWallet.h"
 #include "Transfers/TransfersContainer.h"
 #include "Transfers/TransfersContainer.cpp"
 #include "CryptoNoteCore/CryptoNoteTools.h"

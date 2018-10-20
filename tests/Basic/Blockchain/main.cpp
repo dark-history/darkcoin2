@@ -151,7 +151,7 @@ private
 
 */
 
-uint32_t loopCount = 1;
+uint32_t loopCount = 5;
 
 // Helper functions
 
@@ -277,7 +277,7 @@ bool addBlock1(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // create block
   Block block;
   block.nonce = 0;
-  block.timestamp = time(nullptr) + (currentBlockchainHeight * parameters::DIFFICULTY_TARGET);
+  block.timestamp = time(nullptr);
   block.previousBlockHash = blockchain.getTailId();
 
   std::vector<Transaction> transactions;
@@ -338,11 +338,21 @@ bool addBlock1(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
     currentBlockSize = actualBlockSize;
   }
 
-  blockHash = get_block_hash(block);
+  difficulty_type currentDifficulty = blockchain.getDifficultyForNextBlock();
+
+  // find nonce appropriate for current difficulty
+  Crypto::Hash proofOfWorkIgnore = NULL_HASH;
+  Crypto::cn_context context;
+  while(!currency.checkProofOfWork(context, block, currentDifficulty, proofOfWorkIgnore))
+  {
+    block.nonce++;
+  }
 
   // add block to blockchain
   block_verification_context bvc;
   bool added = blockchain.addNewBlock(block, bvc);
+
+  blockHash = get_block_hash(block);
 
   return added;
 }
@@ -420,7 +430,8 @@ bool addBlock2(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
 
   // find nonce appropriate for difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
-  while(!currency.checkProofOfWork(block, difficulty, proofOfWorkIgnore))
+  Crypto::cn_context context;
+  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -626,7 +637,7 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   blockchain.haveTransaction(getObjectHash(coinbaseTransaction1));
 
   // allow coinbase transaction to mature
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < loopCount; i++)
   {
     Crypto::Hash blockHash;
     addBlock1(blockchain, currency, tx_memory_pool, blockHash);
@@ -916,7 +927,7 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   blockchain.addNewBlock(block1, bvc);
 
   // allow coinbase transaction to mature
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < loopCount; i++)
   {
     Crypto::Hash blockHash;
     addBlock1(blockchain, currency, tx_memory_pool, blockHash);
@@ -1591,7 +1602,7 @@ TEST(Blockchain, 4)
 
   // coinbase transaction output
   TransactionOutput baseOutput;
-  baseOutput.amount = 89406961; // block reward for 2nd block in blockchain
+  baseOutput.amount = 894069618; // block reward for 2nd block in blockchain
   // create output target
   KeyOutput keyOutput;
   keyOutput.key = generateKeyPair().publicKey;
@@ -1649,7 +1660,7 @@ TEST(Blockchain, 5)
   uint64_t alreadyGeneratedCoins;
   blockchain.getAlreadyGeneratedCoins(blockHash, alreadyGeneratedCoins);
 
-  ASSERT_EQ(89406967 + 89406961, alreadyGeneratedCoins);
+  ASSERT_EQ(894069671 + 894069618, alreadyGeneratedCoins);
 }
 
 // getAlreadyGeneratedCoins()
@@ -1674,12 +1685,12 @@ TEST(Blockchain, 6)
   ASSERT_TRUE(addBlock1(blockchain, currency, tx_memory_pool, blockHash2));
 
   uint64_t alreadyGeneratedCoins1;
-  blockchain.getAlreadyGeneratedCoins(blockHash1, alreadyGeneratedCoins1);
-  ASSERT_EQ(89406967 + 89406961, alreadyGeneratedCoins1);
+  ASSERT_TRUE(blockchain.getAlreadyGeneratedCoins(blockHash1, alreadyGeneratedCoins1));
+  ASSERT_EQ(894069671 + 894069618, alreadyGeneratedCoins1);
 
   uint64_t alreadyGeneratedCoins2;
-  blockchain.getAlreadyGeneratedCoins(blockHash2, alreadyGeneratedCoins2);
-  ASSERT_EQ(89406967 + 89406961 + 89406956, alreadyGeneratedCoins2);
+  ASSERT_TRUE(blockchain.getAlreadyGeneratedCoins(blockHash2, alreadyGeneratedCoins2));
+  ASSERT_EQ(894069671 + 894069618 + 89406956, alreadyGeneratedCoins2);
 }
 
 // getBlockIds()
@@ -1820,13 +1831,13 @@ TEST(Blockchain, 11)
   ASSERT_TRUE(blockchain.init(config_folder, false));
 
   uint64_t coinsInCirculation0 = blockchain.getCoinsInCirculation();
-  ASSERT_EQ(89406967, coinsInCirculation0);
+  ASSERT_EQ(894069671, coinsInCirculation0);
 
   Crypto::Hash blockHash;
   ASSERT_TRUE(addBlock1(blockchain, currency, tx_memory_pool, blockHash));
 
   uint64_t coinsInCirculation1 = blockchain.getCoinsInCirculation();
-  ASSERT_EQ(89406967 + 89406961, coinsInCirculation1);
+  ASSERT_EQ(894069671 + 894069618, coinsInCirculation1);
 }
 
 // haveBlock()
@@ -2052,7 +2063,7 @@ TEST(Blockchain, 20)
   std::string config_folder = Tools::getDefaultDataDirectory();
   ASSERT_TRUE(blockchain.init(config_folder, false));
 
-  // median block size is 10000
+  // median block size is 100000
   // returns false if blob size is greater than 2 * median block size - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE
 
   size_t blobSize = 1;
@@ -2065,13 +2076,15 @@ TEST(Blockchain, 20)
   ASSERT_TRUE(blockchain.checkTransactionSize(blobSize));
   blobSize = 10000;
   ASSERT_TRUE(blockchain.checkTransactionSize(blobSize));
-  blobSize = 20000;
+  blobSize = 100000;
+  ASSERT_TRUE(blockchain.checkTransactionSize(blobSize));
+  blobSize = 200000;
   ASSERT_FALSE(blockchain.checkTransactionSize(blobSize));
-  blobSize = 30000;
+  blobSize = 300000;
   ASSERT_FALSE(blockchain.checkTransactionSize(blobSize));
-  blobSize = 40000;
+  blobSize = 400000;
   ASSERT_FALSE(blockchain.checkTransactionSize(blobSize));
-  blobSize = 50000;
+  blobSize = 500000;
   ASSERT_FALSE(blockchain.checkTransactionSize(blobSize));
 }
 
@@ -2403,7 +2416,7 @@ TEST(Blockchain, 26)
   ASSERT_TRUE(blockchain.haveTransaction(getObjectHash(coinbaseTransaction1)));
 
   // allow coinbase transaction to mature
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < loopCount; i++)
   {
     Crypto::Hash blockHash;
     ASSERT_TRUE(addBlock1(blockchain, currency, tx_memory_pool, blockHash));
@@ -3117,7 +3130,7 @@ TEST(Blockchain, 31)
   ASSERT_TRUE(blockchain.init(config_folder, false));
 
   std::vector<Crypto::Hash> blockHashes;
-  for(int i = 0; i < 100; i++)
+  for(int i = 0; i < loopCount; i++)
   {
     Crypto::Hash blockHash;
     ASSERT_TRUE(addBlock1(blockchain, currency, tx_memory_pool, blockHash));
@@ -3164,7 +3177,7 @@ TEST(Blockchain, 32)
   ASSERT_TRUE(blockchain.init(config_folder, false));
 
   std::vector<Crypto::Hash> blockHashes;
-  for(int i = 0; i < 100; i++)
+  for(int i = 0; i < loopCount; i++)
   {
     Crypto::Hash blockHash;
     ASSERT_TRUE(addBlock1(blockchain, currency, tx_memory_pool, blockHash));
@@ -3209,7 +3222,7 @@ TEST(Blockchain, 33)
   ASSERT_TRUE(blockchain.init(config_folder, false));
 
   std::vector<Crypto::Hash> blockHashes;
-  for(int i = 0; i < 100; i++)
+  for(int i = 0; i < loopCount; i++)
   {
     Crypto::Hash blockHash;
     ASSERT_TRUE(addBlock1(blockchain, currency, tx_memory_pool, blockHash));
@@ -3267,7 +3280,7 @@ TEST(Blockchain, 34)
   ASSERT_TRUE(blockchain.init(config_folder, false));
 
   std::vector<Crypto::Hash> blockHashes;
-  for(int i = 0; i < 100; i++)
+  for(int i = 0; i < loopCount; i++)
   {
     Crypto::Hash blockHash;
     ASSERT_TRUE(addBlock1(blockchain, currency, tx_memory_pool, blockHash));
@@ -3420,7 +3433,7 @@ TEST(Blockchain, 37)
   ASSERT_TRUE(blockchain.init(config_folder, false));
 
   std::vector<Crypto::Hash> blockHashes;
-  for(int i = 0; i < 100; i++)
+  for(int i = 0; i < loopCount; i++)
   {
     Crypto::Hash blockHash;
     ASSERT_TRUE(addBlock1(blockchain, currency, tx_memory_pool, blockHash));
@@ -3570,7 +3583,7 @@ TEST(Blockchain, 39)
   // sz = {77}
   // median is actually 77 but is converted to 10,000
   // currentCumulativeBlockSizeLimit = median * 2
-  ASSERT_EQ(20000, blockchain.getCurrentCumulativeBlocksizeLimit());
+  ASSERT_EQ(200000, blockchain.getCurrentCumulativeBlocksizeLimit());
 
   // block height 1
   uint32_t numTransactions = 500;
@@ -3579,7 +3592,7 @@ TEST(Blockchain, 39)
   // {77, 19077}
   // median = 9577 which gets converted to 10,000 to calculate currentCumulativeBlockSizeLimit
   // currentCumulativeBlockSizeLimit = 10000 * 2 = 20000
-  ASSERT_EQ(20000, blockchain.getCurrentCumulativeBlocksizeLimit());
+  ASSERT_EQ(200000, blockchain.getCurrentCumulativeBlocksizeLimit());
 
   // block height 2
   numTransactions = 400;
@@ -3636,7 +3649,7 @@ TEST(Blockchain, 40)
   uint32_t blockHeight;
   Crypto::Hash blockHashRet;
 
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < loopCount; i++)
   {
     ASSERT_TRUE(addBlock7(blockchain, currency, tx_memory_pool, blockHash, transactionHash));
     ASSERT_TRUE(blockchain.getBlockContainingTransaction(transactionHash, blockHashRet, blockHeight));
@@ -3658,7 +3671,7 @@ TEST(Blockchain, 41)
   std::string config_folder = Tools::getDefaultDataDirectory();
   ASSERT_TRUE(blockchain.init(config_folder, false));
 
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < loopCount; i++)
   {
     Crypto::Hash blockHash;
     uint32_t numTransactions = rand() % 449 + 1; // more than 450 transactions causes the blocks to be too big
@@ -3686,7 +3699,7 @@ TEST(Blockchain, 42)
 
   uint64_t totalTransactions = 1;
 
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < loopCount; i++)
   {
     Crypto::Hash blockHash;
     uint32_t numTransactions = rand() % 449 + 1; // more than 450 transactions causes the blocks to be too big
@@ -3717,7 +3730,7 @@ TEST(Blockchain, 43)
   ASSERT_TRUE(blockchain.init(config_folder, false));
 
   // add 50 blocks to main chain
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < loopCount; i++)
   {
     Crypto::Hash blockHash;
     ASSERT_TRUE(addBlock1(blockchain, currency, tx_memory_pool, blockHash));
@@ -3730,7 +3743,7 @@ TEST(Blockchain, 43)
   Crypto::Hash prevOrphanedBlockHash = currency.genesisBlockHash();
 
   // // add 50 blocks to alternative chain branching off the genesis block
-  for (uint32_t height = 1; height <= 100; height++)
+  for (uint32_t height = 1; height <= loopCount; height++)
   {
     ASSERT_TRUE(addAlternativeBlock(blockchain, currency, tx_memory_pool, orphanedBlockHash, prevOrphanedBlockHash, height));
     orphanedBlockHashes.push_back(orphanedBlockHash);
@@ -3773,7 +3786,7 @@ TEST(Blockchain, 43)
   ASSERT_TRUE(hashesEqual(orphanedBlockHashes[4], orphanedBlockHashesRet[0]));
 
   // check rest of orphaned blocks
-  for (uint32_t height = 6; height <= 100; height++)
+  for (uint32_t height = 6; height <= loopCount; height++)
   {
     orphanedBlockHashesRet.clear();
     ASSERT_TRUE(blockchain.getOrphanBlockIdsByHeight(height, orphanedBlockHashesRet));
@@ -3788,7 +3801,7 @@ TEST(Blockchain, 43)
 
   // add 50 more blocks to alternative chain branching off the genesis block
 
-  for (uint32_t height = 1; height <= 100; height++)
+  for (uint32_t height = 1; height <= loopCount; height++)
   {
     ASSERT_TRUE(addAlternativeBlock(blockchain, currency, tx_memory_pool, orphanedBlockHash2, prevOrphanedBlockHash2, height));
     orphanedBlockHashes2.push_back(orphanedBlockHash2);
@@ -3838,7 +3851,7 @@ TEST(Blockchain, 43)
   ASSERT_TRUE(std::find(orphanedBlockHashesRet2.begin(), orphanedBlockHashesRet2.end(), orphanedBlockHashes2[4]) != orphanedBlockHashesRet2.end());
 
   // check rest of orphaned blocks
-  for (uint32_t height = 6; height <= 100; height++)
+  for (uint32_t height = 6; height <= loopCount; height++)
   {
     orphanedBlockHashesRet2.clear();
     ASSERT_TRUE(blockchain.getOrphanBlockIdsByHeight(height, orphanedBlockHashesRet2));

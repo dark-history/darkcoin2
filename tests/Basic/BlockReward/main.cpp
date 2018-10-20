@@ -3,21 +3,22 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #include "gtest/gtest.h"
 
+#include "CryptoNoteConfig.h"
 #include "CryptoNoteCore/CryptoNoteBasicImpl.h"
 #include "CryptoNoteCore/Currency.h"
 #include <Logging/LoggerGroup.h>
 
 using namespace CryptoNote;
 
-const uint64_t TEST_GRANTED_FULL_REWARD_ZONE = 10000;
-const uint64_t TEST_MONEY_SUPPLY = UINT64_C(1500000000000000);
-const uint64_t TEST_EMISSION_SPEED_FACTOR = 24;
+const uint64_t TEST_GRANTED_FULL_REWARD_ZONE = CryptoNote::parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
+const uint64_t TEST_MONEY_SUPPLY = CryptoNote::parameters::MONEY_SUPPLY;
+const uint64_t TEST_EMISSION_SPEED_FACTOR = CryptoNote::parameters::EMISSION_SPEED_FACTOR;
 
-// given the settings of GRANTED_FULL_REWARD_ZONE = 10000,
-// MONEY_SUPPLY = UINT64_C(1500000000000000), and 
+// given the settings of GRANTED_FULL_REWARD_ZONE = 100000,
+// MONEY_SUPPLY = UINT64_C(15000000000000000), and 
 // EMISSION_SPEED_FACTOR = 24 that is set for Cash2, the reward for the
-// first block mined should be 89406967 or 0.89406967 coins
-const uint64_t expectedFirstBlockReward = 89406967;
+// first block mined should be 894069671 or 0.894069671 coins
+const uint64_t expectedFirstBlockReward = 894069671;
 
 class TestCurrency1 : public ::testing::Test
 {
@@ -63,7 +64,7 @@ TEST_F(TestCurrency1, 2)
 { 
   uint64_t alreadyGeneratedCoins = expectedFirstBlockReward; //0.89406967 coins
   // use wolframalpha.com to calculate (moneySupply - alreadyGeneratedCoins) >> emissionSpeedFactor;
-  uint64_t expectedBlockReward = 89406961; // 0.89406961 coins
+  uint64_t expectedBlockReward = 894069618; // 0.894069618 coins
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
@@ -80,7 +81,7 @@ TEST_F(TestCurrency1, 2)
 TEST_F(TestCurrency1, 3)
 { 
   uint64_t alreadyGeneratedCoins = TEST_MONEY_SUPPLY / 4; //3,750,000 coins
-  uint64_t expectedBlockReward = 67055225; //0.67055225 coins
+  uint64_t expectedBlockReward = 670552253; //0.670552253 coins
 
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
@@ -98,7 +99,7 @@ TEST_F(TestCurrency1, 3)
 TEST_F(TestCurrency1, 4)
 { 
   uint64_t alreadyGeneratedCoins = TEST_MONEY_SUPPLY / 2; //7,500,000 coins
-  uint64_t expectedBlockReward = 44703483; //0.44703483 coins
+  uint64_t expectedBlockReward = 447034835; //0.447034835 coins
 
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
@@ -116,7 +117,7 @@ TEST_F(TestCurrency1, 4)
 TEST_F(TestCurrency1, 5)
 { 
   uint64_t alreadyGeneratedCoins = TEST_MONEY_SUPPLY / 3; //5,000,000 coins
-  uint64_t expectedBlockReward = 59604644; //0.59604644 coins
+  uint64_t expectedBlockReward = 596046447; //0.596046447 coins
 
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
@@ -133,8 +134,8 @@ TEST_F(TestCurrency1, 5)
 // already generated coins = 14,000,000
 TEST_F(TestCurrency1, 6)
 { 
-  uint64_t alreadyGeneratedCoins = 1400000000000000; //14,000,000 coins
-  uint64_t expectedBlockReward = 5960464; //0.05960464 coins
+  uint64_t alreadyGeneratedCoins = 14000000000000000; //14,000,000 coins
+  uint64_t expectedBlockReward = 59604644; //0.059604644 coins
 
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
@@ -151,8 +152,8 @@ TEST_F(TestCurrency1, 6)
 // already generated coins = 14,500,000
 TEST_F(TestCurrency1, 7)
 { 
-  uint64_t alreadyGeneratedCoins = 1450000000000000; //14,500,000 coins
-  uint64_t expectedBlockReward = 2980232; //0.02980232 coins
+  uint64_t alreadyGeneratedCoins = 14500000000000000; //14,500,000 coins
+  uint64_t expectedBlockReward = 29802322; //0.029802322 coins
 
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
@@ -169,8 +170,8 @@ TEST_F(TestCurrency1, 7)
 // already generated coins = 14,999,999
 TEST_F(TestCurrency1, 8)
 { 
-  uint64_t alreadyGeneratedCoins = 1499999900000000; //14,999,999 coins
-  uint64_t expectedBlockReward = 5; //0.00000005 coins
+  uint64_t alreadyGeneratedCoins = 14999999000000000; //14,999,999 coins
+  uint64_t expectedBlockReward = 59; //0.000000059 coins
 
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
@@ -187,7 +188,7 @@ TEST_F(TestCurrency1, 8)
 // already generated coins = 14,999,999.99
 TEST_F(TestCurrency1, 9)
 { 
-  uint64_t alreadyGeneratedCoins = 1499999999000000; //14,999,999.99 coins
+  uint64_t alreadyGeneratedCoins = 14999999990000000; //14,999,999.99 coins
   uint64_t expectedBlockReward = 0;
 
   int64_t emissionChange = 0;
@@ -205,7 +206,7 @@ TEST_F(TestCurrency1, 9)
 // already generated coins = 15,000,000
 TEST_F(TestCurrency1, 10)
 { 
-  uint64_t alreadyGeneratedCoins = 1500000000000000; //15,000,000 coins
+  uint64_t alreadyGeneratedCoins = 15000000000000000; //15,000,000 coins
   uint64_t expectedBlockReward = 0;
 
   int64_t emissionChange = 0;
@@ -554,7 +555,7 @@ TEST_F(TestCurrency2, 7)
   bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
-  ASSERT_EQ(blockReward, expectedFirstBlockReward);
+  ASSERT_EQ(expectedFirstBlockReward - 1, blockReward);
 }
 
 class TestCurrency3 : public ::testing::Test
@@ -651,8 +652,8 @@ TEST_F(TestCurrency3, 4)
   bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
-  ASSERT_EQ(blockReward, expectedFirstBlockReward);
-  ASSERT_EQ(emissionChange, expectedFirstBlockReward);
+  ASSERT_EQ(expectedFirstBlockReward - 1, blockReward);
+  ASSERT_EQ(expectedFirstBlockReward - 1, emissionChange);
 }
 
 // medianBlockSize = 7 * TEST_GRANTED_FULL_REWARD_ZONE;
@@ -670,8 +671,8 @@ TEST_F(TestCurrency3, 5)
   bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
-  ASSERT_EQ(blockReward, expectedFirstBlockReward);
-  ASSERT_EQ(emissionChange, expectedFirstBlockReward);
+  ASSERT_EQ(2554, blockReward);
+  ASSERT_EQ(2554, emissionChange);
 }
 
 // medianBlockSize = 7 * TEST_GRANTED_FULL_REWARD_ZONE;
@@ -689,8 +690,8 @@ TEST_F(TestCurrency3, 6)
   bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
-  ASSERT_EQ(blockReward, expectedFirstBlockReward);
-  ASSERT_EQ(emissionChange, expectedFirstBlockReward);
+  ASSERT_EQ(0, blockReward);
+  ASSERT_EQ(0, emissionChange);
 }
 
 // medianBlockSize = 7 * TEST_GRANTED_FULL_REWARD_ZONE;

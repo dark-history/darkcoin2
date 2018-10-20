@@ -86,7 +86,7 @@ bool Currency::generateGenesisBlock() {
   }
 
   m_genesisBlock.timestamp = 0;
-  m_genesisBlock.merkleRoot = getObjectHash(m_genesisBlock.baseTransaction);
+  m_genesisBlock.merkleRoot = get_tx_tree_hash(m_genesisBlock);
   m_genesisBlock.nonce = 70;
   if (m_testnet) {
     ++m_genesisBlock.nonce;
@@ -352,57 +352,13 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
   return Common::fromString(strAmount, amount);
 }
 
-// difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
-  // std::vector<difficulty_type> cumulativeDifficulties) const {
-  // assert(m_difficultyWindow >= 2);
-
-  // if (timestamps.size() > m_difficultyWindow) {
-    // timestamps.resize(m_difficultyWindow);
-    // cumulativeDifficulties.resize(m_difficultyWindow);
-  // }
-
-  // size_t length = timestamps.size();
-  // assert(length == cumulativeDifficulties.size());
-  // assert(length <= m_difficultyWindow);
-  // if (length <= 1) {
-    // return 1;
-  // }
-
-  // sort(timestamps.begin(), timestamps.end());
-
-  // size_t cutBegin, cutEnd;
-  // assert(2 * m_difficultyCut <= m_difficultyWindow - 2);
-  // if (length <= m_difficultyWindow - 2 * m_difficultyCut) {
-    // cutBegin = 0;
-    // cutEnd = length;
-  // } else {
-    // cutBegin = (length - (m_difficultyWindow - 2 * m_difficultyCut) + 1) / 2;
-    // cutEnd = cutBegin + (m_difficultyWindow - 2 * m_difficultyCut);
-  // }
-  // assert(/*cut_begin >= 0 &&*/ cutBegin + 2 <= cutEnd && cutEnd <= length);
-  // uint64_t timeSpan = timestamps[cutEnd - 1] - timestamps[cutBegin];
-  // if (timeSpan == 0) {
-    // timeSpan = 1;
-  // }
-
-  // difficulty_type totalWork = cumulativeDifficulties[cutEnd - 1] - cumulativeDifficulties[cutBegin];
-  // assert(totalWork > 0);
-
-  // uint64_t low, high;
-  // low = mul128(totalWork, m_difficultyTarget, &high);
-  // if (high != 0 || low + timeSpan - 1 < low) {
-    // return 0;
-  // }
-
-  // return (low + timeSpan - 1) / timeSpan;
-// }
-
 difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties) const
 {
   // LWMA-2 difficulty algorithm 
   // Copyright (c) 2017-2018 Zawy, MIT License
   // https://github.com/zawy12/difficulty-algorithms/issues/3
   // See commented version for required config file changes.
+  // N = int(45 * (600 / T) ^ 0.3));
 
   int64_t T    = m_difficultyTarget; // target solvetime seconds
   int64_t N   = m_difficultyWindow; //  N=45, 60, and 90 for T=600, 120, 60.

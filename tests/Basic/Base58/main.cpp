@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "Crypto/Base58.h"
+#include "Common/Base58.h"
 #include <iostream>
 
 using namespace Tools;
@@ -40,7 +40,7 @@ TEST(Base58, 3)
   std::string data = "Hello";
   std::string encodedAddress = encode_addr(tag, data);
 
-  ASSERT_EQ("1DSo7pPy57U9p8", encodedAddress);
+  ASSERT_EQ("1DSo7pPy9D7Hcb", encodedAddress);
 }
 
 // decode_addr()
@@ -51,7 +51,7 @@ TEST(Base58, 4)
   std::string str = "Hello";
   std::string encodedAddress = encode_addr(tag, str);
 
-  ASSERT_EQ("1DSo7pPy57U9p8", encodedAddress);
+  ASSERT_EQ("1DSo7pPy9D7Hcb", encodedAddress);
 
   std::string decodedAddress;
   ASSERT_TRUE(decode_addr(encodedAddress, tag, decodedAddress));

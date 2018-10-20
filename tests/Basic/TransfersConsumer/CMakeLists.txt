@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/HelperFunctions)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE TransfersConsumer TransfersConsumer/*)
 
@@ -10,19 +10,15 @@ add_executable(TransfersConsumer ${TransfersConsumer})
 
 target_link_libraries(TransfersConsumer gtest_main Transfers CryptoNoteCore Crypto Serialization Logging Common ${Boost_LIBRARIES})
 
+add_custom_target(Basic DEPENDS TransfersConsumer)
+
+set_property(TARGET Basic TransfersConsumer PROPERTY FOLDER "Basic")
+
+set_property(TARGET TransfersConsumer PROPERTY OUTPUT_NAME "TransfersConsumer")
+
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main TransfersConsumer APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS TransfersConsumer)
-
-set_property(TARGET
-  tests
- 
-  TransfersConsumer
-
-PROPERTY FOLDER "tests")
-
-set_property(TARGET TransfersConsumer PROPERTY OUTPUT_NAME "transfersConsumer")
-
-add_test(TransfersConsumer transfersConsumer)
+add_test(TransfersConsumer TransfersConsumer)

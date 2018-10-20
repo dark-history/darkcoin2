@@ -480,7 +480,8 @@ TEST(Miner, 18)
   
   difficulty_type difficulty = 2;
 
-  ASSERT_TRUE(miner.find_nonce_for_given_block(block, difficulty));
+  Crypto::cn_context context;
+  ASSERT_TRUE(miner.find_nonce_for_given_block(context, block, difficulty));
 }
 
 // find_nonce_for_given_block()
@@ -504,7 +505,8 @@ TEST(Miner, 19)
   
   difficulty_type difficulty = 8;
 
-  ASSERT_TRUE(miner.find_nonce_for_given_block(block, difficulty));
+  Crypto::cn_context context;
+  ASSERT_TRUE(miner.find_nonce_for_given_block(context, block, difficulty));
 }
 
 // on_synchronized()

@@ -160,14 +160,14 @@ TEST(intUtil, 6)
   uint64_t dividend = 5;
   uint32_t divisor = 10;
   uint32_t remainder = 0;
-  uint64_t result = div_with_remainder(dividend, divisor, &remainder);
+  uint64_t result = div_with_reminder(dividend, divisor, &remainder);
   ASSERT_EQ(5, remainder);
   ASSERT_EQ(0, result);
 
   dividend = 4293988625; // 1111 1111 1111 0001 0001 0001 0001 0001
   divisor = 1048576; // 0001 0000 0000 0000 0000
   remainder = 0;
-  result = div_with_remainder(dividend, divisor, &remainder);
+  result = div_with_reminder(dividend, divisor, &remainder);
   ASSERT_EQ(4095, result); // 1111 1111 1111
   ASSERT_EQ(69905, remainder); // 0001 0001 0001 0001 0001
 }

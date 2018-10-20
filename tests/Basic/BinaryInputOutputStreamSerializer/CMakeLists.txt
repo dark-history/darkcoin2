@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/HelperFunctions)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE BinaryInputOutputStreamSerializer BinaryInputOutputStreamSerializer/*)
 
@@ -8,21 +8,17 @@ source_group("" FILES ${BinaryInputOutputStreamSerializer})
 
 add_executable(BinaryInputOutputStreamSerializer ${BinaryInputOutputStreamSerializer})
 
-target_link_libraries(BinaryInputOutputStreamSerializer gtest_main Serialization)
+target_link_libraries(BinaryInputOutputStreamSerializer gtest_main Serialization Common)
+
+add_custom_target(Basic DEPENDS BinaryInputOutputStreamSerializer)
+
+set_property(TARGET Basic BinaryInputOutputStreamSerializer PROPERTY FOLDER "Basic")
+
+set_property(TARGET BinaryInputOutputStreamSerializer PROPERTY OUTPUT_NAME "BinaryInputOutputStreamSerializer")
 
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main BinaryInputOutputStreamSerializer APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS BinaryInputOutputStreamSerializer)
-
-set_property(TARGET
-  tests
- 
-  BinaryInputOutputStreamSerializer
-
-PROPERTY FOLDER "tests")
-
-set_property(TARGET BinaryInputOutputStreamSerializer PROPERTY OUTPUT_NAME "binaryInputOutputStreamSerializer")
-
-add_test(BinaryInputOutputStreamSerializer binaryInputOutputStreamSerializer)
+add_test(BinaryInputOutputStreamSerializer BinaryInputOutputStreamSerializer)

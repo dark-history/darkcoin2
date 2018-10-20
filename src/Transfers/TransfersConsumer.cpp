@@ -1,7 +1,4 @@
-// Copyright (c) 2011-2016 The Cryptonote developers, The Bytecoin developers
-// Copyright (c) 2018, The BBSCoin Developers
-// Copyright (c) 2018, The Karbo Developers
-
+// Copyright (c) 2011-2016 The Cryptonote developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,7 +7,6 @@
 #include <numeric>
 
 #include "CommonTypes.h"
-#include "Common/StringTools.h"
 #include "Common/BlockingQueue.h"
 #include "CryptoNoteCore/CryptoNoteFormatUtils.h"
 #include "CryptoNoteCore/TransactionApi.h"
@@ -20,10 +16,6 @@
 #include <future>
 
 using namespace Crypto;
-
-std::unordered_set<Crypto::Hash> transactions_hash_seen;
-std::unordered_set<Crypto::PublicKey> public_keys_seen;
-std::mutex seen_mutex;
 
 namespace {
 
@@ -357,14 +349,7 @@ void TransfersConsumer::removeUnconfirmedTransaction(const Crypto::Hash& transac
   m_observerManager.notify(&IBlockchainConsumerObserver::onTransactionDeleteEnd, this, transactionHash);
 }
 
-// This function is for fixing the burning bug
-void TransfersConsumer::addPublicKeysSeen(const Crypto::Hash& transactionHash, const Crypto::PublicKey& outputKey) {
-  std::lock_guard<std::mutex> lk(seen_mutex);
-  transactions_hash_seen.insert(transactionHash);
-  public_keys_seen.insert(outputKey);
-}
-
-std::error_code TransfersConsumer::createTransfers(
+std::error_code createTransfers(
   const AccountKeys& account,
   const TransactionBlockInfo& blockInfo,
   const ITransactionReader& tx,
@@ -373,9 +358,6 @@ std::error_code TransfersConsumer::createTransfers(
   std::vector<TransactionOutputInformationIn>& transfers) {
 
   auto txPubKey = tx.getTransactionPublicKey();
-  auto txHash = tx.getTransactionHash();
-  std::vector<PublicKey> temp_keys;
-  std::lock_guard<std::mutex> lk(seen_mutex);
 
   for (auto idx : outputs) {
 
@@ -414,23 +396,6 @@ std::error_code TransfersConsumer::createTransfers(
 
       assert(out.key == reinterpret_cast<const PublicKey&>(in_ephemeral.publicKey));
 
-      std::unordered_set<Crypto::Hash>::iterator it = transactions_hash_seen.find(txHash);
-
-      // Burning bug fix
-      if (it == transactions_hash_seen.end()) {
-
-        std::unordered_set<Crypto::PublicKey>::iterator key_it = public_keys_seen.find(out.key);
-        if (key_it != public_keys_seen.end()) {
-          // duplicate output key found
-          return std::error_code();
-        }
-        if (std::find(temp_keys.begin(), temp_keys.end(), out.key) != temp_keys.end()) {
-          // duplicate output key found
-          return std::error_code();
-        }
-        temp_keys.push_back(out.key);
-      }
-
       info.amount = amount;
       info.outputKey = out.key;
 
@@ -439,28 +404,12 @@ std::error_code TransfersConsumer::createTransfers(
       MultisignatureOutput out;
       tx.getOutput(idx, out, amount);
 
-	  for (const auto& key : out.keys) {
-        std::unordered_set<Crypto::Hash>::iterator it = transactions_hash_seen.find(txHash);
-        if (it == transactions_hash_seen.end()) {
-          std::unordered_set<Crypto::PublicKey>::iterator key_it = public_keys_seen.find(key);
-          if (key_it != public_keys_seen.end()) {
-            return std::error_code();
-          }
-          if (std::find(temp_keys.begin(), temp_keys.end(), key) != temp_keys.end()) {
-            return std::error_code();
-          }
-          temp_keys.push_back(key);
-        }
-      }
       info.amount = amount;
       info.requiredSignatures = out.requiredSignatureCount;
     }
 
     transfers.push_back(info);
   }
-
-  transactions_hash_seen.emplace(txHash);
-  std::copy(temp_keys.begin(), temp_keys.end(), std::inserter(public_keys_seen, public_keys_seen.end()));
 
   return std::error_code();
 }
@@ -486,7 +435,7 @@ std::error_code TransfersConsumer::preprocessOutputs(const TransactionBlockInfo&
     auto it = m_subscriptions.find(kv.first);
     if (it != m_subscriptions.end()) {
       auto& transfers = info.outputs[kv.first];
-      errorCode = TransfersConsumer::createTransfers(it->second->getKeys(), blockInfo, tx, kv.second, info.globalIdxs, transfers);
+      errorCode = createTransfers(it->second->getKeys(), blockInfo, tx, kv.second, info.globalIdxs, transfers);
       if (errorCode) {
         return errorCode;
       }

@@ -1,7 +1,5 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include)
-
 file(GLOB_RECURSE StdInputStream StdInputStream/*)
 
 source_group("" FILES ${StdInputStream})
@@ -10,19 +8,15 @@ add_executable(StdInputStream ${StdInputStream})
 
 target_link_libraries(StdInputStream gtest_main Common)
 
+add_custom_target(Basic DEPENDS StdInputStream)
+
+set_property(TARGET Basic StdInputStream PROPERTY FOLDER "Basic")
+
+set_property(TARGET StdInputStream PROPERTY OUTPUT_NAME "StdInputStream")
+
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main StdInputStream APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS StdInputStream)
-
-set_property(TARGET
-  tests
- 
-  StdInputStream
-
-PROPERTY FOLDER "tests")
-
-set_property(TARGET StdInputStream PROPERTY OUTPUT_NAME "stdInputStream")
-
-add_test(StdInputStream stdInputStream)
+add_test(StdInputStream StdInputStream)

@@ -626,12 +626,12 @@ TEST(TransactionPool, 22)
   Transaction transaction;
   transaction.version = 1;
   transaction.unlockTime = 1;
-  // 2 signifies TransactionExtraNonce, 6 is the size of the remaining part of the vector, 0 signifies a TransactionPaymentId, all 1's is the paymentId
+  // 2 signifies TransactionExtraNonce, 33 is the size of the remaining part of the vector, 0 signifies a TransactionPaymentId, all 1's is the paymentId
   transaction.extra = {2, 33, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
   ASSERT_TRUE(tx_memory_pool.add_tx(transaction, tvc, keptByBlock));
 
   Crypto::Hash paymentId;
-  ASSERT_TRUE(getPaymentIdFromTransaction(transaction, paymentId));
+  ASSERT_TRUE(getPaymentIdFromTxExtra(transaction.extra, paymentId));
   std::vector<Crypto::Hash> transactionIds;
   ASSERT_TRUE(tx_memory_pool.getTransactionIdsByPaymentId(paymentId, transactionIds));
 }

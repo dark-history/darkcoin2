@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../version ${CMAKE_SOURCE_DIR}/tests/HelperFunctions)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE Account Account/*)
 file(GLOB_RECURSE Base58 Base58/*)
@@ -172,8 +172,10 @@ target_link_libraries(Util gtest_main Common ${Boost_LIBRARIES})
 target_link_libraries(Varint gtest_main Common ${Boost_LIBRARIES})
 target_link_libraries(VectorOutputStream gtest_main Common ${Boost_LIBRARIES})
 
+set_property(TARGET gtest gtest_main Account Base58 Blockchain BlockchainIndices BlockchainMessages BlockchainSynchronizer BlockIndex BlockingQueue BlockReward Chacha8 CommandLine ConsoleTools Core CoreConfig CryptoNoteBasic CryptoNoteBasicImpl CryptoNoteFormatUtils CryptoNoteProtocolHandler CryptoNoteTools Currency DecomposeAmountIntoDigits Difficulty HttpParser HttpRequest HttpResponse IntUtil JsonValue Math MemoryInputStream MessageQueue MinerCore MulDiv ObserverManager ParseAmount PathTools ShuffleGenerator SignalHandler StdInputStream StdOutputStream StringTools StringView SynchronizationState Transaction TransactionApiExtra TransactionExtra TransactionPool TransactionPrefixImpl TransactionUtils TransfersConsumer TransfersContainer TransfersSubscription TransfersSynchronizer Util Varint VectorOutputStream)
+
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main Account Base58 Blockchain BlockchainIndices BlockchainMessages BlockchainSynchronizer BlockIndex BlockingQueue BlockReward Chacha8 CommandLine ConsoleTools Core CoreConfig CryptoNoteBasic CryptoNoteBasicImpl CryptoNoteFormatUtils CryptoNoteProtocolHandler CryptoNoteTools Currency DecomposeAmountIntoDigits Difficulty HttpParser HttpRequest HttpResponse IntUtil JsonValue Math MemoryInputStream MessageQueue MinerCore MulDiv ObserverManager ParseAmount PathTools ShuffleGenerator SignalHandler StdInputStream StdOutputStream StringTools StringView SynchronizationState Transaction TransactionApiExtra TransactionExtra TransactionPool TransactionPrefixImpl TransactionUtils TransfersConsumer TransfersContainer TransfersSubscription TransfersSynchronizer Util Varint VectorOutputStream APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
 add_custom_target(tests DEPENDS Account Base58 Blockchain BlockchainIndices BlockchainMessages BlockchainSynchronizer BlockIndex BlockingQueue BlockReward Chacha8 CommandLine ConsoleTools Core CoreConfig CryptoNoteBasic CryptoNoteBasicImpl CryptoNoteFormatUtils CryptoNoteProtocolHandler CryptoNoteTools Currency DecomposeAmountIntoDigits Difficulty HttpParser HttpRequest HttpResponse IntUtil JsonValue Math MemoryInputStream MessageQueue MinerCore MulDiv ObserverManager ParseAmount PathTools ShuffleGenerator SignalHandler StdInputStream StdOutputStream StringTools StringView SynchronizationState Transaction TransactionApiExtra TransactionExtra TransactionPool TransactionPrefixImpl TransactionUtils TransfersConsumer TransfersContainer TransfersSubscription TransfersSynchronizer Util Varint VectorOutputStream)

@@ -23,9 +23,9 @@ int main(int argc, char *argv[]) {
     }
     Logging::ConsoleLogger logger;
     CryptoNote::CurrencyBuilder currencyBuilder(logger);
-    currencyBuilder.difficultyTarget(120);
-    currencyBuilder.difficultyWindow(720);
-    currencyBuilder.difficultyCut(60);
+    currencyBuilder.difficultyTarget(9);
+    currencyBuilder.difficultyWindow(90);
+    currencyBuilder.difficultyCut(40);
     currencyBuilder.difficultyLag(15);
     CryptoNote::Currency currency = currencyBuilder.currency();
     vector<uint64_t> timestamps, cumulative_difficulties;
@@ -50,9 +50,47 @@ int main(int argc, char *argv[]) {
             cerr << "Wrong difficulty for block " << n << endl
                 << "Expected: " << difficulty << endl
                 << "Found: " << res << endl;
-            return 1;
 
-            //cerr << timestamp << " " << res << endl;
+
+            // below is used to print out the correct values to the file "data.txt"
+            
+
+            data.close();
+
+            string x;
+            ifstream file ( "/media/sf_Shared/cryptonote/tests/Difficulty/data.txt" );
+            ofstream ofile ( "/media/sf_Shared/cryptonote/tests/Difficulty/data2.txt" );
+
+            size_t count = 0;
+
+            while (!file.eof())
+            {
+              getline(file, x);
+
+              if (count == n)
+              {
+                ofile << timestamp << " " << res << endl;
+              }
+              else
+              {
+                ofile << x << endl;
+              }
+
+              count++;
+            }
+
+            file.close();
+            ofile.close();
+
+            remove( "/media/sf_Shared/cryptonote/tests/Difficulty/data.txt" );
+
+            char oldname[] = "/media/sf_Shared/cryptonote/tests/Difficulty/data2.txt";
+            char newname[] = "/media/sf_Shared/cryptonote/tests/Difficulty/data.txt";
+            rename( oldname , newname );
+
+            
+
+            return 1;
         }
         timestamps.push_back(timestamp);
         cumulative_difficulties.push_back(cumulative_difficulty += difficulty);

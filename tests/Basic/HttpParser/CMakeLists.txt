@@ -1,28 +1,22 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include)
-
 file(GLOB_RECURSE HttpParser HttpParser/*)
 
 source_group("" FILES ${HttpParser})
 
 add_executable(HttpParser ${HttpParser})
 
-target_link_libraries(HttpParser gtest_main Rpc)
+target_link_libraries(HttpParser gtest_main Http)
+
+add_custom_target(Basic DEPENDS HttpParser)
+
+set_property(TARGET Basic HttpParser PROPERTY FOLDER "Basic")
+
+set_property(TARGET HttpParser PROPERTY OUTPUT_NAME "HttpParser")
 
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main HttpParser APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS HttpParser)
-
-set_property(TARGET
-  tests
- 
-  HttpParser
-
-PROPERTY FOLDER "tests")
-
-set_property(TARGET HttpParser PROPERTY OUTPUT_NAME "httpParser")
-
-add_test(HttpParser httpParser)
+add_test(HttpParser HttpParser)

@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/tests/HelperFunctions)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE TransactionPrefixImpl TransactionPrefixImpl/*)
 
@@ -10,19 +10,15 @@ add_executable(TransactionPrefixImpl ${TransactionPrefixImpl})
 
 target_link_libraries(TransactionPrefixImpl gtest_main CryptoNoteCore Crypto Serialization Logging Common ${Boost_LIBRARIES})
 
+add_custom_target(Basic DEPENDS TransactionPrefixImpl)
+
+set_property(TARGET Basic TransactionPrefixImpl PROPERTY FOLDER "Basic")
+
+set_property(TARGET TransactionPrefixImpl PROPERTY OUTPUT_NAME "TransactionPrefixImpl")
+
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main TransactionPrefixImpl APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS TransactionPrefixImpl)
-
-set_property(TARGET
-  tests
- 
-  TransactionPrefixImpl
-
-PROPERTY FOLDER "tests")
-
-set_property(TARGET TransactionPrefixImpl PROPERTY OUTPUT_NAME "transactionPrefixImpl")
-
-add_test(TransactionPrefixImpl transactionPrefixImpl)
+add_test(TransactionPrefixImpl TransactionPrefixImpl)

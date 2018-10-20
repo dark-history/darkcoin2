@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE Ipv4Resolver Ipv4Resolver/*)
 
@@ -10,19 +10,15 @@ add_executable(Ipv4Resolver ${Ipv4Resolver})
 
 target_link_libraries(Ipv4Resolver gtest_main System)
 
+add_custom_target(Basic DEPENDS Ipv4Resolver)
+
+set_property(TARGET Basic Ipv4Resolver PROPERTY FOLDER "Basic")
+
+set_property(TARGET Ipv4Resolver PROPERTY OUTPUT_NAME "Ipv4Resolver")
+
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main Ipv4Resolver APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS Ipv4Resolver)
-
-set_property(TARGET
-  tests
- 
-  Ipv4Resolver
-
-PROPERTY FOLDER "tests")
-
-set_property(TARGET Ipv4Resolver PROPERTY OUTPUT_NAME "ipv4Resolver")
-
-add_test(Ipv4Resolver ipv4Resolver)
+add_test(Ipv4Resolver Ipv4Resolver)

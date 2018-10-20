@@ -1,6 +1,6 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
 file(GLOB_RECURSE HttpRequest HttpRequest/*)
 
@@ -8,21 +8,17 @@ source_group("" FILES ${HttpRequest})
 
 add_executable(HttpRequest ${HttpRequest})
 
-target_link_libraries(HttpRequest gtest_main Rpc)
+target_link_libraries(HttpRequest gtest_main Http)
+
+add_custom_target(Basic DEPENDS HttpRequest)
+
+set_property(TARGET Basic HttpRequest PROPERTY FOLDER "Basic")
+
+set_property(TARGET HttpRequest PROPERTY OUTPUT_NAME "HttpRequest")
 
 if(NOT MSVC)
-  set_property(TARGET gtest gtest_main HttpRequest APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare -O0")
+  # suppress warnings from gtest
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS HttpRequest)
-
-set_property(TARGET
-  tests
- 
-  HttpRequest
-
-PROPERTY FOLDER "tests")
-
-set_property(TARGET HttpRequest PROPERTY OUTPUT_NAME "httpRequest")
-
-add_test(HttpRequest httpRequest)
+add_test(HttpRequest HttpRequest)
