@@ -113,6 +113,8 @@ private:
   BinaryArray m_extraNonce;
 };
 
+/*
+
 // constructor
 TEST(Miner, 1)
 {
@@ -253,6 +255,8 @@ TEST(Miner, 8)
   ASSERT_TRUE(miner.init(minerConfig));
 }
 
+*/
+
 // init()
 // MinerConfig extraMessages not empty
 TEST(Miner, 9)
@@ -265,10 +269,12 @@ TEST(Miner, 9)
 
   MinerConfig minerConfig;
 
-  minerConfig.extraMessages = "/home/aphivantrakul/Desktop/Shared/cryptonote/tests/MinerCore/testFile.txt";
+  minerConfig.extraMessages = "/media/sf_Shared/cryptonote/tests/Basic/MinerCore/testFile.txt";
 
   ASSERT_TRUE(miner.init(minerConfig));
 }
+
+/*
 
 // init()
 // MinerConfig startMining not empty
@@ -585,6 +591,8 @@ TEST(Miner, 22)
 
   miner.resume();
 }
+
+*/
 
 int main(int argc, char** argv)
 {

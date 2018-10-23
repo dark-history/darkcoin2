@@ -9,8 +9,8 @@ using namespace CryptoNote;
 
 My Notes
 
-#define TX_EXTRA_PADDING_MAX_COUNT          255
-#define TX_EXTRA_NONCE_MAX_COUNT            255
+#define TX_EXTRA_PADDING_MAX_COUNT          15
+#define TX_EXTRA_NONCE_MAX_COUNT            100
 #define TX_EXTRA_TAG_PADDING                0x00
 #define TX_EXTRA_TAG_PUBKEY                 0x01
 #define TX_EXTRA_NONCE                      0x02
@@ -252,7 +252,7 @@ TEST(TransactionExtra, 10)
 {
   std::vector<uint8_t> transactionExtra;
 
-  uint8_t randPaddingSize = getRandUint8_t();
+  uint8_t randPaddingSize = getRandUint8_t() % 10;
 
   for (uint8_t i = 0; i < randPaddingSize; i++)
   {
@@ -538,7 +538,7 @@ TEST(TransactionExtra, 22)
 {
   std::vector<uint8_t> transactionExtraInput;
 
-  uint8_t randPaddingSize = getRandUint8_t();
+  uint8_t randPaddingSize = getRandUint8_t() % 10;
 
   for (uint8_t i = 0; i < randPaddingSize; i++)
   {

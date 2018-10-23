@@ -188,7 +188,10 @@ namespace CryptoNote {
       txd.maxUsedBlock = maxUsedBlock;
       txd.lastFailedBlock.clear();
 
-      auto txd_p = m_transactions.insert(std::move(txd));
+      TransactionDetails txdCopy = txd;
+
+      auto txd_p = m_transactions.insert(std::move(txdCopy));
+
       if (!(txd_p.second)) {
         logger(ERROR, BRIGHT_RED) << "transaction already exists at inserting in memory pool";
         return false;

@@ -16,6 +16,7 @@
 #include <System/Timer.h>
 #include <System/InterruptedException.h>
 #include "Common/Util.h"
+#include "Common/StringTools.h"
 
 #include "crypto/crypto.h"
 #include "CryptoNote.h"
@@ -386,9 +387,17 @@ void generateNewWallet(const CryptoNote::Currency &currency, const WalletConfigu
   createWalletFile(walletFile, conf.walletFile);
 
   wallet->initialize(conf.walletPassword);
-  auto address = wallet->createAddress();
 
-  log(Logging::INFO) << "New wallet is generated. Address: " << address;
+  auto address = wallet->createAddress();
+  CryptoNote::KeyPair spendKeyPair = wallet->getAddressSpendKey(address);
+  CryptoNote::KeyPair viewKeyPair = wallet->getViewKey();
+
+  std::string spendSecretKey = Common::podToHex<Crypto::SecretKey>(spendKeyPair.secretKey);
+  std::string viewSecretKey = Common::podToHex<Crypto::SecretKey>(viewKeyPair.secretKey);
+
+  log(Logging::INFO) << "New wallet is generated";
+  log(Logging::INFO) <<  "Address : " << address << "\nSpend secret key : " << spendSecretKey <<
+    "\nView secret key : " << viewSecretKey;
 
   saveWallet(*wallet, walletFile, false, false);
   log(Logging::INFO) << "Wallet is saved";

@@ -756,8 +756,8 @@ TEST(Currency, 40)
 // getBlockReward() 1
 TEST(Currency, 41)
 {
-  size_t medianBlockSize = 100000;
-  size_t currentBlockSize = 100000;
+  size_t medianBlockSize = 1000000;
+  size_t currentBlockSize = 1000000;
   uint64_t alreadyGeneratedCoins = 1000000;
   uint64_t fee = 100;
 
@@ -771,9 +771,9 @@ TEST(Currency, 41)
 
   ASSERT_TRUE(currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
 
-  // baseReward is 0.89406967 plus 0.00000100 fee gives total reward of 0.89407067
-  ASSERT_EQ(reward, 89407067);
-  ASSERT_EQ(emissionChange, 89406967);
+  // baseReward is 0.894069671 plus 0.00000100 fee gives total reward of 0.894069771
+  ASSERT_EQ(894069771, reward);
+  ASSERT_EQ(894069671, emissionChange);
 }
 
 // getBlockReward() 2
@@ -793,9 +793,9 @@ TEST(Currency, 42)
 
   ASSERT_TRUE(currencyBuilder.currency().getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
 
-  // full block reward is 89407067 (calculated in previous test)
-  ASSERT_EQ(reward, 67055300);
-  ASSERT_EQ(emissionChange, 67055200);
+  // baseReward is 0.894069671 plus 0.00000100 fee gives total reward of 0.894069771
+  ASSERT_EQ(894069771, reward);
+  ASSERT_EQ(894069671, emissionChange);
 }
 
 // maxBlockCumulativeSize()
@@ -960,28 +960,28 @@ TEST(Currency, 50)
 
   uint64_t amount = 0;
   std::string formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "0.00000000");
+  ASSERT_EQ(formattedAmount, "0.000000000");
 
   amount = 1;
   formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "0.00000001");
+  ASSERT_EQ(formattedAmount, "0.000000001");
 
-  amount = 12345678;
+  amount = 123456789;
   formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "0.12345678");
+  ASSERT_EQ(formattedAmount, "0.123456789");
 
-  amount = 1234567812345678;
+  amount = 123456789123456789;
   formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "12345678.12345678");
+  ASSERT_EQ(formattedAmount, "123456789.123456789");
 
-  amount = 1111111111122222222;
+  amount = 1111111111222222222;
   formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "11111111111.22222222");
+  ASSERT_EQ(formattedAmount, "1111111111.222222222");
 
   // near maximum amount
   amount = 9211111111111111111;
   formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "92111111111.11111111");
+  ASSERT_EQ(formattedAmount, "9211111111.111111111");
 }
 
 // formatAmount()
@@ -996,29 +996,29 @@ TEST(Currency, 51)
 
   int64_t amount = 0;
   std::string formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "0.00000000");
+  ASSERT_EQ(formattedAmount, "0.000000000");
 
   amount = -1;
   formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "-0.00000001");
+  ASSERT_EQ(formattedAmount, "-0.000000001");
 
-  amount = -12345678;
+  amount = -123456789;
   formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "-0.12345678");
+  ASSERT_EQ(formattedAmount, "-0.123456789");
 
-  amount = -1234567812345678;
+  amount = -123456789123456789;
   formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "-12345678.12345678");
+  ASSERT_EQ(formattedAmount, "-123456789.123456789");
 
-  amount = -1111111111122222222;
+  amount = -1111111111222222222;
   formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "-11111111111.22222222");
+  ASSERT_EQ(formattedAmount, "-1111111111.222222222");
 
   // near maximum amount
   // I don't understand how this number is not too large for an int64_t
   amount = -9211111111111111111;
   formattedAmount = currency.formatAmount(amount);
-  ASSERT_EQ(formattedAmount, "-92111111111.11111111");
+  ASSERT_EQ(formattedAmount, "-9211111111.111111111");
 }
 
 // parseAmount()
@@ -1033,17 +1033,17 @@ TEST(Currency, 52)
   std::string amountString = "100";
   uint64_t amount;
   ASSERT_TRUE(currency.parseAmount(amountString, amount));
-  ASSERT_EQ(amount, 10000000000);
+  ASSERT_EQ(amount, 100000000000);
 
   amountString = "1";
   ASSERT_TRUE(currency.parseAmount(amountString, amount));
-  ASSERT_EQ(amount, 100000000);
+  ASSERT_EQ(amount, 1000000000);
 
-  amountString = "0.00000001";
+  amountString = "0.000000001";
   ASSERT_TRUE(currency.parseAmount(amountString, amount));
   ASSERT_EQ(amount, 1);
 
-  amountString = "0.0000000123456";
+  amountString = "0.00000000123456";
   ASSERT_FALSE(currency.parseAmount(amountString, amount));
   ASSERT_EQ(amount, 1);
 }
@@ -1059,11 +1059,11 @@ TEST(Currency, 53)
 
   std::vector<uint64_t> timestamps = {1};
   std::vector<difficulty_type> cumulativeDifficulties = {1};
-  ASSERT_EQ(currency.nextDifficulty(timestamps, cumulativeDifficulties), 1);
+  ASSERT_EQ(currency.nextDifficulty(timestamps, cumulativeDifficulties), 100000);
 
   timestamps = {1, 2};
   cumulativeDifficulties = {1, 2};
-  ASSERT_EQ(currency.nextDifficulty(timestamps, cumulativeDifficulties), 1);
+  ASSERT_EQ(currency.nextDifficulty(timestamps, cumulativeDifficulties), 100000);
 
   // the numbers used in ASSERT_EQ are gotten using gdb
   // formula is too complicated to calculate next difficulty
