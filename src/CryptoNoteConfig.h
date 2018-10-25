@@ -13,13 +13,13 @@ namespace parameters {
 //TODO Define preferred block's target time
 const uint64_t DIFFICULTY_TARGET                             = 9; // seconds
 
-const uint64_t CRYPTONOTE_MAX_BLOCK_NUMBER                   = 500000000;
+const uint64_t CRYPTONOTE_MAX_BLOCK_NUMBER                   = ((uint64_t)(-1));
 const size_t   CRYPTONOTE_MAX_BLOCK_BLOB_SIZE                = 500000000;
 const size_t   CRYPTONOTE_MAX_TX_SIZE                        = 1000000000;
 //TODO Currency-specific address prefix
 const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 0x6;
 //TODO Choose maturity period for your currency
-const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 60;
+const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 100;
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 3 * DIFFICULTY_TARGET;
 
 const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 11;
@@ -34,7 +34,7 @@ static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED
 //TODO Define number of blocks for block size median calculation
 const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 60 * 24 * 60 * 60 / DIFFICULTY_TARGET; // number of blocks produced in 60 days
 // size of block (bytes) after which reward for block calculated using block size
-const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 1000000; //size of block (bytes) after which reward for block calculated using block size
+const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 1024 * 1024; //size of block (bytes) after which reward for block calculated using block size, 1 mb
 const size_t   CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        = 600;
 //TODO Define number of digits
 const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 9;
@@ -51,15 +51,15 @@ const size_t   DIFFICULTY_CUT                                = 40;  // timestamp
 const size_t   DIFFICULTY_LAG                                = 15;
 static_assert(2 * DIFFICULTY_CUT <= DIFFICULTY_WINDOW - 2, "Bad DIFFICULTY_WINDOW or DIFFICULTY_CUT");
 
-const size_t   MAX_BLOCK_SIZE_INITIAL                        =  20 * 1024;
+const size_t   MAX_BLOCK_SIZE_INITIAL                        = 2 * 1024 * 1024; // 2 mb
 const uint64_t MAX_BLOCK_SIZE_GROWTH_SPEED_NUMERATOR         = 100 * 1024;
 const uint64_t MAX_BLOCK_SIZE_GROWTH_SPEED_DENOMINATOR       = 365 * 24 * 60 * 60 / DIFFICULTY_TARGET;
 
 const uint64_t CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS     = 1;
 const uint64_t CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_SECONDS    = DIFFICULTY_TARGET * CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS;
 
-const uint64_t CRYPTONOTE_MEMPOOL_TX_LIVETIME                = 60 * 60;     //seconds, one hour
-const uint64_t CRYPTONOTE_MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME = 60 * 60;     //seconds, one hour
+const uint64_t CRYPTONOTE_MEMPOOL_TX_LIVETIME                = 60 * 5;     //seconds, 5 minutes
+const uint64_t CRYPTONOTE_MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME = 60 * 5;     //seconds, 5 minutes
 const uint64_t CRYPTONOTE_NUMBER_OF_PERIODS_TO_FORGET_TX_DELETED_FROM_POOL = 1;  // CRYPTONOTE_NUMBER_OF_PERIODS_TO_FORGET_TX_DELETED_FROM_POOL * CRYPTONOTE_MEMPOOL_TX_LIVETIME = time to forget tx
 
 const size_t   FUSION_TX_MAX_SIZE                            = CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE * 30 / 100;
@@ -80,19 +80,19 @@ const char     MINER_CONFIG_FILE_NAME[]                      = "miner_conf.json"
 const char     CRYPTONOTE_NAME[]                             = "cash2";
 const char     GENESIS_COINBASE_TX_HEX[]                     = "";
 
-const uint8_t  CURRENT_TRANSACTION_VERSION                   =  1;
+const uint8_t  CURRENT_TRANSACTION_VERSION                   = 1;
 
-const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        =  10000;  //by default, blocks ids count in synchronizing
-const size_t   BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            =  200;    //by default, blocks count in blocks downloading
-const size_t   COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT         =  1000;
+const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        = 10000;  //by default, blocks ids count in synchronizing
+const size_t   BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            = 200;    //by default, blocks count in blocks downloading
+const size_t   COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT         = 1000;
 
 //TODO This port will be used by the daemon to establish connections with p2p network
 const int      P2P_DEFAULT_PORT                              = 12275;
 //TODO This port will be used by the daemon to interact with simlewallet
 const int      RPC_DEFAULT_PORT                              = 12276;
 
-const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                =  1000;
-const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 =  5000;
+const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                = 1000;
+const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 = 5000;
 
 const size_t   P2P_CONNECTION_MAX_WRITE_BUFFER_SIZE          = 16 * 1024 * 1024; // 16 MB
 const uint32_t P2P_DEFAULT_CONNECTIONS_COUNT                 = 8;
@@ -123,9 +123,7 @@ __attribute__((unused))
 
 // You may add here other checkpoints using the following format:
 // {<block height>, "<block hash>"},
-const std::initializer_list<CheckpointData> CHECKPOINTS = {
-  //{ 10000, "84b6345731e2702cdaadc6ce5e5238c4ca5ecf48e3447136b2ed829b8a95f3ad" },
-};
+const std::initializer_list<CheckpointData> CHECKPOINTS = {};
 
 } // end namespace CryptoNote
 
