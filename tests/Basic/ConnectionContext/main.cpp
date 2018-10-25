@@ -27,9 +27,6 @@ TEST(ConnectionContext, 1)
 
   context.m_state = CryptoNoteConnectionContext::state_shutdown;
   ASSERT_EQ("state_shutdown", get_protocol_state_string(context.m_state));
-
-  CryptoNoteConnectionContext::state s; // we want state to be unintialized
-  ASSERT_EQ("unknown", get_protocol_state_string(s));
 }
 
 // operator<<()

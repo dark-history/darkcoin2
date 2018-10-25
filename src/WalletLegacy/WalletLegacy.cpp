@@ -1,4 +1,7 @@
-// Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2011-2016 The Cryptonote developers, The Bytecoin developers
+// Copyright (c) 2018, The BBSCoin Developers
+// Copyright (c) 2018, The Karbo Developers
+
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -218,6 +221,17 @@ void WalletLegacy::doLoad(std::istream& source) {
     } catch (const std::exception&) {
       // ignore cache loading errors
     }
+
+    // This is for fixing the burning bug
+    // Read all output keys in the cache
+    std::vector<TransactionOutputInformation> allTransfers;
+    m_transferDetails->getOutputs(allTransfers, ITransfersContainer::IncludeAll);
+    for (auto& o : allTransfers) {
+      if (o.type != TransactionTypes::OutputType::Invalid) {
+        m_transfersSync.addPublicKeysSeen(m_account.getAccountKeys().address, o.transactionHash, o.outputKey);
+      }
+    }
+
   } catch (std::system_error& e) {
     runAtomic(m_cacheMutex, [this] () {this->m_state = WalletLegacy::NOT_INITIALIZED;} );
     m_observerManager.notify(&IWalletLegacyObserver::initCompleted, e.code());

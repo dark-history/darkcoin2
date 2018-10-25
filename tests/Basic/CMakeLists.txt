@@ -1,24 +1,22 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
+file(GLOB_RECURSE ConnectionContext ConnectionContext/*)
 
-file(GLOB_RECURSE TransactionPool TransactionPool/*)
+source_group("" FILES ${ConnectionContext})
 
-source_group("" FILES ${TransactionPool})
+add_executable(ConnectionContext ${ConnectionContext})
 
-add_executable(TransactionPool ${TransactionPool})
+target_link_libraries(ConnectionContext gtest_main Common ${Boost_LIBRARIES})
 
-target_link_libraries(TransactionPool gtest_main CryptoNoteCore Crypto Serialization Logging BlockchainExplorer Common ${Boost_LIBRARIES})
+add_custom_target(Basic DEPENDS ConnectionContext)
 
-add_custom_target(Basic DEPENDS TransactionPool)
+set_property(TARGET Basic ConnectionContext PROPERTY FOLDER "Basic")
 
-set_property(TARGET Basic TransactionPool PROPERTY FOLDER "Basic")
-
-set_property(TARGET TransactionPool PROPERTY OUTPUT_NAME "TransactionPool")
+set_property(TARGET ConnectionContext PROPERTY OUTPUT_NAME "ConnectionContext")
 
 if(NOT MSVC)
   # suppress warnings from gtest
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_test(TransactionPool TransactionPool)
+add_test(ConnectionContext ConnectionContext)

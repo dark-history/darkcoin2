@@ -92,7 +92,7 @@ public:
 };
 
 // Adds an empty block to the blockchain
-bool addBlock1(core& core)
+bool addBlock1(core& core, Currency& currency)
 {
   uint32_t currentBlockchainHeight = core.get_current_blockchain_height();
 
@@ -110,7 +110,15 @@ bool addBlock1(core& core)
 
   core.get_block_template(block, accountPublicAddress, difficulty, height, extraNonce);
 
-  block.timestamp = time(nullptr) + (currentBlockchainHeight * parameters::DIFFICULTY_TARGET);
+  // block.timestamp = time(nullptr) + (currentBlockchainHeight * parameters::DIFFICULTY_TARGET);
+
+  // find nonce appropriate for current difficulty
+  Crypto::Hash proofOfWorkIgnore = NULL_HASH;
+  Crypto::cn_context context;
+  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  {
+    block.nonce++;
+  }
 
   bool blockAdded = core.handle_block_found(block);
 
@@ -290,7 +298,7 @@ TEST(CryptoNoteProtocolHandler, 11)
   CryptoNoteProtocolHandler handler(currency, dispatcher, core, &p2pEndpointStub, logger);
 
   // must have blocks in the blockchain for this function to work
-  ASSERT_TRUE(addBlock1(core));
+  ASSERT_TRUE(addBlock1(core, currency));
 
   CryptoNoteConnectionContext context;
   handler.onConnectionClosed(context);
@@ -329,7 +337,7 @@ TEST(CryptoNoteProtocolHandler, 13)
   CryptoNoteProtocolHandler handler(currency, dispatcher, core, &p2pEndpointStub, logger);
 
   // must have blocks in the blockchain for this function to work
-  ASSERT_TRUE(addBlock1(core));
+  ASSERT_TRUE(addBlock1(core, currency));
 
   CORE_SYNC_DATA hshd;
   ASSERT_TRUE(handler.get_payload_sync_data(hshd));
@@ -353,7 +361,7 @@ TEST(CryptoNoteProtocolHandler, 14)
   CryptoNoteProtocolHandler handler(currency, dispatcher, core, &p2pEndpointStub, logger);
 
   // must have blocks in the blockchain for this function to work
-  ASSERT_TRUE(addBlock1(core));
+  ASSERT_TRUE(addBlock1(core, currency));
 
   CORE_SYNC_DATA hshd;
   ASSERT_TRUE(handler.get_payload_sync_data(hshd));
@@ -422,7 +430,7 @@ TEST(CryptoNoteProtocolHandler, 17)
   ASSERT_EQ(0, height);
 
   // must have blocks in the blockchain for get_payload_sync_data() to work
-  ASSERT_TRUE(addBlock1(core));
+  ASSERT_TRUE(addBlock1(core, currency));
 
   CORE_SYNC_DATA hshd;
   // get_payload_sync_data() updates the observer height
@@ -438,7 +446,7 @@ TEST(CryptoNoteProtocolHandler, 17)
   // add 10 more blocks
   for (int i = 0; i < 10; i++)
   {
-    ASSERT_TRUE(addBlock1(core));
+    ASSERT_TRUE(addBlock1(core, currency));
   }
 
   // check observed height again
