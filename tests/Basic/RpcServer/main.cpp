@@ -1,28 +1,16 @@
+// Copyright (c) 2018 The Cash2 developers
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #include "gtest/gtest.h"
 #include "helperFunctions.h"
-// #include "CryptoNoteCore/Miner.h"
 #include "CryptoNoteCore/Core.h"
-// #include "CryptoNoteCore/Blockchain.h"
 #include "CryptoNoteCore/Currency.h"
-// #include "CryptoNoteCore/TransactionPool.h"
-// #include "CryptoNoteCore/MessageQueue.h"
 #include "CryptoNoteCore/CryptoNoteTools.h"
-// #include "CryptoNoteCore/CryptoNoteBasic.h"
-// #include "CryptoNoteCore/CryptoNoteFormatUtils.h"
-// #include "CryptoNoteCore/TransactionExtra.h"
-// #include "CryptoNoteConfig.h"
 #include "Logging/ConsoleLogger.h"
-// #include "Common/Math.h"
-// #include "CryptoNoteProtocol/CryptoNoteProtocolHandlerCommon.h"
 #include "CryptoNoteCore/CoreConfig.h"
 #include "CryptoNoteCore/MinerConfig.h"
-// #include "CryptoNoteCore/IBlock.h"
-// #include "CryptoNoteProtocol/CryptoNoteProtocolDefinitions.h"
-// #include "Rpc/CoreRpcServerCommandsDefinitions.h"
-// #include "CryptoNoteCore/CryptoNoteStatInfo.h"
 #include "Common/StringTools.h"
-// #include <random>
-// #include <iostream>
 
 using namespace CryptoNote;
 
