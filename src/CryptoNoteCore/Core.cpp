@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
-// Copyright (c) 2016-2018, The Karbowanec developers
+// Copyright (c) 2016-2018, The Karbowanec developers, The Monero developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -349,37 +349,41 @@ bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficu
   {
     LockedBlockchainStorage blockchainLock(m_blockchain);
     height = m_blockchain.getCurrentBlockchainHeight();
+    diffic = m_blockchain.getDifficultyForNextBlock();
+    
+    if (!(diffic))
+    {
+      logger(ERROR, BRIGHT_RED) << "difficulty overhead.";
+      return false;
+    }
 
     b = boost::value_initialized<Block>();
+
     b.previousBlockHash = get_tail_id();
     b.timestamp = time(NULL);
 
-    uint64_t blockchain_timestamp_check_window = 400; // move to CryptoNoteConfig.h
-
-    if(m_blockchain.getCurrentBlockchainHeight() >= blockchain_timestamp_check_window) {
+    // Don't generate a block template with invalid timestamp
+    // Fix by Jagerman
+    // https://github.com/graft-project/GraftNetwork/pull/118/commits
+    if (height >= m_currency.timestampCheckWindow())
+    {
       std::vector<uint64_t> timestamps;
-      auto h = m_blockchain.getCurrentBlockchainHeight();
-
-      for(size_t offset = h - blockchain_timestamp_check_window; offset < h; offset++)
+      for(size_t offset = height - m_currency.timestampCheckWindow(); offset < height; ++offset)
       {
-        // timestamps.push_back(m_db->get_block_timestamp(offset));
-        std::list<Block> blocks;
-        m_blockchain.getBlocks(offset, 1, blocks);
-        timestamps.push_back(blocks.front().timestamp);
+        Crypto::Hash blockHash = getBlockIdByHeight(offset);
+        Block block;
+        if (getBlockByHash(blockHash, block))
+        {
+          timestamps.push_back(block.timestamp);
+        }
       }
-      // uint64_t median_ts = epee::misc_utils::median(timestamps);
-
-      uint64_t medianTimestamp = medianValue<uint64_t>(timestamps);
-
-      if (b.timestamp < medianTimestamp) {
-        b.timestamp = medianTimestamp;
+      
+      uint64_t median_ts = Common::medianValue(timestamps);
+      
+      if (b.timestamp < median_ts)
+      {
+         b.timestamp = median_ts;
       }
-    }
-
-    diffic = m_blockchain.getDifficultyForNextBlock();
-    if (!(diffic)) {
-      logger(ERROR, BRIGHT_RED) << "difficulty overhead.";
-      return false;
     }
 
     median_size = m_blockchain.getCurrentCumulativeBlocksizeLimit() / 2;

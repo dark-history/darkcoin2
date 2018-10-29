@@ -37,7 +37,7 @@ namespace CryptoNote {
 
 template <class T>
 std::ostream &print256(std::ostream &o, const T &v) {
-  return o << "<" << Common::podToHex(v) << ">";
+  return o << Common::podToHex(v);
 }
 
 bool parse_hash256(const std::string& str_hash, Crypto::Hash& hash);

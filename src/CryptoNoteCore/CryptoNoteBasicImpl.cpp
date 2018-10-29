@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2011-2016 The Cryptonote developers, The Bytecoin developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -38,7 +38,11 @@ namespace CryptoNote {
     }
 
     uint64_t productHi;
-    uint64_t productLo = mul128(amount, currentBlockSize * (UINT64_C(2) * medianSize - currentBlockSize), &productHi);
+    //uint64_t productLo = mul128(amount, currentBlockSize * (UINT64_C(2) * medianSize - currentBlockSize), &productHi);
+    //BUGFIX by Monero Project: 32-bit saturation bug (e.g. ARM7), the result was being treated as 32-bit by default
+    uint64_t multiplicand = UINT64_C(2) * medianSize - currentBlockSize;
+    multiplicand *= currentBlockSize;
+    uint64_t productLo = mul128(amount, multiplicand, &productHi);
 
     uint64_t penalizedAmountHi;
     uint64_t penalizedAmountLo;
