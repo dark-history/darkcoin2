@@ -160,7 +160,11 @@ void WalletLegacySerializer::decrypt(const std::string& cipher, std::string& pla
 void WalletLegacySerializer::loadKeys(CryptoNote::ISerializer& serializer) {
   CryptoNote::KeysStorage keys;
 
-  keys.serialize(serializer, "keys");
+  try {
+    keys.serialize(serializer, "keys");
+  } catch (const std::runtime_error&) {
+    throw std::system_error(make_error_code(CryptoNote::error::WRONG_PASSWORD));
+  }
 
   CryptoNote::AccountKeys acc;
   acc.address.spendPublicKey = keys.spendPublicKey;

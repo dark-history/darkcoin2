@@ -19,8 +19,6 @@ namespace CryptoNote {
   public:
     AccountBase();
     void generate();
-    static void viewKeysFromSpendSecretKey(const Crypto::SecretKey& spendSecretKey, Crypto::PublicKey& viewPublicKey, Crypto::SecretKey& viewSecretKey);
-
     const AccountKeys& getAccountKeys() const;
     void setAccountKeys(const AccountKeys& keys);
     uint64_t get_createtime() const { return m_creation_timestamp; }

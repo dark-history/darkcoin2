@@ -64,7 +64,7 @@ bool Currency::init() {
     m_blocksCacheFileName = "testnet_" + m_blocksCacheFileName;
     m_blockIndexesFileName = "testnet_" + m_blockIndexesFileName;
     m_txPoolFileName = "testnet_" + m_txPoolFileName;
-    m_blockchinIndicesFileName = "testnet_" + m_blockchinIndicesFileName;
+    m_blockchainIndicesFileName = "testnet_" + m_blockchainIndicesFileName;
   }
 
   return true;
@@ -129,7 +129,7 @@ size_t Currency::maxBlockCumulativeSize(uint64_t height) const {
 
 bool Currency::constructMinerTx(uint32_t height, size_t medianSize, uint64_t alreadyGeneratedCoins, size_t currentBlockSize,
   uint64_t fee, const AccountPublicAddress& minerAddress, Transaction& tx,
-  const BinaryArray& extraNonce/* = BinaryArray()*/, size_t maxOuts/* = 1*/) const {
+  const BinaryArray& extraNonce, size_t maxOuts) const {
   tx.inputs.clear();
   tx.outputs.clear();
   tx.extra.clear();
@@ -488,7 +488,7 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
   blocksCacheFileName(parameters::CRYPTONOTE_BLOCKSCACHE_FILENAME);
   blockIndexesFileName(parameters::CRYPTONOTE_BLOCKINDEXES_FILENAME);
   txPoolFileName(parameters::CRYPTONOTE_POOLDATA_FILENAME);
-  blockchinIndicesFileName(parameters::CRYPTONOTE_BLOCKCHAIN_INDICES_FILENAME);
+  blockchainIndicesFileName(parameters::CRYPTONOTE_BLOCKCHAIN_INDICES_FILENAME);
 
   testnet(false);
 }

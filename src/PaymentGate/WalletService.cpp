@@ -295,7 +295,7 @@ std::vector<PaymentService::TransactionHashesInBlockRpcInfo> convertTransactions
 
 void validateMixin(const uint16_t& mixin, const CryptoNote::Currency& currency, Logging::LoggerRef logger) {
   if (mixin > currency.maxMixin()) {
-    logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Mixin must be less than " << currency.maxMixin();
+    logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Mixin must be less than " << currency.maxMixin() + 1;
     throw std::system_error(make_error_code(CryptoNote::error::MIXIN_COUNT_TOO_BIG));
   }
 }

@@ -88,9 +88,13 @@ struct TransactionOutputInformationEx : public TransactionOutputInformationIn {
     s(visible, "");
 
     if (type == TransactionTypes::OutputType::Key)
+    {
       s(outputKey, "");
+    }
     else if (type == TransactionTypes::OutputType::Multisignature)
+    {
       s(requiredSignatures, "");
+    }
   }
 
 };

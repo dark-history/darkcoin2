@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2011-2016 The Cryptonote developers, The Bytecoin developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -243,7 +243,29 @@ bool TransfersContainer::addTransactionOutputs(const TransactionBlockInfo& block
       (void)result; // Disable unused warning
       assert(result.second);
     } else {
-      if (info.type == TransactionTypes::OutputType::Multisignature) {
+      if (info.type == TransactionTypes::OutputType::Key) {
+        bool duplicate = false;
+        SpentOutputDescriptor descriptor(transfer);
+
+        auto availableRange = m_availableTransfers.get<SpentOutputDescriptorIndex>().equal_range(descriptor);
+        for (auto it = availableRange.first; !duplicate && it != availableRange.second; ++it) {
+          if (it->transactionHash == info.transactionHash && it->outputInTransaction == info.outputInTransaction) {
+            duplicate = true;
+          }
+        }
+
+        auto spentRange = m_spentTransfers.get<SpentOutputDescriptorIndex>().equal_range(descriptor);
+        for (auto it = spentRange.first; !duplicate && it != spentRange.second; ++it) {
+          if (it->transactionHash == info.transactionHash && it->outputInTransaction == info.outputInTransaction) {
+            duplicate = true;
+          }
+        }
+
+        if (duplicate) {
+          auto message = "Failed to add transaction output: key output already exists";
+          throw std::runtime_error(message);
+        }
+      } else if (info.type == TransactionTypes::OutputType::Multisignature) {
         SpentOutputDescriptor descriptor(transfer);
         if (m_availableTransfers.get<SpentOutputDescriptorIndex>().count(descriptor) > 0 ||
             m_spentTransfers.get<SpentOutputDescriptorIndex>().count(descriptor) > 0) {
