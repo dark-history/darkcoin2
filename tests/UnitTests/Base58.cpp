@@ -378,39 +378,39 @@ TEST_decode_neg(111111111111_111111111);
     do_test_encode_decode_addr(UINT64_C(tag), MAKE_STR(data), #addr); \
   }
 
-TEST_encode_decode_addr(21D35quxec71111111111111111111111111111111111111111111111111111111111111111111111111111116Q5tCH, 6,
+TEST_encode_decode_addr(21D35quxec71111111111111111111111111111111111111111111111111111111111111111111111111111117DCT1u, 6,
                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");
-TEST_encode_decode_addr(2Aui6ejTFscjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVqegMoV, 6,
+TEST_encode_decode_addr(2Aui6ejTFscjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVrFHqfP, 6,
                         "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"
                         "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF");
-TEST_encode_decode_addr(1119XrkPuSmLzdHXgVgrZKjepg5hZAxffLzdHXgVgrZKjepg5hZAxffLzdHXgVgrZKjepg5hZAxffLzdHXgVgrZKVphZRvn, 0,
+TEST_encode_decode_addr(1119XrkPuSmLzdHXgVgrZKjepg5hZAxffLzdHXgVgrZKjepg5hZAxffLzdHXgVgrZKjepg5hZAxffLzdHXgVgrZKVsvKKYw, 0,
                         "\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xAA\xBB\xCC\xDD\xEE\xFF\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xAA\xBB\xCC\xDD\xEE\xFF"
                         "\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xAA\xBB\xCC\xDD\xEE\xFF\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xAA\xBB\xCC\xDD\xEE\xFF");
-TEST_encode_decode_addr(111111111111111111111111111111111111111111111111111111111111111111111111111111111111111115TXfiA, 0,
+TEST_encode_decode_addr(111111111111111111111111111111111111111111111111111111111111111111111111111111111111111116QGnML, 0,
                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");
-TEST_encode_decode_addr(PuT7GAdgbA83qvSEivPLYo11111111111111111111111111111111111111111111111111111111111111111111111111111169tWrH, 0x1122334455667788,
+TEST_encode_decode_addr(PuT7GAdgbA83qvSEivPLYo1111111111111111111111111111111111111111111111111111111111111111111111111111112rSWj3, 0x1122334455667788,
                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");
-TEST_encode_decode_addr(PuT7GAdgbA841d7FXjswpJjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVq4LL1v, 0x1122334455667788,
+TEST_encode_decode_addr(PuT7GAdgbA841d7FXjswpJjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVms5VhB, 0x1122334455667788,
                         "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"
                         "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF");
-TEST_encode_decode_addr(PuT7GAdgbA819VwdWVDP,            0x1122334455667788, "\x11");
-TEST_encode_decode_addr(PuT7GAdgbA81efAfdCjPg,           0x1122334455667788, "\x22\x22");
-TEST_encode_decode_addr(PuT7GAdgbA83sryEt3YC8Q,          0x1122334455667788, "\x33\x33\x33");
-TEST_encode_decode_addr(PuT7GAdgbA83tWUuc54PFP3b,        0x1122334455667788, "\x44\x44\x44\x44");
-TEST_encode_decode_addr(PuT7GAdgbA83u9zaKrtRKZ1J6,       0x1122334455667788, "\x55\x55\x55\x55\x55");
-TEST_encode_decode_addr(PuT7GAdgbA83uoWF3eanGG1aRoG,     0x1122334455667788, "\x66\x66\x66\x66\x66\x66");
-TEST_encode_decode_addr(PuT7GAdgbA83vT1umSHMYJ4oNVdu,    0x1122334455667788, "\x77\x77\x77\x77\x77\x77\x77");
-TEST_encode_decode_addr(PuT7GAdgbA83w6XaVDyvpoGQBEWbB,   0x1122334455667788, "\x88\x88\x88\x88\x88\x88\x88\x88");
-TEST_encode_decode_addr(PuT7GAdgbA83wk3FD1gW7J2KVGofA1r, 0x1122334455667788, "\x99\x99\x99\x99\x99\x99\x99\x99\x99");
-TEST_encode_decode_addr(15p2yAV,                         0, "");
-TEST_encode_decode_addr(FNQ3D6A,                         0x7F, "");
-TEST_encode_decode_addr(26k9QWweu,                       0x80, "");
-TEST_encode_decode_addr(3BzAD7n3y,                       0xFF, "");
-TEST_encode_decode_addr(11efCaY6UjG7JrxuB,               0, "\x11\x22\x33\x44\x55\x66\x77");
-TEST_encode_decode_addr(21rhHRT48LN4PriP9,               6, "\x11\x22\x33\x44\x55\x66\x77");
+TEST_encode_decode_addr(PuT7GAdgbA819VyyBLbs,            0x1122334455667788, "\x11");
+TEST_encode_decode_addr(PuT7GAdgbA81efAiK31Hz,           0x1122334455667788, "\x22\x22");
+TEST_encode_decode_addr(PuT7GAdgbA83sryEtDjvG4,          0x1122334455667788, "\x33\x33\x33");
+TEST_encode_decode_addr(PuT7GAdgbA83tWUuc6CSBJ3U,        0x1122334455667788, "\x44\x44\x44\x44");
+TEST_encode_decode_addr(PuT7GAdgbA83u9zaKrtFFs4fQ,       0x1122334455667788, "\x55\x55\x55\x55\x55");
+TEST_encode_decode_addr(PuT7GAdgbA83uoWF3eanFs17rX7,     0x1122334455667788, "\x66\x66\x66\x66\x66\x66");
+TEST_encode_decode_addr(PuT7GAdgbA83vT1umSHMYJ3YST32,    0x1122334455667788, "\x77\x77\x77\x77\x77\x77\x77");
+TEST_encode_decode_addr(PuT7GAdgbA83w6XaVDyvpoGTBJFBL,   0x1122334455667788, "\x88\x88\x88\x88\x88\x88\x88\x88");
+TEST_encode_decode_addr(PuT7GAdgbA83wk3FD1gW7J2KVL4JYwB, 0x1122334455667788, "\x99\x99\x99\x99\x99\x99\x99\x99\x99");
+TEST_encode_decode_addr(115ahhP,                         0, "");
+TEST_encode_decode_addr(FQAC7o6,                         0x7F, "");
+TEST_encode_decode_addr(26k6k8Zze,                       0x80, "");
+TEST_encode_decode_addr(3BzB5DBYF,                       0xFF, "");
+TEST_encode_decode_addr(11efCaY6UjG65YFsC,               0, "\x11\x22\x33\x44\x55\x66\x77");
+TEST_encode_decode_addr(21rhHRT48LN19e63n,               6, "\x11\x22\x33\x44\x55\x66\x77");
 
 
 #define TEST_decode_addr_neg(addr, test_name)                     \
@@ -446,7 +446,7 @@ namespace
     "\x64\x18\x74\x51\x3a\x03\x57\x78\xa0\xc1\x77\x8d\x83\x32\x01\xe9"
     "\x22\x09\x39\x68\x9e\xdf\x1a\xbd\x5b\xc1\xd0\x31\xf7\x3e\xcd\x6c"
     "\x99\x3a\xdd\x66\xd6\x80\x88\x70\x45\x6a\xfe\xb8\xe7\xee\xb6\x8d");
-  std::string test_keys_addr_str = "2AaF4qEmER6dNeM6dfiBFL7kqund3HYGvMBF3ttsNd9SfzgYB6L7ep1Yg1osYJzLdaKAYSLVh6e6jKnAuzj3bw1oGyd1x7Z";
+  std::string test_keys_addr_str = "2AaF4qEmER6dNeM6dfiBFL7kqund3HYGvMBF3ttsNd9SfzgYB6L7ep1Yg1osYJzLdaKAYSLVh6e6jKnAuzj3bw1oGyAg811";
   const uint64_t TEST_PUBLIC_ADDRESS_BASE58_PREFIX = 6;
 }
 
