@@ -106,7 +106,8 @@ struct SaveOnInitWalletObserver: public CryptoNote::IWalletLegacyObserver {
 // static const uint64_t TEST_BLOCK_REWARD = 70368744177663; // infinite coins, emission speed factor 18, 120 second block times
 // static const uint64_t TEST_BLOCK_REWARD = 5722045898; // 15,000,000 coins, emission speed factor 18, 120 second block times
 // static const uint64_t TEST_BLOCK_REWARD = 89406967; // 15,000,000 coins, emission speed factor 24, 9 second block times
-static const uint64_t TEST_BLOCK_REWARD = 715255737; // 15,000,000 coins, emission speed factor 21, 60 second block times
+// static const uint64_t TEST_BLOCK_REWARD = 715255737; // 15,000,000 coins, emission speed factor 21, 60 second block times
+static const uint64_t TEST_BLOCK_REWARD = 894069671; // 15,000,000 coins, emission speed factor 24, 9 second block times, 9 decimal places
 
 
 CryptoNote::TransactionId TransferMoney(CryptoNote::WalletLegacy& from, CryptoNote::WalletLegacy& to, int64_t amount, uint64_t fee, uint64_t mixIn = 0, const std::string& extra = "") {
@@ -975,8 +976,7 @@ TEST_F(WalletLegacyApi, balanceAfterFailedTransaction) {
   auto actualBalance = alice->actualBalance();
   auto pendingBalance = alice->pendingBalance();
 
-  // uint64_t send = 11000000; // this works for emission speed factor 24 and difficulty target 9
-  uint64_t send = 100000; // this works for emission speed factor 21 and difficulty target 60
+  uint64_t send = 100000;
   uint64_t fee = m_currency.minimumFee();
 
   CryptoNote::WalletLegacyTransfer tr;
@@ -1288,7 +1288,7 @@ TEST_F(WalletLegacyApi, sendAfterFailedTransaction) {
   alice->shutdown();
 }
 
-TEST_F(WalletLegacyApi, DISABLED_loadingBrokenCache) {
+TEST_F(WalletLegacyApi, loadingBrokenCache) {
   alice->initAndGenerate("pass");
 
   std::error_code result;
@@ -1748,7 +1748,7 @@ TEST_F(WalletLegacyApi, outdatedUnconfirmedTransactionDeletedOnNewBlock) {
 
   GetOneBlockRewardAndUnlock(wallet, walletObserver, node, currency, blockchainGenerator);
 
-  const std::string ADDRESS = "2634US2FAz86jZT73YmM8u5GPCknT2Wxj8bUCKivYKpThFhF2xsjygMGxbxZzM42zXhKUhym6Yy6qHHgkuWtruqiGkDpX6m";
+  const std::string ADDRESS = "289PHDF9koifRcCojG1mDjPvps7SwJWLeY6RjxZNzwnFRTUdCi1JKPQeojJMFsaTVwFdF8ZNpsfYF5sdUrnjjuHoJ2cProV";
   node.setNextTransactionToPool();
   auto id = wallet.sendTransaction({ADDRESS, static_cast<int64_t>(TEST_BLOCK_REWARD - m_currency.minimumFee())}, m_currency.minimumFee());
   WaitWalletSend(&walletObserver);
@@ -1784,7 +1784,7 @@ TEST_F(WalletLegacyApi, outdatedUnconfirmedTransactionDeletedOnLoad) {
 
   GetOneBlockRewardAndUnlock(wallet, walletObserver, node, currency, blockchainGenerator);
 
-  const std::string ADDRESS = "2634US2FAz86jZT73YmM8u5GPCknT2Wxj8bUCKivYKpThFhF2xsjygMGxbxZzM42zXhKUhym6Yy6qHHgkuWtruqiGkDpX6m";
+  const std::string ADDRESS = "289PHDF9koifRcCojG1mDjPvps7SwJWLeY6RjxZNzwnFRTUdCi1JKPQeojJMFsaTVwFdF8ZNpsfYF5sdUrnjjuHoJ2cProV";
   node.setNextTransactionToPool();
   auto id = wallet.sendTransaction({ADDRESS, static_cast<int64_t>(TEST_BLOCK_REWARD - m_currency.minimumFee())}, m_currency.minimumFee());
   WaitWalletSend(&walletObserver);

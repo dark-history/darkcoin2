@@ -218,7 +218,7 @@ protected:
 
   const uint64_t SENT = 12345;
   const uint64_t FEE;
-  const std::string RANDOM_ADDRESS = "2634US2FAz86jZT73YmM8u5GPCknT2Wxj8bUCKivYKpThFhF2xsjygMGxbxZzM42zXhKUhym6Yy6qHHgkuWtruqiGkDpX6m";
+  const std::string RANDOM_ADDRESS = "289PHDF9koifRcCojG1mDjPvps7SwJWLeY6RjxZNzwnFRTUdCi1JKPQeojJMFsaTVwFdF8ZNpsfYF5sdUrnjjuHoJ2cProV";
   const uint64_t FUSION_THRESHOLD;
 };
 
@@ -586,8 +586,8 @@ std::vector<CryptoNote::WalletTransfer> getTransfersFromTransaction(CryptoNote::
 // static const uint64_t TEST_BLOCK_REWARD = 70368744177663; // infinite coins, emission speed factor 18, 120 second block times
 // static const uint64_t TEST_BLOCK_REWARD = 5722045898; // 15,000,000 coins, emission speed factor 18, 120 second block times
 // static const uint64_t TEST_BLOCK_REWARD = 89406967; // 15,000,000 coins, emission speed factor 24, 9 second block times
-static const uint64_t TEST_BLOCK_REWARD = 715255737; // 15,000,000 coins, emission speed factor 21, 60 second block times
-
+// static const uint64_t TEST_BLOCK_REWARD = 715255737; // 15,000,000 coins, emission speed factor 21, 60 second block times
+static const uint64_t TEST_BLOCK_REWARD = 894069671; // 15,000,000 coins, emission speed factor 24, 9 second block times, 9 decimal places
 
 TEST_F(WalletApi, emptyBalance) {
   ASSERT_EQ(0, alice.getActualBalance());

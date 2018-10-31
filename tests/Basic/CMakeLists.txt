@@ -1,22 +1,24 @@
 add_definitions(-DSTATICLIB)
 
-file(GLOB_RECURSE ConnectionContext ConnectionContext/*)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
-source_group("" FILES ${ConnectionContext})
+file(GLOB_RECURSE CryptoNoteFormatUtils CryptoNoteFormatUtils/*)
 
-add_executable(ConnectionContext ${ConnectionContext})
+source_group("" FILES ${CryptoNoteFormatUtils})
 
-target_link_libraries(ConnectionContext gtest_main Common ${Boost_LIBRARIES})
+add_executable(CryptoNoteFormatUtils ${CryptoNoteFormatUtils})
 
-add_custom_target(Basic DEPENDS ConnectionContext)
+target_link_libraries(CryptoNoteFormatUtils gtest_main CryptoNoteCore Crypto Common Serialization Logging)
 
-set_property(TARGET Basic ConnectionContext PROPERTY FOLDER "Basic")
+add_custom_target(Basic DEPENDS CryptoNoteFormatUtils)
 
-set_property(TARGET ConnectionContext PROPERTY OUTPUT_NAME "ConnectionContext")
+set_property(TARGET Basic CryptoNoteFormatUtils PROPERTY FOLDER "Basic")
+
+set_property(TARGET CryptoNoteFormatUtils PROPERTY OUTPUT_NAME "CryptoNoteFormatUtils")
 
 if(NOT MSVC)
   # suppress warnings from gtest
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_test(ConnectionContext ConnectionContext)
+add_test(CryptoNoteFormatUtils CryptoNoteFormatUtils)
