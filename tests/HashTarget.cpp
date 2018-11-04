@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
       }
       if (b > 0) {
         memset(&h, 0, sizeof(Crypto::Hash));
-        ((char *) &h)[31] = b;
+        ((char *) &h)[0] = b;
         if (check_hash(h, diff) != (diff <= 255 / b)) {
           return 1;
         }
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     }
     if (diff < numeric_limits<uint64_t>::max() / 256) {
       uint64_t val = 0;
-      for (int i = 31; i >= 0; i--) {
+      for (int i = 0; i < 32; i++) {
         val = val * 256 + 255;
         ((char *) &h)[i] = static_cast<char>(val / diff);
         val %= diff;
