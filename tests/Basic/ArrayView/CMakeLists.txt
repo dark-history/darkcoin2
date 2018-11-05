@@ -1,5 +1,7 @@
 add_definitions(-DSTATICLIB)
 
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../version)
+
 file(GLOB_RECURSE ArrayView ArrayView/*)
 
 source_group("" FILES ${ArrayView})

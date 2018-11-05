@@ -1,5 +1,7 @@
 add_definitions(-DSTATICLIB)
 
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../version)
+
 file(GLOB_RECURSE Chacha8 Chacha8/*)
 
 source_group("" FILES ${Chacha8})
