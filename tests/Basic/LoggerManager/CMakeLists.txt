@@ -22,5 +22,3 @@ if(NOT MSVC)
   # suppress warnings from gtest
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
-
-add_test(LoggerManager LoggerManager)
