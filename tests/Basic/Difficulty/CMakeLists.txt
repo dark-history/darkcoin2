@@ -1,5 +1,7 @@
 add_definitions(-DSTATICLIB)
 
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../version)
+
 file(GLOB_RECURSE Difficulty Difficulty/*)
 
 source_group("" FILES ${Difficulty})

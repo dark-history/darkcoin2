@@ -1,5 +1,7 @@
 add_definitions(-DSTATICLIB)
 
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../version)
+
 file(GLOB_RECURSE DecomposeAmountIntoDigits DecomposeAmountIntoDigits/*)
 
 source_group("" FILES ${DecomposeAmountIntoDigits})
