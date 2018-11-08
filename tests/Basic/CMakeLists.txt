@@ -2,19 +2,21 @@ add_definitions(-DSTATICLIB)
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../version)
 
-file(GLOB_RECURSE Hash Hash/*)
+include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
-source_group("" FILES ${Hash})
+file(GLOB_RECURSE Blockchain Blockchain/*)
 
-add_executable(Hash ${Hash})
+source_group("" FILES ${Blockchain})
 
-target_link_libraries(Hash gtest_main CryptoNoteCore Crypto Common Serialization Logging)
+add_executable(Blockchain ${Blockchain})
 
-add_custom_target(Basic DEPENDS Hash)
+target_link_libraries(Blockchain gtest_main CryptoNoteCore Crypto Serialization Logging BlockchainExplorer System Common ${Boost_LIBRARIES})
 
-set_property(TARGET Basic Hash PROPERTY FOLDER "Basic")
+add_custom_target(Basic DEPENDS Blockchain)
 
-set_property(TARGET Hash PROPERTY OUTPUT_NAME "Hash")
+set_property(TARGET Basic Blockchain PROPERTY FOLDER "Basic")
+
+set_property(TARGET Blockchain PROPERTY OUTPUT_NAME "Blockchain")
 
 if(NOT MSVC)
   # suppress warnings from gtest
