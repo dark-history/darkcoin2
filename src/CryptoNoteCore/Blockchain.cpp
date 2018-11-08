@@ -1655,6 +1655,7 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
 
   Crypto::Hash blockHash = get_block_hash(blockData);
 
+  // check block hash
   if (m_blockIndex.hasBlock(blockHash)) {
     logger(ERROR, BRIGHT_RED) <<
       "Block " << blockHash << " already exists in blockchain.";
@@ -1662,6 +1663,7 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
     return false;
   }
 
+  // check previous block hash
   if (blockData.previousBlockHash != getTailId()) {
     logger(INFO, BRIGHT_WHITE) <<
       "Block " << blockHash << " has wrong previousBlockHash: " << blockData.previousBlockHash << ", expected: " << getTailId();
@@ -1669,9 +1671,19 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
     return false;
   }
 
+  // check timestamp
   if (!check_block_timestamp_main(blockData)) {
     logger(INFO, BRIGHT_WHITE) <<
       "Block " << blockHash << " has invalid timestamp: " << blockData.timestamp;
+    bvc.m_verification_failed = true;
+    return false;
+  }
+
+  // check merkle root
+  Crypto::Hash merkleRoot = get_tx_tree_hash(blockData);
+  if (merkleRoot != blockData.merkleRoot) {
+    logger(INFO, BRIGHT_WHITE) <<
+      "Block " << blockHash << " merkle root supplied " << blockData.merkleRoot << " does not match merkle root calculated " << merkleRoot;
     bvc.m_verification_failed = true;
     return false;
   }
