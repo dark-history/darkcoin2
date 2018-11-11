@@ -31,7 +31,7 @@ public
   *getKnownBlockCount()
   *getLastLocalBlockTimestamp()
   getNewBlocks()
-  getTransactionOutsGlobalIndices()
+  getTransactionOutsGlobalIndexes()
   getRandomOutsByAmounts()
   relayTransaction()
   queryBlocks()

@@ -1,2 +1,4 @@
+# Original file from 2011-2016 Cryptonote Developers
+
 .git* export-ignore
 /CMakeLists.txt export-subst

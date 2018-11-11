@@ -26,7 +26,7 @@ public:
     uint32_t& totalBlockCount, uint32_t& startBlockIndex) override;
   virtual bool get_random_outs_for_amounts(const CryptoNote::COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_request& req,
       CryptoNote::COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_response& res) override;
-  virtual bool get_tx_outputs_gindexs(const Crypto::Hash& tx_id, std::vector<uint32_t>& indexs) override;
+  virtual bool get_tx_outputs_gindexes(const Crypto::Hash& tx_id, std::vector<uint32_t>& indexes) override;
   virtual CryptoNote::i_cryptonote_protocol* get_protocol() override;
   virtual bool handle_incoming_tx(CryptoNote::BinaryArray const& tx_blob, CryptoNote::tx_verification_context& tvc, bool keeped_by_block) override;
   virtual std::vector<CryptoNote::Transaction> getPoolTransactions() override;
@@ -63,7 +63,7 @@ public:
   virtual bool getAlreadyGeneratedCoins(const Crypto::Hash& hash, uint64_t& generatedCoins) override;
   virtual bool getBlockReward(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee,
       uint64_t& reward, int64_t& emissionChange) override;
-  virtual bool scanOutputkeysForIndices(const CryptoNote::KeyInput& txInToKey, std::list<std::pair<Crypto::Hash, size_t>>& outputReferences) override;
+  virtual bool scanOutputkeysForIndexes(const CryptoNote::KeyInput& txInToKey, std::list<std::pair<Crypto::Hash, size_t>>& outputReferences) override;
   virtual bool getBlockDifficulty(uint32_t height, CryptoNote::difficulty_type& difficulty) override;
   virtual bool getBlockContainingTx(const Crypto::Hash& txId, Crypto::Hash& blockId, uint32_t& blockHeight) override;
   virtual bool getMultisigOutputReference(const CryptoNote::MultisignatureInput& txInMultisig, std::pair<Crypto::Hash, size_t>& outputReference) override;
@@ -82,7 +82,7 @@ public:
 
 
   void set_blockchain_top(uint32_t height, const Crypto::Hash& top_id);
-  void set_outputs_gindexs(const std::vector<uint32_t>& indexs, bool result);
+  void set_outputs_gindexes(const std::vector<uint32_t>& indexes, bool result);
   void set_random_outs(const CryptoNote::COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_response& resp, bool result);
 
   void addBlock(const CryptoNote::Block& block);
@@ -95,8 +95,8 @@ private:
   uint32_t topHeight;
   Crypto::Hash topId;
 
-  std::vector<uint32_t> globalIndices;
-  bool globalIndicesResult;
+  std::vector<uint32_t> globalIndexes;
+  bool globalIndexesResult;
 
   CryptoNote::COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_response randomOuts;
   bool randomOutsResult;

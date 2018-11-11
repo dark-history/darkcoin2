@@ -70,7 +70,7 @@ private:
   std::error_code createTransfers(const AccountKeys& account, const TransactionBlockInfo& blockInfo, const ITransactionReader& tx,
     const std::vector<uint32_t>& outputs, const std::vector<uint32_t>& globalIdxs, std::vector<TransactionOutputInformationIn>& transfers);
 
-  std::error_code getGlobalIndices(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndices);
+  std::error_code getGlobalIndexes(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndexes);
 
   void updateSyncStart();
 

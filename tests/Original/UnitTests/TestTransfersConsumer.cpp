@@ -400,16 +400,16 @@ TEST_F(TransfersConsumerTest, onNewBlocks_DifferentTimestamps) {
   ASSERT_TRUE(amountFound(outs, 900));
 }
 
-TEST_F(TransfersConsumerTest, onNewBlocks_getTransactionOutsGlobalIndicesError) {
-  class INodeGlobalIndicesStub: public INodeDummyStub {
+TEST_F(TransfersConsumerTest, onNewBlocks_getTransactionOutsGlobalIndexesError) {
+  class INodeGlobalIndexesStub: public INodeDummyStub {
   public:
-    virtual void getTransactionOutsGlobalIndices(const Crypto::Hash& transactionHash,
-      std::vector<uint32_t>& outsGlobalIndices, const Callback& callback) override {
+    virtual void getTransactionOutsGlobalIndexes(const Crypto::Hash& transactionHash,
+      std::vector<uint32_t>& outsGlobalIndexes, const Callback& callback) override {
       callback(std::make_error_code(std::errc::operation_canceled));
     };
   };
 
-  INodeGlobalIndicesStub node;
+  INodeGlobalIndexesStub node;
 
   TransfersConsumer consumer(m_currency, node, m_accountKeys.viewSecretKey);
 
@@ -516,12 +516,12 @@ TEST_F(TransfersConsumerTest, onNewBlocks_MultisignatureTransaction) {
   ASSERT_EQ(amount, outs1[0].amount);
 }
 
-TEST_F(TransfersConsumerTest, onNewBlocks_getTransactionOutsGlobalIndicesIsProperlyCalled) {
-  class INodeGlobalIndicesStub: public INodeDummyStub {
+TEST_F(TransfersConsumerTest, onNewBlocks_getTransactionOutsGlobalIndexesIsProperlyCalled) {
+  class INodeGlobalIndexesStub: public INodeDummyStub {
   public:
-    virtual void getTransactionOutsGlobalIndices(const Crypto::Hash& transactionHash,
-      std::vector<uint32_t>& outsGlobalIndices, const Callback& callback) override {
-      outsGlobalIndices.push_back(3);
+    virtual void getTransactionOutsGlobalIndexes(const Crypto::Hash& transactionHash,
+      std::vector<uint32_t>& outsGlobalIndexes, const Callback& callback) override {
+      outsGlobalIndexes.push_back(3);
       hash = transactionHash;
       callback(std::error_code());
     };
@@ -529,7 +529,7 @@ TEST_F(TransfersConsumerTest, onNewBlocks_getTransactionOutsGlobalIndicesIsPrope
     Crypto::Hash hash;
   };
 
-  INodeGlobalIndicesStub node;
+  INodeGlobalIndexesStub node;
   TransfersConsumer consumer(m_currency, node, m_accountKeys.viewSecretKey);
 
   AccountSubscription subscription = getAccountSubscription(m_accountKeys);
@@ -552,14 +552,14 @@ TEST_F(TransfersConsumerTest, onNewBlocks_getTransactionOutsGlobalIndicesIsPrope
   ASSERT_EQ(expectedHash, node.hash);
 }
 
-TEST_F(TransfersConsumerTest, onNewBlocks_getTransactionOutsGlobalIndicesIsNotCalled) {
-  class INodeGlobalIndicesStub: public INodeDummyStub {
+TEST_F(TransfersConsumerTest, onNewBlocks_getTransactionOutsGlobalIndexesIsNotCalled) {
+  class INodeGlobalIndexesStub: public INodeDummyStub {
   public:
-    INodeGlobalIndicesStub() : called(false) {};
+    INodeGlobalIndexesStub() : called(false) {};
 
-    virtual void getTransactionOutsGlobalIndices(const Crypto::Hash& transactionHash,
-      std::vector<uint32_t>& outsGlobalIndices, const Callback& callback) override {
-      outsGlobalIndices.push_back(3);
+    virtual void getTransactionOutsGlobalIndexes(const Crypto::Hash& transactionHash,
+      std::vector<uint32_t>& outsGlobalIndexes, const Callback& callback) override {
+      outsGlobalIndexes.push_back(3);
       called = true;
       callback(std::error_code());
     };
@@ -567,7 +567,7 @@ TEST_F(TransfersConsumerTest, onNewBlocks_getTransactionOutsGlobalIndicesIsNotCa
     bool called;
   };
 
-  INodeGlobalIndicesStub node;
+  INodeGlobalIndexesStub node;
   TransfersConsumer consumer(m_currency, node, m_accountKeys.viewSecretKey);
 
   AccountSubscription subscription = getAccountSubscription(m_accountKeys);
@@ -625,9 +625,9 @@ TEST_F(TransfersConsumerTest, onNewBlocks_markTransactionConfirmed) {
 class INodeGlobalIndexStub: public INodeDummyStub {
 public:
 
-  virtual void getTransactionOutsGlobalIndices(const Crypto::Hash& transactionHash,
-    std::vector<uint32_t>& outsGlobalIndices, const Callback& callback) override {
-    outsGlobalIndices.push_back(globalIndex);
+  virtual void getTransactionOutsGlobalIndexes(const Crypto::Hash& transactionHash,
+    std::vector<uint32_t>& outsGlobalIndexes, const Callback& callback) override {
+    outsGlobalIndexes.push_back(globalIndex);
     callback(std::error_code());
   };
 
@@ -847,7 +847,7 @@ TEST_F(TransfersConsumerTest, onPoolUpdated_addTransactionMultisignature) {
 }
 
 
-TEST_F(TransfersConsumerTest, onPoolUpdated_addTransactionDoesNotGetsGlobalIndices) {
+TEST_F(TransfersConsumerTest, onPoolUpdated_addTransactionDoesNotGetsGlobalIndexes) {
   addSubscription();
   // construct tx
   auto tx = createTransaction();
@@ -859,7 +859,7 @@ TEST_F(TransfersConsumerTest, onPoolUpdated_addTransactionDoesNotGetsGlobalIndic
   v.push_back(std::move(prefix));
   m_consumer.onPoolUpdated(v, {});
 
-  ASSERT_TRUE(m_node.calls_getTransactionOutsGlobalIndices.empty());
+  ASSERT_TRUE(m_node.calls_getTransactionOutsGlobalIndexes.empty());
 }
 
 TEST_F(TransfersConsumerTest, onPoolUpdated_deleteTransactionNotDeleted) {

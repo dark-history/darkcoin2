@@ -65,8 +65,8 @@ void TransfersSubscription::deleteUnconfirmedTransaction(const Hash& transaction
 }
 
 void TransfersSubscription::markTransactionConfirmed(const TransactionBlockInfo& block, const Hash& transactionHash,
-                                                     const std::vector<uint32_t>& globalIndices) {
-  transfers.markTransactionConfirmed(block, transactionHash, globalIndices);
+                                                     const std::vector<uint32_t>& globalIndexes) {
+  transfers.markTransactionConfirmed(block, transactionHash, globalIndexes);
   m_observerManager.notify(&ITransfersObserver::onTransactionUpdated, this, transactionHash);
 }
 

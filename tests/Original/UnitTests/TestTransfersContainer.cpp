@@ -578,8 +578,8 @@ TEST_F(TransfersContainer_deleteUnconfirmedTransaction, deleteTx) {
 class TransfersContainer_markTransactionConfirmed : public TransfersContainerTest {
 public:
   bool markConfirmed(const Hash& txHash, uint64_t height = TEST_BLOCK_HEIGHT, 
-    const std::vector<uint32_t>& globalIndices = { TEST_TRANSACTION_OUTPUT_GLOBAL_INDEX }) {
-    return container.markTransactionConfirmed(blockInfo(height), txHash, globalIndices);
+    const std::vector<uint32_t>& globalIndexes = { TEST_TRANSACTION_OUTPUT_GLOBAL_INDEX }) {
+    return container.markTransactionConfirmed(blockInfo(height), txHash, globalIndexes);
   }
 };
 
@@ -607,7 +607,7 @@ TEST_F(TransfersContainer_markTransactionConfirmed, confirmedTransaction) {
 }
 
 
-TEST_F(TransfersContainer_markTransactionConfirmed, globalIndicesSmaller) {
+TEST_F(TransfersContainer_markTransactionConfirmed, globalIndexesSmaller) {
   
   TestTransactionBuilder builder;
   builder.addTestInput(TEST_OUTPUT_AMOUNT + 1, account);
@@ -681,9 +681,9 @@ TEST_F(TransfersContainer_markTransactionConfirmed, confirmingMultisignatureOutp
 
   // Confirm tx3
   blockInfo3.height = TEST_BLOCK_HEIGHT + 2;
-  std::vector<uint32_t> globalIndices3;
-  globalIndices3.emplace_back(TEST_TRANSACTION_OUTPUT_GLOBAL_INDEX);
-  ASSERT_ANY_THROW(container.markTransactionConfirmed(blockInfo3, tx3.getTransactionHash(), globalIndices3));
+  std::vector<uint32_t> globalIndexes3;
+  globalIndexes3.emplace_back(TEST_TRANSACTION_OUTPUT_GLOBAL_INDEX);
+  ASSERT_ANY_THROW(container.markTransactionConfirmed(blockInfo3, tx3.getTransactionHash(), globalIndexes3));
 
   container.advanceHeight(1000);
 
@@ -709,9 +709,9 @@ TEST_F(TransfersContainer_markTransactionConfirmed, confirmingMultisignatureOutp
   ASSERT_TRUE(container.addTransaction(blockInfo2, *tx2.build(), { outInfo2 }));
 
   blockInfo2.height = TEST_BLOCK_HEIGHT + 2;
-  std::vector<uint32_t> globalIndices2;
-  globalIndices2.emplace_back(TEST_TRANSACTION_OUTPUT_GLOBAL_INDEX);
-  ASSERT_ANY_THROW(container.markTransactionConfirmed(blockInfo2, tx2.getTransactionHash(), globalIndices2));
+  std::vector<uint32_t> globalIndexes2;
+  globalIndexes2.emplace_back(TEST_TRANSACTION_OUTPUT_GLOBAL_INDEX);
+  ASSERT_ANY_THROW(container.markTransactionConfirmed(blockInfo2, tx2.getTransactionHash(), globalIndexes2));
 
   ASSERT_EQ(2, container.transfersCount());
   ASSERT_EQ(2, container.transactionsCount());

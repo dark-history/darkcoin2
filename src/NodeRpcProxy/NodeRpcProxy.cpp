@@ -338,16 +338,16 @@ void NodeRpcProxy::getNewBlocks(std::vector<Crypto::Hash>&& knownBlockIds,
     std::ref(startHeight)), callback);
 }
 
-void NodeRpcProxy::getTransactionOutsGlobalIndices(const Crypto::Hash& transactionHash,
-                                                   std::vector<uint32_t>& outsGlobalIndices, const Callback& callback) {
+void NodeRpcProxy::getTransactionOutsGlobalIndexes(const Crypto::Hash& transactionHash,
+                                                   std::vector<uint32_t>& outsGlobalIndexes, const Callback& callback) {
   std::lock_guard<std::mutex> lock(m_mutex);
   if (m_state != STATE_INITIALIZED) {
     callback(make_error_code(error::NOT_INITIALIZED));
     return;
   }
 
-  scheduleRequest(std::bind(&NodeRpcProxy::doGetTransactionOutsGlobalIndices, this, transactionHash,
-    std::ref(outsGlobalIndices)), callback);
+  scheduleRequest(std::bind(&NodeRpcProxy::doGetTransactionOutsGlobalIndexes, this, transactionHash,
+    std::ref(outsGlobalIndexes)), callback);
 }
 
 void NodeRpcProxy::queryBlocks(std::vector<Crypto::Hash>&& knownBlockIds, uint64_t timestamp, std::vector<BlockShortEntry>& newBlocks,
@@ -500,17 +500,17 @@ std::error_code NodeRpcProxy::doGetNewBlocks(std::vector<Crypto::Hash>& knownBlo
   return ec;
 }
 
-std::error_code NodeRpcProxy::doGetTransactionOutsGlobalIndices(const Crypto::Hash& transactionHash,
-                                                                std::vector<uint32_t>& outsGlobalIndices) {
+std::error_code NodeRpcProxy::doGetTransactionOutsGlobalIndexes(const Crypto::Hash& transactionHash,
+                                                                std::vector<uint32_t>& outsGlobalIndexes) {
   CryptoNote::COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES::request req = AUTO_VAL_INIT(req);
   CryptoNote::COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES::response rsp = AUTO_VAL_INIT(rsp);
   req.txid = transactionHash;
 
   std::error_code ec = binaryCommand("/get_o_indexes.bin", req, rsp);
   if (!ec) {
-    outsGlobalIndices.clear();
+    outsGlobalIndexes.clear();
     for (auto idx : rsp.o_indexes) {
-      outsGlobalIndices.push_back(static_cast<uint32_t>(idx));
+      outsGlobalIndexes.push_back(static_cast<uint32_t>(idx));
     }
   }
 

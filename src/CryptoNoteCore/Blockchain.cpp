@@ -44,11 +44,11 @@ bool operator<(const Crypto::KeyImage& keyImage1, const Crypto::KeyImage& keyIma
 }
 
 #define CURRENT_BLOCKCACHE_STORAGE_ARCHIVE_VER 1
-#define CURRENT_BLOCKCHAININDICES_STORAGE_ARCHIVE_VER 1
+#define CURRENT_BLOCKCHAININDEXES_STORAGE_ARCHIVE_VER 1
 
 namespace CryptoNote {
 class BlockCacheSerializer;
-class BlockchainIndicesSerializer;
+class BlockchainIndexesSerializer;
 }
 
 namespace CryptoNote {
@@ -209,21 +209,21 @@ private:
   Crypto::Hash m_lastBlockHash;
 };
 
-class BlockchainIndicesSerializer {
+class BlockchainIndexesSerializer {
 
 public:
-  BlockchainIndicesSerializer(Blockchain& bs, const Crypto::Hash lastBlockHash, ILogger& logger) :
-    m_bs(bs), m_lastBlockHash(lastBlockHash), m_loaded(false), logger(logger, "BlockchainIndicesSerializer") {
+  BlockchainIndexesSerializer(Blockchain& bs, const Crypto::Hash lastBlockHash, ILogger& logger) :
+    m_bs(bs), m_lastBlockHash(lastBlockHash), m_loaded(false), logger(logger, "BlockchainIndexesSerializer") {
   }
 
   void serialize(ISerializer& s) {
 
-    uint8_t version = CURRENT_BLOCKCHAININDICES_STORAGE_ARCHIVE_VER;
+    uint8_t version = CURRENT_BLOCKCHAININDEXES_STORAGE_ARCHIVE_VER;
 
     KV_MEMBER(version);
 
     // ignore old versions, do rebuild
-    if (version != CURRENT_BLOCKCHAININDICES_STORAGE_ARCHIVE_VER)
+    if (version != CURRENT_BLOCKCHAININDEXES_STORAGE_ARCHIVE_VER)
       return;
 
     std::string operation;
@@ -258,7 +258,7 @@ public:
   template<class Archive> void serialize(Archive& ar, unsigned int version) {
 
     // ignore old versions, do rebuild
-    if (version < CURRENT_BLOCKCHAININDICES_STORAGE_ARCHIVE_VER)
+    if (version < CURRENT_BLOCKCHAININDEXES_STORAGE_ARCHIVE_VER)
       return;
 
     std::string operation;
@@ -419,7 +419,7 @@ bool Blockchain::init(const std::string& config_folder, bool load_existing) {
       rebuildCache();
     }
 
-    loadBlockchainIndices();
+    loadBlockchainIndexes();
   } else {
     m_blocks.clear();
   }
@@ -520,7 +520,7 @@ bool Blockchain::storeCache() {
 
 bool Blockchain::deinit() {
   storeCache();
-  storeBlockchainIndices();
+  storeBlockchainIndexes();
   assert(m_messageQueueList.empty());
   return true;
 }
@@ -1333,19 +1333,19 @@ size_t Blockchain::getTotalTransactions() {
   return m_transactionMap.size();
 }
 
-bool Blockchain::getTransactionOutputGlobalIndexes(const Crypto::Hash& tx_id, std::vector<uint32_t>& indexs) {
+bool Blockchain::getTransactionOutputGlobalIndexes(const Crypto::Hash& tx_id, std::vector<uint32_t>& indexes) {
   std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
   auto it = m_transactionMap.find(tx_id);
   if (it == m_transactionMap.end()) {
-    logger(WARNING, YELLOW) << "warning: get_tx_outputs_gindexs failed to find transaction with id = " << tx_id;
+    logger(WARNING, YELLOW) << "warning: get_tx_outputs_gindexes failed to find transaction with id = " << tx_id;
     return false;
   }
 
   const TransactionEntry& tx = transactionByIndex(it->second);
   if (!(tx.m_global_output_indexes.size())) { logger(ERROR, BRIGHT_RED) << "internal error: global indexes for transaction " << tx_id << " is empty"; return false; }
-  indexs.resize(tx.m_global_output_indexes.size());
+  indexes.resize(tx.m_global_output_indexes.size());
   for (size_t i = 0; i < tx.m_global_output_indexes.size(); ++i) {
-    indexs[i] = tx.m_global_output_indexes[i];
+    indexes[i] = tx.m_global_output_indexes[i];
   }
 
   return true;
@@ -2173,30 +2173,30 @@ bool Blockchain::getMultisigOutputReference(const MultisignatureInput& txInMulti
   return true;
 }
 
-bool Blockchain::storeBlockchainIndices() {
+bool Blockchain::storeBlockchainIndexes() {
   std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
 
-  logger(INFO, BRIGHT_WHITE) << "Saving blockchain indices...";
-  BlockchainIndicesSerializer ser(*this, getTailId(), logger.getLogger());
+  logger(INFO, BRIGHT_WHITE) << "Saving blockchain indexes...";
+  BlockchainIndexesSerializer ser(*this, getTailId(), logger.getLogger());
 
-  if (!storeToBinaryFile(ser, appendPath(m_config_folder, m_currency.blockchainIndicesFileName()))) {
-    logger(ERROR, BRIGHT_RED) << "Failed to save blockchain indices";
+  if (!storeToBinaryFile(ser, appendPath(m_config_folder, m_currency.blockchainIndexesFileName()))) {
+    logger(ERROR, BRIGHT_RED) << "Failed to save blockchain indexes";
     return false;
   }
 
   return true;
 }
 
-bool Blockchain::loadBlockchainIndices() {
+bool Blockchain::loadBlockchainIndexes() {
   std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
 
-  logger(INFO, BRIGHT_WHITE) << "Loading blockchain indices for BlockchainExplorer...";
-  BlockchainIndicesSerializer loader(*this, get_block_hash(m_blocks.back().bl), logger.getLogger());
+  logger(INFO, BRIGHT_WHITE) << "Loading blockchain indexes for BlockchainExplorer...";
+  BlockchainIndexesSerializer loader(*this, get_block_hash(m_blocks.back().bl), logger.getLogger());
 
-  loadFromBinaryFile(loader, appendPath(m_config_folder, m_currency.blockchainIndicesFileName()));
+  loadFromBinaryFile(loader, appendPath(m_config_folder, m_currency.blockchainIndexesFileName()));
 
   if (!loader.loaded()) {
-    logger(WARNING, BRIGHT_YELLOW) << "No actual blockchain indices for BlockchainExplorer found, rebuilding...";
+    logger(WARNING, BRIGHT_YELLOW) << "No actual blockchain indexes for BlockchainExplorer found, rebuilding...";
     std::chrono::steady_clock::time_point timePoint = std::chrono::steady_clock::now();
 
     m_paymentIdIndex.clear();
@@ -2217,7 +2217,7 @@ bool Blockchain::loadBlockchainIndices() {
     }
 
     std::chrono::duration<double> duration = std::chrono::steady_clock::now() - timePoint;
-    logger(INFO, BRIGHT_WHITE) << "Rebuilding blockchain indices took: " << duration.count();
+    logger(INFO, BRIGHT_WHITE) << "Rebuilding blockchain indexes took: " << duration.count();
   }
   return true;
 }

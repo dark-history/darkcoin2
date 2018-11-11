@@ -349,8 +349,8 @@ TEST(TransfersSubscription, 9)
   ASSERT_TRUE(transfersSubscription.addTransaction(blockInfo, transactionImpl, transfers));
 
   Crypto::Hash transactionHash = getObjectHash(transaction);
-  std::vector<uint32_t> globalIndices = {0};
-  ASSERT_NO_THROW(transfersSubscription.markTransactionConfirmed(blockInfo, transactionHash, globalIndices));
+  std::vector<uint32_t> globalIndexes = {0};
+  ASSERT_NO_THROW(transfersSubscription.markTransactionConfirmed(blockInfo, transactionHash, globalIndexes));
 }
 
 // getAddress()

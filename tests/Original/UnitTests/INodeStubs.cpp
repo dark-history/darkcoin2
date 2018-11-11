@@ -119,27 +119,27 @@ void INodeTrivialRefreshStub::doGetNewBlocks(std::vector<Crypto::Hash> knownBloc
   callback(std::error_code());
 }
 
-void INodeTrivialRefreshStub::getTransactionOutsGlobalIndices(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndices, const Callback& callback)
+void INodeTrivialRefreshStub::getTransactionOutsGlobalIndexes(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndexes, const Callback& callback)
 {
   m_asyncCounter.addAsyncContext();
   std::unique_lock<std::mutex> lock(m_walletLock);
-  calls_getTransactionOutsGlobalIndices.push_back(transactionHash);
-  std::thread task(&INodeTrivialRefreshStub::doGetTransactionOutsGlobalIndices, this, transactionHash, std::ref(outsGlobalIndices), callback);
+  calls_getTransactionOutsGlobalIndexes.push_back(transactionHash);
+  std::thread task(&INodeTrivialRefreshStub::doGetTransactionOutsGlobalIndexes, this, transactionHash, std::ref(outsGlobalIndexes), callback);
   task.detach();
 }
 
-void INodeTrivialRefreshStub::doGetTransactionOutsGlobalIndices(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndices, const Callback& callback) {
+void INodeTrivialRefreshStub::doGetTransactionOutsGlobalIndexes(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndexes, const Callback& callback) {
   ContextCounterHolder counterHolder(m_asyncCounter);
   std::unique_lock<std::mutex> lock(m_walletLock);
 
-  bool success = m_blockchainGenerator.getTransactionGlobalIndexesByHash(transactionHash, outsGlobalIndices);
+  bool success = m_blockchainGenerator.getTransactionGlobalIndexesByHash(transactionHash, outsGlobalIndexes);
 
   lock.unlock();
 
   if (consumerTests) {
-    outsGlobalIndices.clear();
-    outsGlobalIndices.resize(20);
-    getGlobalOutsFunctor(transactionHash, outsGlobalIndices);
+    outsGlobalIndexes.clear();
+    outsGlobalIndexes.resize(20);
+    getGlobalOutsFunctor(transactionHash, outsGlobalIndexes);
     callback(std::error_code());
   } else {
     if (success) {

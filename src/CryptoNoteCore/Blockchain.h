@@ -20,7 +20,7 @@
 #include "CryptoNoteCore/SwappedVector.h"
 #include "CryptoNoteCore/CryptoNoteFormatUtils.h"
 #include "CryptoNoteCore/TransactionPool.h"
-#include "CryptoNoteCore/BlockchainIndices.h"
+#include "CryptoNoteCore/BlockchainIndexes.h"
 
 #include "CryptoNoteCore/MessageQueue.h"
 #include "CryptoNoteCore/BlockchainMessages.h"
@@ -89,7 +89,7 @@ namespace CryptoNote {
     bool handleGetObjects(NOTIFY_REQUEST_GET_OBJECTS_request& arg, NOTIFY_RESPONSE_GET_OBJECTS_request& rsp); //Deprecated. Should be removed with CryptoNoteProtocolHandler.
     bool getRandomOutsByAmount(const COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_request& req, COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_response& res);
     bool getBackwardBlocksSize(size_t from_height, std::vector<size_t>& sz, size_t count);
-    bool getTransactionOutputGlobalIndexes(const Crypto::Hash& tx_id, std::vector<uint32_t>& indexs);
+    bool getTransactionOutputGlobalIndexes(const Crypto::Hash& tx_id, std::vector<uint32_t>& indexes);
     bool get_out_by_msig_gindex(uint64_t amount, uint64_t gindex, MultisignatureOutput& out);
     bool checkTransactionInputs(const Transaction& tx, uint32_t& pmax_used_block_height, Crypto::Hash& max_used_block_id, BlockInfo* tail = 0);
     uint64_t getCurrentCumulativeBlocksizeLimit();
@@ -239,7 +239,7 @@ namespace CryptoNote {
     typedef std::unordered_map<Crypto::Hash, TransactionIndex> TransactionMap;
 
     friend class BlockCacheSerializer;
-    friend class BlockchainIndicesSerializer;
+    friend class BlockchainIndexesSerializer;
 
     Blocks m_blocks;
     CryptoNote::BlockIndex m_blockIndex;
@@ -289,8 +289,8 @@ namespace CryptoNote {
     void popTransactions(const BlockEntry& block, const Crypto::Hash& minerTransactionHash);
     bool validateInput(const MultisignatureInput& input, const Crypto::Hash& transactionHash, const Crypto::Hash& transactionPrefixHash, const std::vector<Crypto::Signature>& transactionSignatures);
 
-    bool storeBlockchainIndices();
-    bool loadBlockchainIndices();
+    bool storeBlockchainIndexes();
+    bool loadBlockchainIndexes();
 
     bool loadTransactions(const Block& block, std::vector<Transaction>& transactions);
     void saveTransactions(const std::vector<Transaction>& transactions);

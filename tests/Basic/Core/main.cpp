@@ -57,7 +57,7 @@ public
   *getBlockSize()
   *getAlreadyGeneratedCoins()
   *getBlockReward()
-  scanOutputkeysForIndices()
+  scanOutputkeysForIndexes()
   *getBlockDifficulty()
   *getBlockContainingTx()
   getMultisigOutputReference()
@@ -95,7 +95,7 @@ public
   *get_blockchain_total_transactions()
   *findBlockchainSupplement()
   *get_stat_info()
-  *get_tx_outputs_gindexs()
+  *get_tx_outputs_gindexes()
   *get_tail_id()
   *get_random_outs_for_amounts()
   *pause_mining()
@@ -652,7 +652,7 @@ bool createTransaction(core& core, const AccountKeys& senderAccountKeys,
   // transaction input
 
   std::vector<uint32_t> indexes;
-  core.get_tx_outputs_gindexs(inputTransactionHash, indexes);
+  core.get_tx_outputs_gindexes(inputTransactionHash, indexes);
 
   // amount = 89406956
   //                    6
@@ -762,7 +762,7 @@ bool createTransaction2(core& core, const AccountKeys& senderAccountKeys,
   // transaction input
 
   std::vector<uint32_t> indexes;
-  core.get_tx_outputs_gindexs(inputTransactionHash, indexes);
+  core.get_tx_outputs_gindexes(inputTransactionHash, indexes);
 
   // amount = 89406956
   //                    6
@@ -888,7 +888,7 @@ bool createTransaction3(core& core, const AccountKeys& senderAccountKeys,
   // transaction input
 
   std::vector<uint32_t> indexes;
-  core.get_tx_outputs_gindexs(inputTransactionHash, indexes);
+  core.get_tx_outputs_gindexes(inputTransactionHash, indexes);
 
   // amount = 89406956
   //                    6
@@ -2998,7 +2998,7 @@ TEST(Core, 49)
   core.pause_mining();
 }
 
-// get_tx_outputs_gindexs()
+// get_tx_outputs_gindexes()
 TEST(Core, 50)
 {
   Logging::ConsoleLogger logger;
@@ -3014,70 +3014,70 @@ TEST(Core, 50)
   ASSERT_TRUE(addBlock6(core, transactionHash));
 
   std::vector<uint32_t> indexes;
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 1 = 89406961
   // indexes = {0, 0, 0, 0, 0, 0, 0};
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 2 = 89406956
   // indexes = {0, 0, 1, 1, 1, 1, 1};
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 3 = 89406951
   // indexes = {1, 1, 2, 2, 2, 2, 2};
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 4 = 89406945
   // indexes = {0, 0, 3, 3, 3, 3, 3};
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 5 = 89406940
   // indexes = {1, 4, 4, 4, 4, 4}; // last 0 is below dust threshold so it is not included in indexes
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 6 = 89406935
   // indexes = {1, 0, 5, 5, 5, 5, 5};
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 7 = 89406929
   // indexes = {0, 0, 6, 6, 6, 6, 6};
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 8 = 89406924
   // indexes = {0, 1, 7, 7, 7, 7, 7};
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 9 = 89406919
   // indexes = {1, 0, 8, 8, 8, 8, 8};
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 10 = 89406913
   // indexes = {0, 1, 9, 9, 9, 9, 9};
@@ -3089,7 +3089,7 @@ TEST(Core, 50)
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 21 = 89406855
   // indexes = {3, 2, 8, 20, 20, 20, 20};
@@ -3101,7 +3101,7 @@ TEST(Core, 50)
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 32 = 89406796
   // indexes = {2, 2, 0, 31, 31, 31, 31};
@@ -3113,7 +3113,7 @@ TEST(Core, 50)
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 133 = 89406258
   // indexes = {14, 13, 7, 132, 132, 132, 132};
@@ -3125,7 +3125,7 @@ TEST(Core, 50)
 
   ASSERT_TRUE(addBlock6(core, transactionHash));
   indexes.clear();
-  ASSERT_TRUE(core.get_tx_outputs_gindexs(transactionHash, indexes));
+  ASSERT_TRUE(core.get_tx_outputs_gindexes(transactionHash, indexes));
 
   // reward for block 234 = 89405720
   // indexes = {23, 33, 52, 233, 233, 233};

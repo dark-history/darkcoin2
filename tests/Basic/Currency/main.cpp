@@ -55,7 +55,7 @@ public
   blocksCacheFileName()
   blockIndexesFileName()
   txPoolFileName()
-  blockchinIndicesFileName()
+  blockchinIndexesFileName()
   isTestnet()
   genesisBlock()
   genesisBlockHash()
@@ -110,7 +110,7 @@ private
   std::string m_blocksCacheFileName
   std::string m_blockIndexesFileName
   std::string m_txPoolFileName
-  std::string m_blockchinIndicesFileName
+  std::string m_blockchinIndexesFileName
   std::vector<uint64_t> PRETTY_AMOUNTS
   bool m_testnet
   Block m_genesisBlock
@@ -154,7 +154,7 @@ public
   blocksCacheFileName()
   blockIndexesFileName()
   txPoolFileName()
-  blockchinIndicesFileName()
+  blockchinIndexesFileName()
   testnet()
 
 private
@@ -683,7 +683,7 @@ TEST(Currency, 36)
   ASSERT_EQ(currencyBuilder.currency().txPoolFileName(), "Hello World!");
 }
 
-// blockchinIndicesFileName()
+// blockchinIndexesFileName()
 TEST(Currency, 37)
 {
   Logging::LoggerGroup logger;
@@ -691,11 +691,11 @@ TEST(Currency, 37)
   CurrencyBuilder currencyBuilder(logger);
 
   // get
-  ASSERT_EQ(currencyBuilder.currency().blockchinIndicesFileName(), parameters::CRYPTONOTE_BLOCKCHAIN_INDICES_FILENAME);
+  ASSERT_EQ(currencyBuilder.currency().blockchinIndexesFileName(), parameters::CRYPTONOTE_BLOCKCHAIN_INDEXES_FILENAME);
   // set
-  currencyBuilder.blockchinIndicesFileName("Hello World!");
+  currencyBuilder.blockchinIndexesFileName("Hello World!");
   // check that value has changed
-  ASSERT_EQ(currencyBuilder.currency().blockchinIndicesFileName(), "Hello World!");
+  ASSERT_EQ(currencyBuilder.currency().blockchinIndexesFileName(), "Hello World!");
 }
 
 // isTestnet() and testnet()

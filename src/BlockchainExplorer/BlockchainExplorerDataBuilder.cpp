@@ -268,7 +268,7 @@ bool BlockchainExplorerDataBuilder::fillTransactionDetails(const Transaction& tr
       TransactionInputToKeyDetails txInToKeyDetails;
       const KeyInput& txInToKey = boost::get<KeyInput>(txIn);
       std::list<std::pair<Crypto::Hash, size_t>> outputReferences;
-      if (!core.scanOutputkeysForIndices(txInToKey, outputReferences)) {
+      if (!core.scanOutputkeysForIndexes(txInToKey, outputReferences)) {
         return false;
       }
       txInDetails.amount = txInToKey.amount;
@@ -297,16 +297,16 @@ bool BlockchainExplorerDataBuilder::fillTransactionDetails(const Transaction& tr
   }
 
   transactionDetails.outputs.reserve(transaction.outputs.size());
-  std::vector<uint32_t> globalIndices;
-  globalIndices.reserve(transaction.outputs.size());
-  if (!transactionDetails.inBlockchain || !core.get_tx_outputs_gindexs(hash, globalIndices)) {
+  std::vector<uint32_t> globalIndexes;
+  globalIndexes.reserve(transaction.outputs.size());
+  if (!transactionDetails.inBlockchain || !core.get_tx_outputs_gindexes(hash, globalIndexes)) {
     for (size_t i = 0; i < transaction.outputs.size(); ++i) {
-      globalIndices.push_back(0);
+      globalIndexes.push_back(0);
     }
   }
 
   typedef boost::tuple<TransactionOutput, uint32_t> outputWithIndex;
-  auto range = boost::combine(transaction.outputs, globalIndices);
+  auto range = boost::combine(transaction.outputs, globalIndexes);
   for (const outputWithIndex& txOutput : range) {
     TransactionOutputDetails txOutDetails;
     txOutDetails.amount = txOutput.get<0>().amount;

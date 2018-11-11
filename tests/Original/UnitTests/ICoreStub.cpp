@@ -13,7 +13,7 @@
 
 ICoreStub::ICoreStub() :
     topHeight(0),
-    globalIndicesResult(false),
+    globalIndexesResult(false),
     randomOutsResult(false),
     poolTxVerificationResult(true),
     poolChangesResult(true) {
@@ -21,7 +21,7 @@ ICoreStub::ICoreStub() :
 
 ICoreStub::ICoreStub(const CryptoNote::Block& genesisBlock) :
     topHeight(0),
-    globalIndicesResult(false),
+    globalIndexesResult(false),
     randomOutsResult(false),
     poolTxVerificationResult(true),
     poolChangesResult(true) {
@@ -62,9 +62,9 @@ bool ICoreStub::get_random_outs_for_amounts(const CryptoNote::COMMAND_RPC_GET_RA
   return randomOutsResult;
 }
 
-bool ICoreStub::get_tx_outputs_gindexs(const Crypto::Hash& tx_id, std::vector<uint32_t>& indexs) {
-  std::copy(globalIndices.begin(), globalIndices.end(), std::back_inserter(indexs));
-  return globalIndicesResult;
+bool ICoreStub::get_tx_outputs_gindexes(const Crypto::Hash& tx_id, std::vector<uint32_t>& indexes) {
+  std::copy(globalIndexes.begin(), globalIndexes.end(), std::back_inserter(indexes));
+  return globalIndexesResult;
 }
 
 CryptoNote::i_cryptonote_protocol* ICoreStub::get_protocol() {
@@ -80,10 +80,10 @@ void ICoreStub::set_blockchain_top(uint32_t height, const Crypto::Hash& top_id) 
   topId = top_id;
 }
 
-void ICoreStub::set_outputs_gindexs(const std::vector<uint32_t>& indexs, bool result) {
-  globalIndices.clear();
-  std::copy(indexs.begin(), indexs.end(), std::back_inserter(globalIndices));
-  globalIndicesResult = result;
+void ICoreStub::set_outputs_gindexes(const std::vector<uint32_t>& indexes, bool result) {
+  globalIndexes.clear();
+  std::copy(indexes.begin(), indexes.end(), std::back_inserter(globalIndexes));
+  globalIndexesResult = result;
 }
 
 void ICoreStub::set_random_outs(const CryptoNote::COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_response& resp, bool result) {
@@ -250,7 +250,7 @@ bool ICoreStub::getBlockReward(size_t medianSize, size_t currentBlockSize, uint6
   return true;
 }
 
-bool ICoreStub::scanOutputkeysForIndices(const CryptoNote::KeyInput& txInToKey, std::list<std::pair<Crypto::Hash, size_t>>& outputReferences) {
+bool ICoreStub::scanOutputkeysForIndexes(const CryptoNote::KeyInput& txInToKey, std::list<std::pair<Crypto::Hash, size_t>>& outputReferences) {
   return true;
 }
 

@@ -476,7 +476,7 @@ std::error_code TransfersConsumer::preprocessOutputs(const TransactionBlockInfo&
   std::error_code errorCode;
   auto txHash = tx.getTransactionHash();
   if (blockInfo.height != WALLET_UNCONFIRMED_TRANSACTION_HEIGHT) {
-    errorCode = getGlobalIndices(reinterpret_cast<const Hash&>(txHash), info.globalIdxs);
+    errorCode = getGlobalIndexes(reinterpret_cast<const Hash&>(txHash), info.globalIdxs);
     if (errorCode) {
       return errorCode;
     }
@@ -550,7 +550,7 @@ void TransfersConsumer::processOutputs(const TransactionBlockInfo& blockInfo, Tr
   }
 }
 
-std::error_code TransfersConsumer::getGlobalIndices(const Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndices) {  
+std::error_code TransfersConsumer::getGlobalIndexes(const Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndexes) {  
   std::promise<std::error_code> prom;
   std::future<std::error_code> f = prom.get_future();
 
@@ -559,8 +559,8 @@ std::error_code TransfersConsumer::getGlobalIndices(const Hash& transactionHash,
     p.set_value(ec);
   };
 
-  outsGlobalIndices.clear();
-  m_node.getTransactionOutsGlobalIndices(transactionHash, outsGlobalIndices, cb);
+  outsGlobalIndexes.clear();
+  m_node.getTransactionOutsGlobalIndexes(transactionHash, outsGlobalIndexes, cb);
 
   return f.get();
 }

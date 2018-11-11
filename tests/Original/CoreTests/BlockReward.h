@@ -20,5 +20,5 @@ struct gen_block_reward : public test_chain_unit_base
 
 private:
   size_t m_invalid_block_index;
-  std::vector<size_t> m_checked_blocks_indices;
+  std::vector<size_t> m_checked_blocks_indexes;
 };

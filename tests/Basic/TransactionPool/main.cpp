@@ -74,7 +74,7 @@ private
   removeTransaction()
   removeExpiredTransactions()
   is_transaction_ready_to_go()
-  buildIndices()
+  buildIndexes()
 
   Tools::ObserverManager<ITxPoolObserver> m_observerManager
   const CryptoNote::Currency& m_currency

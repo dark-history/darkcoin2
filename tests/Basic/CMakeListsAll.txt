@@ -7,7 +7,7 @@ include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 file(GLOB_RECURSE Account Account/*)
 file(GLOB_RECURSE Base58 Base58/*)
 file(GLOB_RECURSE Blockchain Blockchain/*)
-file(GLOB_RECURSE BlockchainIndices BlockchainIndices/*)
+file(GLOB_RECURSE BlockchainIndexes BlockchainIndexes/*)
 file(GLOB_RECURSE BlockchainMessages BlockchainMessages/*)
 file(GLOB_RECURSE BlockchainSynchronizer BlockchainSynchronizer/*)
 file(GLOB_RECURSE BlockIndex BlockIndex/*)
@@ -60,12 +60,12 @@ file(GLOB_RECURSE Util Util/*)
 file(GLOB_RECURSE Varint Varint/*)
 file(GLOB_RECURSE VectorOutputStream VectorOutputStream/*)
 
-source_group("" FILES ${Account} ${Base58} ${Blockchain} ${BlockchainIndices} ${BlockchainMessages} ${BlockchainSynchronizer} ${BlockIndex} ${BlockingQueue} ${BlockReward} ${Chacha8} ${CommandLine} ${ConsoleTools} ${Core} ${CoreConfig} ${CryptoNoteBasic} ${CryptoNoteBasicImpl} ${CryptoNoteFormatUtils} ${CryptoNoteProtocolHandler} ${CryptoNoteTools} ${Currency} ${DecomposeAmountIntoDigits} ${Difficulty} ${HttpParser} ${HttpRequest} ${HttpResponse} ${IntUtil} ${JsonValue} ${Math} ${MemoryInputStream} ${MessageQueue} ${MinerCore} ${MulDiv} ${ObserverManager} ${ParseAmount} ${PathTools} ${ShuffleGenerator} ${SignalHandler} ${StdInputStream} ${StdOutputStream} ${StringTools} ${StringView} ${SynchronizationState} ${Transaction} ${TransactionApiExtra} ${TransactionExtra} ${TransactionPool} ${TransactionPrefixImpl} ${TransactionUtils} ${TransfersConsumer} ${TransfersContainer} ${TransfersSynchronizer} ${Util} ${Varint} ${VectorOutputStream})
+source_group("" FILES ${Account} ${Base58} ${Blockchain} ${BlockchainIndexes} ${BlockchainMessages} ${BlockchainSynchronizer} ${BlockIndex} ${BlockingQueue} ${BlockReward} ${Chacha8} ${CommandLine} ${ConsoleTools} ${Core} ${CoreConfig} ${CryptoNoteBasic} ${CryptoNoteBasicImpl} ${CryptoNoteFormatUtils} ${CryptoNoteProtocolHandler} ${CryptoNoteTools} ${Currency} ${DecomposeAmountIntoDigits} ${Difficulty} ${HttpParser} ${HttpRequest} ${HttpResponse} ${IntUtil} ${JsonValue} ${Math} ${MemoryInputStream} ${MessageQueue} ${MinerCore} ${MulDiv} ${ObserverManager} ${ParseAmount} ${PathTools} ${ShuffleGenerator} ${SignalHandler} ${StdInputStream} ${StdOutputStream} ${StringTools} ${StringView} ${SynchronizationState} ${Transaction} ${TransactionApiExtra} ${TransactionExtra} ${TransactionPool} ${TransactionPrefixImpl} ${TransactionUtils} ${TransfersConsumer} ${TransfersContainer} ${TransfersSynchronizer} ${Util} ${Varint} ${VectorOutputStream})
 
 add_executable(Account ${Account})
 add_executable(Base58 ${Base58})
 add_executable(Blockchain ${Blockchain})
-add_executable(BlockchainIndices ${BlockchainIndices})
+add_executable(BlockchainIndexes ${BlockchainIndexes})
 add_executable(BlockchainMessages ${BlockchainMessages})
 add_executable(BlockchainSynchronizer ${BlockchainSynchronizer})
 add_executable(BlockIndex ${BlockIndex})
@@ -121,7 +121,7 @@ add_executable(VectorOutputStream ${VectorOutputStream})
 target_link_libraries(Account gtest_main CryptoNoteCore Crypto Common Serialization Logging)
 target_link_libraries(Base58 gtest_main CryptoNoteCore Common Serialization Logging Crypto)
 target_link_libraries(Blockchain gtest_main CryptoNoteCore Crypto Serialization Logging System Common ${Boost_LIBRARIES})
-target_link_libraries(BlockchainIndices gtest_main CryptoNoteCore Crypto Serialization Logging Common)
+target_link_libraries(BlockchainIndexes gtest_main CryptoNoteCore Crypto Serialization Logging Common)
 target_link_libraries(BlockchainMessages gtest_main CryptoNoteCore Crypto Serialization Logging Common)
 target_link_libraries(BlockchainSynchronizer gtest_main Transfers CryptoNoteCore Crypto Serialization Logging Common ${Boost_LIBRARIES})
 target_link_libraries(BlockIndex gtest_main CryptoNoteCore Crypto Serialization Logging Common)
@@ -174,13 +174,13 @@ target_link_libraries(Util gtest_main Common ${Boost_LIBRARIES})
 target_link_libraries(Varint gtest_main Common ${Boost_LIBRARIES})
 target_link_libraries(VectorOutputStream gtest_main Common ${Boost_LIBRARIES})
 
-set_property(TARGET gtest gtest_main Account Base58 Blockchain BlockchainIndices BlockchainMessages BlockchainSynchronizer BlockIndex BlockingQueue BlockReward Chacha8 CommandLine ConsoleTools Core CoreConfig CryptoNoteBasic CryptoNoteBasicImpl CryptoNoteFormatUtils CryptoNoteProtocolHandler CryptoNoteTools Currency DecomposeAmountIntoDigits Difficulty HttpParser HttpRequest HttpResponse IntUtil JsonValue Math MemoryInputStream MessageQueue MinerCore MulDiv ObserverManager ParseAmount PathTools ShuffleGenerator SignalHandler StdInputStream StdOutputStream StringTools StringView SynchronizationState Transaction TransactionApiExtra TransactionExtra TransactionPool TransactionPrefixImpl TransactionUtils TransfersConsumer TransfersContainer TransfersSubscription TransfersSynchronizer Util Varint VectorOutputStream)
+set_property(TARGET gtest gtest_main Account Base58 Blockchain BlockchainIndexes BlockchainMessages BlockchainSynchronizer BlockIndex BlockingQueue BlockReward Chacha8 CommandLine ConsoleTools Core CoreConfig CryptoNoteBasic CryptoNoteBasicImpl CryptoNoteFormatUtils CryptoNoteProtocolHandler CryptoNoteTools Currency DecomposeAmountIntoDigits Difficulty HttpParser HttpRequest HttpResponse IntUtil JsonValue Math MemoryInputStream MessageQueue MinerCore MulDiv ObserverManager ParseAmount PathTools ShuffleGenerator SignalHandler StdInputStream StdOutputStream StringTools StringView SynchronizationState Transaction TransactionApiExtra TransactionExtra TransactionPool TransactionPrefixImpl TransactionUtils TransfersConsumer TransfersContainer TransfersSubscription TransfersSynchronizer Util Varint VectorOutputStream)
 
 if(NOT MSVC)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undef -Wno-sign-compare -O0")
 endif()
 
-add_custom_target(tests DEPENDS Account Base58 Blockchain BlockchainIndices BlockchainMessages BlockchainSynchronizer BlockIndex BlockingQueue BlockReward Chacha8 CommandLine ConsoleTools Core CoreConfig CryptoNoteBasic CryptoNoteBasicImpl CryptoNoteFormatUtils CryptoNoteProtocolHandler CryptoNoteTools Currency DecomposeAmountIntoDigits Difficulty HttpParser HttpRequest HttpResponse IntUtil JsonValue Math MemoryInputStream MessageQueue MinerCore MulDiv ObserverManager ParseAmount PathTools ShuffleGenerator SignalHandler StdInputStream StdOutputStream StringTools StringView SynchronizationState Transaction TransactionApiExtra TransactionExtra TransactionPool TransactionPrefixImpl TransactionUtils TransfersConsumer TransfersContainer TransfersSubscription TransfersSynchronizer Util Varint VectorOutputStream)
+add_custom_target(tests DEPENDS Account Base58 Blockchain BlockchainIndexes BlockchainMessages BlockchainSynchronizer BlockIndex BlockingQueue BlockReward Chacha8 CommandLine ConsoleTools Core CoreConfig CryptoNoteBasic CryptoNoteBasicImpl CryptoNoteFormatUtils CryptoNoteProtocolHandler CryptoNoteTools Currency DecomposeAmountIntoDigits Difficulty HttpParser HttpRequest HttpResponse IntUtil JsonValue Math MemoryInputStream MessageQueue MinerCore MulDiv ObserverManager ParseAmount PathTools ShuffleGenerator SignalHandler StdInputStream StdOutputStream StringTools StringView SynchronizationState Transaction TransactionApiExtra TransactionExtra TransactionPool TransactionPrefixImpl TransactionUtils TransfersConsumer TransfersContainer TransfersSubscription TransfersSynchronizer Util Varint VectorOutputStream)
 
 set_property(TARGET
   tests
@@ -188,7 +188,7 @@ set_property(TARGET
   Account
   Base58
   Blockchain
-  BlockchainIndices
+  BlockchainIndexes
   BlockchainMessages
   BlockchainSynchronizer
   BlockIndex
@@ -245,7 +245,7 @@ PROPERTY FOLDER "tests")
 set_property(TARGET Account PROPERTY OUTPUT_NAME "account")
 set_property(TARGET Base58 PROPERTY OUTPUT_NAME "base58")
 set_property(TARGET Blockchain PROPERTY OUTPUT_NAME "blockchain")
-set_property(TARGET BlockchainIndices PROPERTY OUTPUT_NAME "blockchainIndices")
+set_property(TARGET BlockchainIndexes PROPERTY OUTPUT_NAME "blockchainIndexes")
 set_property(TARGET BlockchainMessages PROPERTY OUTPUT_NAME "blockchainMessages")
 set_property(TARGET BlockchainSynchronizer PROPERTY OUTPUT_NAME "blockchainSynchronizer")
 set_property(TARGET BlockIndex PROPERTY OUTPUT_NAME "blockIndex")

@@ -168,7 +168,7 @@ bool gen_block_reward::mark_invalid_block(CryptoNote::core& /*c*/, size_t ev_ind
 
 bool gen_block_reward::mark_checked_block(CryptoNote::core& /*c*/, size_t ev_index, const std::vector<test_event_entry>& /*events*/)
 {
-  m_checked_blocks_indices.push_back(ev_index - 1);
+  m_checked_blocks_indexes.push_back(ev_index - 1);
   return true;
 }
 
@@ -187,17 +187,17 @@ bool gen_block_reward::check_block_rewards(CryptoNote::core& /*c*/, size_t /*ev_
 
   for (size_t i = 0; i < 5; ++i)
   {
-    Block blk_i = boost::get<Block>(events[m_checked_blocks_indices[i]]);
+    Block blk_i = boost::get<Block>(events[m_checked_blocks_indexes[i]]);
     CHECK_EQ(blk_rewards[i], get_tx_out_amount(blk_i.baseTransaction));
   }
 
-  Block blk_n1 = boost::get<Block>(events[m_checked_blocks_indices[5]]);
+  Block blk_n1 = boost::get<Block>(events[m_checked_blocks_indexes[5]]);
   CHECK_EQ(blk_rewards[5] + 3 * m_currency.minimumFee(), get_tx_out_amount(blk_n1.baseTransaction));
 
-  Block blk_n2 = boost::get<Block>(events[m_checked_blocks_indices[6]]);
+  Block blk_n2 = boost::get<Block>(events[m_checked_blocks_indexes[6]]);
   CHECK_EQ(blk_rewards[6] + (5 + 7) * m_currency.minimumFee(), get_tx_out_amount(blk_n2.baseTransaction));
 
-  Block blk_n3 = boost::get<Block>(events[m_checked_blocks_indices[7]]);
+  Block blk_n3 = boost::get<Block>(events[m_checked_blocks_indexes[7]]);
   CHECK_EQ(0, get_tx_out_amount(blk_n3.baseTransaction));
 
   return true;

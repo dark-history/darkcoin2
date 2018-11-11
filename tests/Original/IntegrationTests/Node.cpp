@@ -143,12 +143,12 @@ void NodeTest::readBlockchainInfo(INode& node, BlockchainInfo& bc) {
       } else {
         auto txHash = getObjectHash(entry.block.baseTransaction);
 
-        std::vector<uint32_t> globalIndices;
-        node.getTransactionOutsGlobalIndices(txHash, globalIndices, cb.callback());
+        std::vector<uint32_t> globalIndexes;
+        node.getTransactionOutsGlobalIndexes(txHash, globalIndexes, cb.callback());
 
         ASSERT_TRUE(!cb.get());
 
-        bc.globalOutputs.insert(std::make_pair(txHash, std::move(globalIndices)));
+        bc.globalOutputs.insert(std::make_pair(txHash, std::move(globalIndexes)));
 
         bc.blocks.push_back(entry);
         history.push_back(entry.blockHash);
