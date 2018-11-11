@@ -155,8 +155,6 @@ private
 
 */
 
-uint32_t loopCount = 5;
-
 // Helper functions
 
 class TransactionValidator : public ITransactionValidator
@@ -552,43 +550,47 @@ bool addBlock3(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
 bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_memory_pool, Crypto::Hash& transactionHash)
 {
   // Alice is a miner and finds a block
-  // Alice sends money to Bob
+  // Alice wants to send money to Bob
 
   AccountKeys aliceAccountKeys;
+  
   KeyPair aliceViewKeyPair = generateKeyPair();
   KeyPair aliceSpendKeyPair = generateKeyPair();
-  aliceAccountKeys.address.viewPublicKey = aliceViewKeyPair.publicKey;
-  aliceAccountKeys.address.spendPublicKey = aliceSpendKeyPair.publicKey;
-  aliceAccountKeys.viewSecretKey = aliceViewKeyPair.secretKey;
-  aliceAccountKeys.spendSecretKey = aliceSpendKeyPair.secretKey;
+  
   Crypto::PublicKey aliceViewPublicKey = aliceViewKeyPair.publicKey;
   Crypto::PublicKey aliceSpendPublicKey = aliceSpendKeyPair.publicKey;
-  // Crypto::SecretKey aliceViewSecretKey = aliceViewKeyPair.secretKey;
+  Crypto::SecretKey aliceViewSecretKey = aliceViewKeyPair.secretKey;
   Crypto::SecretKey aliceSpendSecretKey = aliceSpendKeyPair.secretKey;
 
+  aliceAccountKeys.address.viewPublicKey = aliceViewPublicKey;
+  aliceAccountKeys.address.spendPublicKey = aliceSpendPublicKey;
+  aliceAccountKeys.viewSecretKey = aliceViewSecretKey;
+  aliceAccountKeys.spendSecretKey = aliceSpendSecretKey;
+  
+  // Bob
+
   AccountKeys bobAccountKeys;
+
   KeyPair bobViewKeyPair = generateKeyPair();
   KeyPair bobSpendKeyPair = generateKeyPair();
-  bobAccountKeys.address.viewPublicKey = bobViewKeyPair.publicKey;
-  bobAccountKeys.address.spendPublicKey = bobSpendKeyPair.publicKey;
-  bobAccountKeys.viewSecretKey = bobViewKeyPair.secretKey;
-  bobAccountKeys.spendSecretKey = bobSpendKeyPair.secretKey;
+
   Crypto::PublicKey bobViewPublicKey = bobViewKeyPair.publicKey;
   Crypto::PublicKey bobSpendPublicKey = bobSpendKeyPair.publicKey;
-  // Crypto::SecretKey bobViewSecretKey = bobViewKeyPair.secretKey;
-  // Crypto::SecretKey bobSpendSecretKey = bobSpendKeyPair.secretKey;
+  Crypto::SecretKey bobViewSecretKey = bobViewKeyPair.secretKey;
+  Crypto::SecretKey bobSpendSecretKey = bobSpendKeyPair.secretKey;
 
-  // For some reason, there must be at least 1 block between Alice's block and the genesis block for this test to work
-  Crypto::Hash blockHash;
-  addBlock1(blockchain, currency, tx_memory_pool, blockHash);
-
-  ////////////////////////////////////////////////////////////////////////
+  bobAccountKeys.address.viewPublicKey = bobViewPublicKey;
+  bobAccountKeys.address.spendPublicKey = bobSpendPublicKey;
+  bobAccountKeys.viewSecretKey = bobViewSecretKey;
+  bobAccountKeys.spendSecretKey = bobSpendSecretKey;
+  
+  //////////////////////////////////////////////////////////////////////////
   // 1. Alice is a miner and finds a new block and gets the coinbase reward
-  ////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
   // create block 1
   Block block1;
-  block1.nonce = 1;
+  block1.nonce = 0;
   block1.timestamp = time(nullptr);
   block1.previousBlockHash = blockchain.getTailId();
 
@@ -598,13 +600,13 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   coinbaseTransaction1.version = CURRENT_TRANSACTION_VERSION;
   coinbaseTransaction1.unlockTime = blockchain.getCurrentBlockchainHeight() + parameters::CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
 
-  // coinbase transaction input 1
+  // coinbase transaction inputs 1
 
   BaseInput coinbaseInput1;
   coinbaseInput1.blockIndex = blockchain.getCurrentBlockchainHeight();
   coinbaseTransaction1.inputs.push_back(coinbaseInput1);
 
-  // coinbase transaction output 1
+  // coinbase transaction outputs 1
 
   TransactionOutput coinbaseTransactionOutput1;
 
@@ -615,10 +617,10 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
 
   // coinbase ephemeral public key 1
   Crypto::KeyDerivation derivation1;
-  Crypto::PublicKey coinbase_eph_public_key_1;
+  Crypto::PublicKey coinbaseEphemeralPublicKey1;
   size_t outputIndex1 = 0;
   generate_key_derivation(aliceViewPublicKey, coinbaseTransactionSecretKey1, derivation1);
-  derive_public_key(derivation1, outputIndex1, aliceSpendPublicKey, coinbase_eph_public_key_1);
+  derive_public_key(derivation1, outputIndex1, aliceSpendPublicKey, coinbaseEphemeralPublicKey1);
 
   // set coinbase transaction output amount 1
   size_t medianSize1 = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
@@ -637,7 +639,7 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // coinbase output target 1
   KeyOutput coinbaseKeyOutput1;
 
-  coinbaseKeyOutput1.key = coinbase_eph_public_key_1;
+  coinbaseKeyOutput1.key = coinbaseEphemeralPublicKey1;
   coinbaseTransactionOutput1.target = coinbaseKeyOutput1;
 
   coinbaseTransaction1.outputs.push_back(coinbaseTransactionOutput1);
@@ -683,13 +685,9 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // 2. Alice sends money to Bob
   ////////////////////////////////////////////////////////////////////////
 
-  // totalInputAmount and totalOutputAmount are used to calculate the coinbase reward
-  uint64_t totalInputAmount = 0;
-  uint64_t totalOutputAmount = 0;
-
   // create block 2
   Block block2;
-  block2.nonce = 1;
+  block2.nonce = 0;
   block2.timestamp = time(nullptr);
   block2.previousBlockHash = blockchain.getTailId();
 
@@ -714,33 +712,33 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // transaction input
 
   // create key image
-  KeyPair input_eph_key_pair_2;
+  KeyPair ephemeralKeyPair2Ignore;
   Crypto::KeyImage keyImage2;
-  size_t realOutputIndex2 = 0;
-  generate_key_image_helper(aliceAccountKeys, coinbaseTransactionPublicKey1, realOutputIndex2, input_eph_key_pair_2, keyImage2);
+  generate_key_image_helper(aliceAccountKeys, coinbaseTransactionPublicKey1, outputIndex1, ephemeralKeyPair2Ignore, keyImage2);
 
   KeyInput keyInput2;
   keyInput2.amount = reward1;
-  totalInputAmount += keyInput2.amount;
   keyInput2.keyImage = keyImage2;
   keyInput2.outputIndexes = {0};
-  keyInput2.outputIndexes = absolute_output_offsets_to_relative(keyInput2.outputIndexes);
   transaction2.inputs.push_back(keyInput2);
 
   // transaction output
 
   // ephemeral public key 2
   Crypto::KeyDerivation transactionDerivation2;
-  Crypto::PublicKey out_eph_public_key_2;
+  Crypto::PublicKey transactionEphemeralPublicKey2;
   size_t transactionOutputIndex2 = 0;
   generate_key_derivation(bobViewPublicKey, transactionSecretKey2, transactionDerivation2);
-  derive_public_key(transactionDerivation2, transactionOutputIndex2, bobSpendPublicKey, out_eph_public_key_2);
+  derive_public_key(transactionDerivation2, transactionOutputIndex2, bobSpendPublicKey, transactionEphemeralPublicKey2);
 
-  // output target
+  // totalOutputAmount are used to calculate the coinbase reward
+  uint64_t totalOutputAmount = 0;
+
+  // create output targets with amount = 50
   for (int i = 0; i < 100; i++)
   {
     KeyOutput keyOutput2;
-    keyOutput2.key = out_eph_public_key_2;
+    keyOutput2.key = transactionEphemeralPublicKey2;
 
     TransactionOutput transactionOutput2;
     transactionOutput2.amount = 50;
@@ -750,30 +748,23 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
     transaction2.outputs.push_back(transactionOutput2);
   }
 
-  // transaction prefix hash
-  Crypto::Hash tx2_prefix_hash = getObjectHash(*static_cast<TransactionPrefix*>(&transaction2));
-
   // transaction signature
 
   // coinbase keyOutput ephemeral secret key 1
-  Crypto::SecretKey coinbase_eph_secret_key_1;
-  generate_key_derivation(aliceViewPublicKey, coinbaseTransactionSecretKey1, derivation1);
-  derive_secret_key(derivation1, outputIndex1, aliceSpendSecretKey, coinbase_eph_secret_key_1);
+  Crypto::SecretKey coinbaseEphemeralSecretKey1;
+  generate_key_derivation(coinbaseTransactionPublicKey1, aliceViewSecretKey, derivation1);
+  derive_secret_key(derivation1, outputIndex1, aliceSpendSecretKey, coinbaseEphemeralSecretKey1);
 
-  std::vector<const Crypto::PublicKey*> keys_ptrs2;
-  keys_ptrs2.push_back(&coinbase_eph_public_key_1);
+  std::vector<const Crypto::PublicKey*> ephemeralPublicKeysPtrs;
+  ephemeralPublicKeysPtrs.push_back(&coinbaseEphemeralPublicKey1);
 
   transaction2.signatures.push_back(std::vector<Crypto::Signature>());
-  std::vector<Crypto::Signature>& sigs = transaction2.signatures.back();
-  sigs.resize(coinbaseTransaction1.outputs.size());
+  std::vector<Crypto::Signature>& signatures = transaction2.signatures.back();
+  signatures.resize(coinbaseTransaction1.outputs.size());
   
-  Crypto::Hash prefix_hash = tx2_prefix_hash;
-  Crypto::KeyImage image = keyImage2;
-  std::vector<const Crypto::PublicKey *> pubs = keys_ptrs2;
-  Crypto::SecretKey sec = coinbase_eph_secret_key_1;
+  Crypto::Hash transactionPrefixHash = getObjectHash(*static_cast<TransactionPrefix*>(&transaction2));;
   size_t sec_index = 0;
-  Crypto::Signature *sig = sigs.data();
-  generate_ring_signature(prefix_hash, image, pubs, sec, sec_index, sig);
+  generate_ring_signature(transactionPrefixHash, keyImage2, ephemeralPublicKeysPtrs, coinbaseEphemeralSecretKey1, sec_index, signatures.data());
 
   // add transaction2 to transaction mempool
   tx_verification_context tvc;
@@ -807,10 +798,10 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
 
   // create keyOutput public key 2
   Crypto::KeyDerivation derivation2;
-  Crypto::PublicKey coinbase_eph_public_key_2;
+  Crypto::PublicKey coinbaseEphemeralPublicKey2;
   size_t outputIndex2 = 0;
   generate_key_derivation(aliceViewPublicKey, coinbaseTransactionSecretKey2, derivation2);
-  derive_public_key(derivation2, outputIndex2, aliceSpendPublicKey, coinbase_eph_public_key_2);
+  derive_public_key(derivation2, outputIndex2, aliceSpendPublicKey, coinbaseEphemeralPublicKey2);
 
   // set coinbase transaction output amount 2
   size_t medianSize2 = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
@@ -820,7 +811,7 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   Crypto::Hash lastBlockHash2 = blockchain.getTailId();
   blockchain.getAlreadyGeneratedCoins(lastBlockHash2, alreadyGeneratedCoins2);
 
-  uint64_t fee2 = totalInputAmount - totalOutputAmount;
+  uint64_t fee2 = keyInput2.amount - totalOutputAmount;
   uint64_t reward2;
   int64_t emissionChange2;
   currency.getBlockReward(medianSize2, currentBlockSize2, alreadyGeneratedCoins2, fee2, reward2, emissionChange2);
@@ -829,7 +820,7 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // create output target 2
   KeyOutput coinbaseKeyOutput2;
 
-  coinbaseKeyOutput2.key = coinbase_eph_public_key_2;
+  coinbaseKeyOutput2.key = coinbaseEphemeralPublicKey2;
   coinbaseTransactionOutput2.target = coinbaseKeyOutput2;
 
   coinbaseTransaction2.outputs.push_back(coinbaseTransactionOutput2);
@@ -861,50 +852,52 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   return added;
 }
 
-// Adds a new block to the blockchain
+// Same as addBlock4
 // Able to set the transaction output amount
-// Returns the transaction hash
 bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_memory_pool, Crypto::Hash& transactionHash, const uint64_t transactionOutputAmount)
 {
   // Alice is a miner and finds a block
-  // Alice sends money to Bob
-  // Bob sends money to Carol
+  // Alice wants to send money to Bob
 
   AccountKeys aliceAccountKeys;
+  
   KeyPair aliceViewKeyPair = generateKeyPair();
   KeyPair aliceSpendKeyPair = generateKeyPair();
-  aliceAccountKeys.address.viewPublicKey = aliceViewKeyPair.publicKey;
-  aliceAccountKeys.address.spendPublicKey = aliceSpendKeyPair.publicKey;
-  aliceAccountKeys.viewSecretKey = aliceViewKeyPair.secretKey;
-  aliceAccountKeys.spendSecretKey = aliceSpendKeyPair.secretKey;
+  
   Crypto::PublicKey aliceViewPublicKey = aliceViewKeyPair.publicKey;
   Crypto::PublicKey aliceSpendPublicKey = aliceSpendKeyPair.publicKey;
-  // Crypto::SecretKey aliceViewSecretKey = aliceViewKeyPair.secretKey;
+  Crypto::SecretKey aliceViewSecretKey = aliceViewKeyPair.secretKey;
   Crypto::SecretKey aliceSpendSecretKey = aliceSpendKeyPair.secretKey;
 
+  aliceAccountKeys.address.viewPublicKey = aliceViewPublicKey;
+  aliceAccountKeys.address.spendPublicKey = aliceSpendPublicKey;
+  aliceAccountKeys.viewSecretKey = aliceViewSecretKey;
+  aliceAccountKeys.spendSecretKey = aliceSpendSecretKey;
+  
+  // Bob
+
   AccountKeys bobAccountKeys;
+
   KeyPair bobViewKeyPair = generateKeyPair();
   KeyPair bobSpendKeyPair = generateKeyPair();
-  bobAccountKeys.address.viewPublicKey = bobViewKeyPair.publicKey;
-  bobAccountKeys.address.spendPublicKey = bobSpendKeyPair.publicKey;
-  bobAccountKeys.viewSecretKey = bobViewKeyPair.secretKey;
-  bobAccountKeys.spendSecretKey = bobSpendKeyPair.secretKey;
+
   Crypto::PublicKey bobViewPublicKey = bobViewKeyPair.publicKey;
   Crypto::PublicKey bobSpendPublicKey = bobSpendKeyPair.publicKey;
-  // Crypto::SecretKey bobViewSecretKey = bobViewKeyPair.secretKey;
-  // Crypto::SecretKey bobSpendSecretKey = bobSpendKeyPair.secretKey;
+  Crypto::SecretKey bobViewSecretKey = bobViewKeyPair.secretKey;
+  Crypto::SecretKey bobSpendSecretKey = bobSpendKeyPair.secretKey;
 
-  // For some reason, there must be at least 1 block between Alice's block and the genesis block for this test to work
-  Crypto::Hash blockHash;
-  addBlock1(blockchain, currency, tx_memory_pool, blockHash);
-
-  ////////////////////////////////////////////////////////////////////////
+  bobAccountKeys.address.viewPublicKey = bobViewPublicKey;
+  bobAccountKeys.address.spendPublicKey = bobSpendPublicKey;
+  bobAccountKeys.viewSecretKey = bobViewSecretKey;
+  bobAccountKeys.spendSecretKey = bobSpendSecretKey;
+  
+  //////////////////////////////////////////////////////////////////////////
   // 1. Alice is a miner and finds a new block and gets the coinbase reward
-  ////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
   // create block 1
   Block block1;
-  block1.nonce = 1;
+  block1.nonce = 0;
   block1.timestamp = time(nullptr);
   block1.previousBlockHash = blockchain.getTailId();
 
@@ -914,13 +907,13 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   coinbaseTransaction1.version = CURRENT_TRANSACTION_VERSION;
   coinbaseTransaction1.unlockTime = blockchain.getCurrentBlockchainHeight() + parameters::CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
 
-  // coinbase transaction input 1
+  // coinbase transaction inputs 1
 
   BaseInput coinbaseInput1;
   coinbaseInput1.blockIndex = blockchain.getCurrentBlockchainHeight();
   coinbaseTransaction1.inputs.push_back(coinbaseInput1);
 
-  // coinbase transaction output 1
+  // coinbase transaction outputs 1
 
   TransactionOutput coinbaseTransactionOutput1;
 
@@ -931,10 +924,10 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
 
   // coinbase ephemeral public key 1
   Crypto::KeyDerivation derivation1;
-  Crypto::PublicKey coinbase_eph_public_key_1;
+  Crypto::PublicKey coinbaseEphemeralPublicKey1;
   size_t outputIndex1 = 0;
   generate_key_derivation(aliceViewPublicKey, coinbaseTransactionSecretKey1, derivation1);
-  derive_public_key(derivation1, outputIndex1, aliceSpendPublicKey, coinbase_eph_public_key_1);
+  derive_public_key(derivation1, outputIndex1, aliceSpendPublicKey, coinbaseEphemeralPublicKey1);
 
   // set coinbase transaction output amount 1
   size_t medianSize1 = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
@@ -953,7 +946,7 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // coinbase output target 1
   KeyOutput coinbaseKeyOutput1;
 
-  coinbaseKeyOutput1.key = coinbase_eph_public_key_1;
+  coinbaseKeyOutput1.key = coinbaseEphemeralPublicKey1;
   coinbaseTransactionOutput1.target = coinbaseKeyOutput1;
 
   coinbaseTransaction1.outputs.push_back(coinbaseTransactionOutput1);
@@ -986,6 +979,8 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   block_verification_context bvc;
   blockchain.addNewBlock(block1, bvc);
 
+  blockchain.haveTransaction(getObjectHash(coinbaseTransaction1));
+
   // allow coinbase transaction to mature
   for (int i = 0; i < parameters::CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW; i++)
   {
@@ -997,13 +992,9 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // 2. Alice sends money to Bob
   ////////////////////////////////////////////////////////////////////////
 
-  // totalInputAmount and totalOutputAmount are used to calculate the coinbase reward
-  uint64_t totalInputAmount = 0;
-  uint64_t totalOutputAmount = 0;
-
   // create block 2
   Block block2;
-  block2.nonce = 1;
+  block2.nonce = 0;
   block2.timestamp = time(nullptr);
   block2.previousBlockHash = blockchain.getTailId();
 
@@ -1016,7 +1007,7 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // create transaction random transaction key
   KeyPair transactionKeyPair2 = generateKeyPair();
   Crypto::PublicKey transactionPublicKey2 = transactionKeyPair2.publicKey;
-  // Crypto::SecretKey transactionSecretKey2 = transactionKeyPair2.secretKey;
+  Crypto::SecretKey transactionSecretKey2 = transactionKeyPair2.secretKey;
 
   // create transaction extra
   transaction2.extra = {1};
@@ -1028,67 +1019,56 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // transaction input
 
   // create key image
-  KeyPair input_eph_key_pair_2;
+  KeyPair ephemeralKeyPair2Ignore;
   Crypto::KeyImage keyImage2;
-  size_t realOutputIndex2 = 0;
-  generate_key_image_helper(aliceAccountKeys, coinbaseTransactionPublicKey1, realOutputIndex2, input_eph_key_pair_2, keyImage2);
+  generate_key_image_helper(aliceAccountKeys, coinbaseTransactionPublicKey1, outputIndex1, ephemeralKeyPair2Ignore, keyImage2);
 
   KeyInput keyInput2;
-  keyInput2.amount = reward1;  // should find a way to calculate this value by using alice's view private key to find the transaction
-  totalInputAmount += keyInput2.amount;
+  keyInput2.amount = reward1;
   keyInput2.keyImage = keyImage2;
   keyInput2.outputIndexes = {0};
-  keyInput2.outputIndexes = absolute_output_offsets_to_relative(keyInput2.outputIndexes);
   transaction2.inputs.push_back(keyInput2);
 
   // transaction output
 
   // ephemeral public key 2
   Crypto::KeyDerivation transactionDerivation2;
-  Crypto::PublicKey out_eph_public_key_2;
+  Crypto::PublicKey transactionEphemeralPublicKey2;
   size_t transactionOutputIndex2 = 0;
-  generate_key_derivation(bobViewPublicKey, coinbaseTransactionSecretKey1, transactionDerivation2);
-  derive_public_key(transactionDerivation2, transactionOutputIndex2, bobSpendPublicKey, out_eph_public_key_2);
+  generate_key_derivation(bobViewPublicKey, transactionSecretKey2, transactionDerivation2);
+  derive_public_key(transactionDerivation2, transactionOutputIndex2, bobSpendPublicKey, transactionEphemeralPublicKey2);
 
-  // output target
+  // totalOutputAmount are used to calculate the coinbase reward
+  uint64_t totalOutputAmount = 0;
+
   KeyOutput keyOutput2;
-  keyOutput2.key = out_eph_public_key_2;
+  keyOutput2.key = transactionEphemeralPublicKey2;
 
   TransactionOutput transactionOutput2;
   transactionOutput2.amount = transactionOutputAmount;
-  // totalOutputAmount is used later to calculate the coinbase reward
   totalOutputAmount += transactionOutput2.amount;
   transactionOutput2.target = keyOutput2;
 
   transaction2.outputs.push_back(transactionOutput2);
 
-  // transaction prefix hash
-  Crypto::Hash tx2_prefix_hash = getObjectHash(*static_cast<TransactionPrefix*>(&transaction2));
-
   // transaction signature
 
   // coinbase keyOutput ephemeral secret key 1
-  Crypto::SecretKey coinbase_eph_secret_key_1;
-  generate_key_derivation(aliceViewPublicKey, coinbaseTransactionSecretKey1, derivation1);
-  derive_secret_key(derivation1, outputIndex1, aliceSpendSecretKey, coinbase_eph_secret_key_1);
+  Crypto::SecretKey coinbaseEphemeralSecretKey1;
+  generate_key_derivation(coinbaseTransactionPublicKey1, aliceViewSecretKey, derivation1);
+  derive_secret_key(derivation1, outputIndex1, aliceSpendSecretKey, coinbaseEphemeralSecretKey1);
 
-  std::vector<const Crypto::PublicKey*> keys_ptrs2;
-  // keys_ptrs2.push_back(&input_eph_key_pair_2.publicKey);
-  keys_ptrs2.push_back(&coinbase_eph_public_key_1);
+  std::vector<const Crypto::PublicKey*> ephemeralPublicKeysPtrs;
+  ephemeralPublicKeysPtrs.push_back(&coinbaseEphemeralPublicKey1);
 
   transaction2.signatures.push_back(std::vector<Crypto::Signature>());
-  std::vector<Crypto::Signature>& sigs = transaction2.signatures.back();
-  sigs.resize(coinbaseTransaction1.outputs.size());
+  std::vector<Crypto::Signature>& signatures = transaction2.signatures.back();
+  signatures.resize(coinbaseTransaction1.outputs.size());
   
-  Crypto::Hash prefix_hash = tx2_prefix_hash;
-  Crypto::KeyImage image = keyImage2;
-  std::vector<const Crypto::PublicKey *> pubs = keys_ptrs2;
-  // Crypto::SecretKey sec = input_eph_key_pair_2.secretKey;
-  Crypto::SecretKey sec = coinbase_eph_secret_key_1;
+  Crypto::Hash transactionPrefixHash = getObjectHash(*static_cast<TransactionPrefix*>(&transaction2));;
   size_t sec_index = 0;
-  Crypto::Signature *sig = sigs.data();
-  generate_ring_signature(prefix_hash, image, pubs, sec, sec_index, sig);
-  
+  generate_ring_signature(transactionPrefixHash, keyImage2, ephemeralPublicKeysPtrs, coinbaseEphemeralSecretKey1, sec_index, signatures.data());
+
   // add transaction2 to transaction mempool
   tx_verification_context tvc;
   bool keeped_by_block = false;
@@ -1121,10 +1101,10 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
 
   // create keyOutput public key 2
   Crypto::KeyDerivation derivation2;
-  Crypto::PublicKey coinbase_eph_public_key_2;
+  Crypto::PublicKey coinbaseEphemeralPublicKey2;
   size_t outputIndex2 = 0;
   generate_key_derivation(aliceViewPublicKey, coinbaseTransactionSecretKey2, derivation2);
-  derive_public_key(derivation2, outputIndex2, aliceSpendPublicKey, coinbase_eph_public_key_2);
+  derive_public_key(derivation2, outputIndex2, aliceSpendPublicKey, coinbaseEphemeralPublicKey2);
 
   // set coinbase transaction output amount 2
   size_t medianSize2 = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
@@ -1134,7 +1114,7 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   Crypto::Hash lastBlockHash2 = blockchain.getTailId();
   blockchain.getAlreadyGeneratedCoins(lastBlockHash2, alreadyGeneratedCoins2);
 
-  uint64_t fee2 = totalInputAmount - totalOutputAmount;
+  uint64_t fee2 = keyInput2.amount - totalOutputAmount;
   uint64_t reward2;
   int64_t emissionChange2;
   currency.getBlockReward(medianSize2, currentBlockSize2, alreadyGeneratedCoins2, fee2, reward2, emissionChange2);
@@ -1143,7 +1123,7 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // create output target 2
   KeyOutput coinbaseKeyOutput2;
 
-  coinbaseKeyOutput2.key = coinbase_eph_public_key_2;
+  coinbaseKeyOutput2.key = coinbaseEphemeralPublicKey2;
   coinbaseTransactionOutput2.target = coinbaseKeyOutput2;
 
   coinbaseTransaction2.outputs.push_back(coinbaseTransactionOutput2);
@@ -1171,99 +1151,6 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   }
 
   bool added = blockchain.addNewBlock(block2, bvc);
-
-  return added;
-}
-
-// Adds a new block to the blockchain
-// Adds fake transactions to increase the block size
-// Able to set number of transactions added
-bool addBlock6(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_memory_pool, const uint32_t numTransactions)
-{
-  uint32_t currentBlockchainHeight = blockchain.getCurrentBlockchainHeight();
-
-  // create block
-  Block block;
-  block.nonce = 0;
-  block.timestamp = time(nullptr);
-  block.previousBlockHash = blockchain.getTailId();
-
-  std::vector<Transaction> transactions;
-  for (int i = 0; i < numTransactions; i++)
-  {
-    // create transaction
-    Transaction transaction;
-    transaction.version = CURRENT_TRANSACTION_VERSION;
-    // adding transaction extra so that each transaction is unique
-    transaction.extra = {1};
-    Crypto::PublicKey transactionPublicKey= generateKeyPair().publicKey;
-    for (int i = 0; i < 32; i++)
-    {
-      transaction.extra.push_back(transactionPublicKey.data[i]);
-    }
-
-    transactions.push_back(transaction);
-
-    Crypto::Hash transactionHash = getObjectHash(transaction);
-
-    // add transaction to block
-    block.transactionHashes.push_back(transactionHash);
-    
-    // add transaction to transaction mempool
-    tx_verification_context tvc;
-    bool keeped_by_block = true;
-    tx_memory_pool.add_tx(transaction, tvc, keeped_by_block);
-  }
-
-  // create coinbase transaction
-  block.baseTransaction = boost::value_initialized<Transaction>();
-
-  uint64_t alreadyGeneratedCoins;
-  Crypto::Hash lastBlockHash = blockchain.getTailId();
-  blockchain.getAlreadyGeneratedCoins(lastBlockHash, alreadyGeneratedCoins);
-
-  uint64_t fee = 0;
-  size_t medianBlockSize = getMedianBlockSize(blockchain);
-  size_t currentBlockSize = getBlockSize(block.baseTransaction, transactions);
-  size_t maxOuts = 1;
-
-  // Must use a while loop to figure out the current block size and coinbase reward
-  // Borrowed from TestGenerator.cpp
-  // The current block size is dependent on the amount of the coinbase reward
-  // BUT  
-  // The amount of the coinbase reward is dependent on the current block size
-  // Must use a while loop find the actual current block size so that the coinbase transaction output amount is correct
-  while (true)
-  {
-    currency.constructMinerTx(currentBlockchainHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
-    fee, AccountPublicAddress(), block.baseTransaction, BinaryArray(), maxOuts);
-
-    size_t actualBlockSize = getBlockSize(block.baseTransaction, transactions);
-
-    if (actualBlockSize == currentBlockSize)
-    {
-      break;
-    }
-
-    currentBlockSize = actualBlockSize;
-  }
-
-  // add merkle root
-  block.merkleRoot = get_tx_tree_hash(block);
-
-  difficulty_type difficulty = blockchain.getDifficultyForNextBlock();
-
-  // find nonce appropriate for current difficulty
-  Crypto::Hash proofOfWorkIgnore = NULL_HASH;
-  Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
-  {
-    block.nonce++;
-  }
-
-  // add block to blockchain
-  block_verification_context bvc;
-  bool added = blockchain.addNewBlock(block, bvc);
 
   return added;
 }
@@ -2147,8 +2034,7 @@ TEST(Blockchain, 18)
 }
 
 // checkTransactionInputs()
-// skip for now
-TEST(Blockchain, DISABLED_19)
+TEST(Blockchain, 19)
 {
   Logging::ConsoleLogger logger;
   Currency currency = CurrencyBuilder(logger).currency();
@@ -2160,39 +2046,317 @@ TEST(Blockchain, DISABLED_19)
   std::string config_folder = Tools::getDefaultDataDirectory();
   ASSERT_TRUE(blockchain.init(config_folder, false));
 
-  Crypto::Hash lastBlockHash;
+  // Alice is a miner and finds a block
+  // Alice wants to send money to Bob
 
-  for (int i = 0; i < 100; i++)
+  AccountKeys aliceAccountKeys;
+  
+  KeyPair aliceViewKeyPair = generateKeyPair();
+  KeyPair aliceSpendKeyPair = generateKeyPair();
+  
+  Crypto::PublicKey aliceViewPublicKey = aliceViewKeyPair.publicKey;
+  Crypto::PublicKey aliceSpendPublicKey = aliceSpendKeyPair.publicKey;
+  Crypto::SecretKey aliceViewSecretKey = aliceViewKeyPair.secretKey;
+  Crypto::SecretKey aliceSpendSecretKey = aliceSpendKeyPair.secretKey;
+
+  aliceAccountKeys.address.viewPublicKey = aliceViewPublicKey;
+  aliceAccountKeys.address.spendPublicKey = aliceSpendPublicKey;
+  aliceAccountKeys.viewSecretKey = aliceViewSecretKey;
+  aliceAccountKeys.spendSecretKey = aliceSpendSecretKey;
+  
+  // Bob
+
+  AccountKeys bobAccountKeys;
+
+  KeyPair bobViewKeyPair = generateKeyPair();
+  KeyPair bobSpendKeyPair = generateKeyPair();
+
+  Crypto::PublicKey bobViewPublicKey = bobViewKeyPair.publicKey;
+  Crypto::PublicKey bobSpendPublicKey = bobSpendKeyPair.publicKey;
+  Crypto::SecretKey bobViewSecretKey = bobViewKeyPair.secretKey;
+  Crypto::SecretKey bobSpendSecretKey = bobSpendKeyPair.secretKey;
+
+  bobAccountKeys.address.viewPublicKey = bobViewPublicKey;
+  bobAccountKeys.address.spendPublicKey = bobSpendPublicKey;
+  bobAccountKeys.viewSecretKey = bobViewSecretKey;
+  bobAccountKeys.spendSecretKey = bobSpendSecretKey;
+  
+  //////////////////////////////////////////////////////////////////////////
+  // 1. Alice is a miner and finds a new block and gets the coinbase reward
+  //////////////////////////////////////////////////////////////////////////
+
+  // create block 1
+  Block block1;
+  block1.nonce = 0;
+  block1.timestamp = time(nullptr);
+  block1.previousBlockHash = blockchain.getTailId();
+
+  // create coinbase transaction 1
+
+  Transaction coinbaseTransaction1;
+  coinbaseTransaction1.version = CURRENT_TRANSACTION_VERSION;
+  coinbaseTransaction1.unlockTime = blockchain.getCurrentBlockchainHeight() + parameters::CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
+
+  // coinbase transaction inputs 1
+
+  BaseInput coinbaseInput1;
+  coinbaseInput1.blockIndex = blockchain.getCurrentBlockchainHeight();
+  coinbaseTransaction1.inputs.push_back(coinbaseInput1);
+
+  // coinbase transaction outputs 1
+
+  TransactionOutput coinbaseTransactionOutput1;
+
+  // coinbase transaction public key 1
+  KeyPair coinbaseTransactionKeyPair1 = generateKeyPair();
+  Crypto::PublicKey coinbaseTransactionPublicKey1 = coinbaseTransactionKeyPair1.publicKey;
+  Crypto::SecretKey coinbaseTransactionSecretKey1 = coinbaseTransactionKeyPair1.secretKey;
+
+  // coinbase ephemeral public key 1
+  Crypto::KeyDerivation derivation1;
+  Crypto::PublicKey coinbaseEphemeralPublicKey1;
+  size_t outputIndex1 = 0;
+  generate_key_derivation(aliceViewPublicKey, coinbaseTransactionSecretKey1, derivation1);
+  derive_public_key(derivation1, outputIndex1, aliceSpendPublicKey, coinbaseEphemeralPublicKey1);
+
+  // set coinbase transaction output amount 1
+  size_t medianSize1 = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
+  size_t currentBlockSize1 = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
+
+  uint64_t alreadyGeneratedCoins1;
+  Crypto::Hash lastBlockHash1 = blockchain.getTailId();
+  blockchain.getAlreadyGeneratedCoins(lastBlockHash1, alreadyGeneratedCoins1);
+
+  uint64_t fee1 = 0;
+  uint64_t reward1;
+  int64_t emissionChange1;
+  currency.getBlockReward(medianSize1, currentBlockSize1, alreadyGeneratedCoins1, fee1, reward1, emissionChange1);
+  coinbaseTransactionOutput1.amount = reward1;
+
+  // coinbase output target 1
+  KeyOutput coinbaseKeyOutput1;
+
+  coinbaseKeyOutput1.key = coinbaseEphemeralPublicKey1;
+  coinbaseTransactionOutput1.target = coinbaseKeyOutput1;
+
+  coinbaseTransaction1.outputs.push_back(coinbaseTransactionOutput1);
+
+  // coinbase transaction extra 1
+  
+  coinbaseTransaction1.extra = {1}; // 1 signifies a transaction public key
+  for (int i = 0; i < 32; i++)
   {
-    ASSERT_TRUE(addBlock1(blockchain, currency, tx_memory_pool, lastBlockHash));
+    coinbaseTransaction1.extra.push_back(coinbaseTransactionPublicKey1.data[i]);
   }
 
-  // create a transaction
-  Transaction transaction;
-  transaction.version = CURRENT_TRANSACTION_VERSION;
-  transaction.unlockTime = time(nullptr);
+  // add coinbase transaction 1 to block 1
+  block1.baseTransaction = coinbaseTransaction1;
 
-  KeyInput keyInput;
-  keyInput.amount = 100;
-  keyInput.outputIndexes = {1, 2, 3};
-  keyInput.keyImage = getRandKeyImage();
+  // add merkle root
+  block1.merkleRoot = get_tx_tree_hash(block1);
 
-  transaction.inputs.push_back(keyInput);
-    // the number of ring signatures must match the number of inputs
-  std::vector<Crypto::Signature> signatures;
-    // the number of signatures must match the number of outputIndexes in keyInput
-  signatures.push_back(getRandSignature());
-  signatures.push_back(getRandSignature());
-  signatures.push_back(getRandSignature());
-  transaction.signatures.push_back(signatures);
+  difficulty_type difficulty = blockchain.getDifficultyForNextBlock();
+
+  // find nonce appropriate for current difficulty
+  Crypto::Hash proofOfWorkIgnore = NULL_HASH;
+  Crypto::cn_context context;
+  while(!currency.checkProofOfWork(context, block1, difficulty, proofOfWorkIgnore))
+  {
+    block1.nonce++;
+  }
+
+  // add block to blockchain
+  block_verification_context bvc;
+  blockchain.addNewBlock(block1, bvc);
+
+  blockchain.haveTransaction(getObjectHash(coinbaseTransaction1));
+
+  // allow coinbase transaction to mature
+  for (int i = 0; i < parameters::CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW; i++)
+  {
+    Crypto::Hash blockHash;
+    addBlock1(blockchain, currency, tx_memory_pool, blockHash);
+  }
+
+  ////////////////////////////////////////////////////////////////////////
+  // 2. Alice sends money to Bob
+  ////////////////////////////////////////////////////////////////////////
+
+  // create block 2
+  Block block2;
+  block2.nonce = 0;
+  block2.timestamp = time(nullptr);
+  block2.previousBlockHash = blockchain.getTailId();
+
+  // create transaction
+
+  Transaction transaction2;
+  transaction2.version = CURRENT_TRANSACTION_VERSION;
+  transaction2.unlockTime = 0;
+
+  // create transaction random transaction key
+  KeyPair transactionKeyPair2 = generateKeyPair();
+  Crypto::PublicKey transactionPublicKey2 = transactionKeyPair2.publicKey;
+  Crypto::SecretKey transactionSecretKey2 = transactionKeyPair2.secretKey;
+
+  // create transaction extra
+  transaction2.extra = {1};
+  for (int i = 0; i < 32; i++)
+  {
+    transaction2.extra.push_back(transactionPublicKey2.data[i]);
+  }
+
+  // transaction input
+
+  // create key image
+  KeyPair ephemeralKeyPair2Ignore;
+  Crypto::KeyImage keyImage2;
+  generate_key_image_helper(aliceAccountKeys, coinbaseTransactionPublicKey1, outputIndex1, ephemeralKeyPair2Ignore, keyImage2);
+
+  KeyInput keyInput2;
+  keyInput2.amount = reward1;
+  keyInput2.keyImage = keyImage2;
+  keyInput2.outputIndexes = {0};
+  transaction2.inputs.push_back(keyInput2);
+
+  // transaction output
+
+  // ephemeral public key 2
+  Crypto::KeyDerivation transactionDerivation2;
+  Crypto::PublicKey transactionEphemeralPublicKey2;
+  size_t transactionOutputIndex2 = 0;
+  generate_key_derivation(bobViewPublicKey, transactionSecretKey2, transactionDerivation2);
+  derive_public_key(transactionDerivation2, transactionOutputIndex2, bobSpendPublicKey, transactionEphemeralPublicKey2);
+
+  // totalOutputAmount are used to calculate the coinbase reward
+  uint64_t totalOutputAmount = 0;
+
+  // create output targets with amount = 50
+  for (int i = 0; i < 100; i++)
+  {
+    KeyOutput keyOutput2;
+    keyOutput2.key = transactionEphemeralPublicKey2;
+
+    TransactionOutput transactionOutput2;
+    transactionOutput2.amount = 50;
+    totalOutputAmount += transactionOutput2.amount;
+    transactionOutput2.target = keyOutput2;
+
+    transaction2.outputs.push_back(transactionOutput2);
+  }
+
+  // transaction signature
+
+  // coinbase keyOutput ephemeral secret key 1
+  Crypto::SecretKey coinbaseEphemeralSecretKey1;
+  generate_key_derivation(coinbaseTransactionPublicKey1, aliceViewSecretKey, derivation1);
+  derive_secret_key(derivation1, outputIndex1, aliceSpendSecretKey, coinbaseEphemeralSecretKey1);
+
+  std::vector<const Crypto::PublicKey*> ephemeralPublicKeysPtrs;
+  ephemeralPublicKeysPtrs.push_back(&coinbaseEphemeralPublicKey1);
+
+  transaction2.signatures.push_back(std::vector<Crypto::Signature>());
+  std::vector<Crypto::Signature>& signatures = transaction2.signatures.back();
+  signatures.resize(coinbaseTransaction1.outputs.size());
   
+  Crypto::Hash transactionPrefixHash = getObjectHash(*static_cast<TransactionPrefix*>(&transaction2));;
+  size_t sec_index = 0;
+  generate_ring_signature(transactionPrefixHash, keyImage2, ephemeralPublicKeysPtrs, coinbaseEphemeralSecretKey1, sec_index, signatures.data());
+
+/*
+
+  // add transaction2 to transaction mempool
+  tx_verification_context tvc;
+  bool keeped_by_block = false;
+  tx_memory_pool.add_tx(transaction2, tvc, keeped_by_block);
+
+  // add transaction 2 to block 2
+  Crypto::Hash transactionHash = getObjectHash(transaction2);
+  block2.transactionHashes.push_back(transactionHash);
+
+  // create coinbase transaction 2
+
+  Transaction coinbaseTransaction2;
+  coinbaseTransaction2.version = CURRENT_TRANSACTION_VERSION;
+  coinbaseTransaction2.unlockTime = blockchain.getCurrentBlockchainHeight() + parameters::CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
+
+  // coinbase transaction input 2
+
+  BaseInput coinbaseInput2;
+  coinbaseInput2.blockIndex = blockchain.getCurrentBlockchainHeight();
+  coinbaseTransaction2.inputs.push_back(coinbaseInput2);
+
+  // coinbase transaction output 2
+
+  TransactionOutput coinbaseTransactionOutput2;
+
+  // coinbase transaction public key 2
+  KeyPair coinbaseTransactionKeyPair2 = generateKeyPair();
+  Crypto::PublicKey coinbaseTransactionPublicKey2 = coinbaseTransactionKeyPair2.publicKey;
+  Crypto::SecretKey coinbaseTransactionSecretKey2 = coinbaseTransactionKeyPair2.secretKey;
+
+  // create keyOutput public key 2
+  Crypto::KeyDerivation derivation2;
+  Crypto::PublicKey coinbaseEphemeralPublicKey2;
+  size_t outputIndex2 = 0;
+  generate_key_derivation(aliceViewPublicKey, coinbaseTransactionSecretKey2, derivation2);
+  derive_public_key(derivation2, outputIndex2, aliceSpendPublicKey, coinbaseEphemeralPublicKey2);
+
+  // set coinbase transaction output amount 2
+  size_t medianSize2 = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
+  size_t currentBlockSize2 = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
+
+  uint64_t alreadyGeneratedCoins2;
+  Crypto::Hash lastBlockHash2 = blockchain.getTailId();
+  blockchain.getAlreadyGeneratedCoins(lastBlockHash2, alreadyGeneratedCoins2);
+
+  uint64_t fee2 = keyInput2.amount - totalOutputAmount;
+  uint64_t reward2;
+  int64_t emissionChange2;
+  currency.getBlockReward(medianSize2, currentBlockSize2, alreadyGeneratedCoins2, fee2, reward2, emissionChange2);
+  coinbaseTransactionOutput2.amount = reward2;
+
+  // create output target 2
+  KeyOutput coinbaseKeyOutput2;
+
+  coinbaseKeyOutput2.key = coinbaseEphemeralPublicKey2;
+  coinbaseTransactionOutput2.target = coinbaseKeyOutput2;
+
+  coinbaseTransaction2.outputs.push_back(coinbaseTransactionOutput2);
+
+  // create coinbase transaction extra 2
+  
+  coinbaseTransaction2.extra = {1}; // 1 signifies a transaction public key
+  for (int i = 0; i < 32; i++)
+  {
+    coinbaseTransaction2.extra.push_back(coinbaseTransactionPublicKey2.data[i]);
+  }
+
+  // add coinbase transaction 2 to block 2
+  block2.baseTransaction = coinbaseTransaction2;
+
+  // add merkle root
+  block2.merkleRoot = get_tx_tree_hash(block2);
+
+  difficulty = blockchain.getDifficultyForNextBlock();
+
+  // find nonce appropriate for current difficulty
+  while(!currency.checkProofOfWork(context, block2, difficulty, proofOfWorkIgnore))
+  {
+    block2.nonce++;
+  }
+
+  ASSERT_TRUE(blockchain.addNewBlock(block2, bvc));
+
+*/
+
   BlockInfo maxUsedBlock;
   // maxUsedBlock height and id must be filled out or checkTransactionInputs() fails for some reason
-  maxUsedBlock.height = 100;
-  maxUsedBlock.id = lastBlockHash;
+  maxUsedBlock.height = blockchain.getCurrentBlockchainHeight() - 1;
+  maxUsedBlock.id = blockchain.getTailId();
   BlockInfo lastFailed;
   
-  ASSERT_TRUE(blockchain.checkTransactionInputs(transaction, maxUsedBlock, lastFailed));
+  ASSERT_TRUE(blockchain.checkTransactionInputs(transaction2, maxUsedBlock, lastFailed));
 }
 
 // checkTransactionSize()
@@ -2505,10 +2669,10 @@ TEST(Blockchain, 26)
 
   // coinbase ephemeral public key 1
   Crypto::KeyDerivation derivation1;
-  Crypto::PublicKey coinbase_eph_public_key_1;
+  Crypto::PublicKey coinbaseEphemeralPublicKey1;
   size_t outputIndex1 = 0;
   generate_key_derivation(aliceViewPublicKey, coinbaseTransactionSecretKey1, derivation1);
-  derive_public_key(derivation1, outputIndex1, aliceSpendPublicKey, coinbase_eph_public_key_1);
+  derive_public_key(derivation1, outputIndex1, aliceSpendPublicKey, coinbaseEphemeralPublicKey1);
 
   // set coinbase transaction output amount 1
   size_t medianSize1 = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
@@ -2527,7 +2691,7 @@ TEST(Blockchain, 26)
   // coinbase output target 1
   KeyOutput coinbaseKeyOutput1;
 
-  coinbaseKeyOutput1.key = coinbase_eph_public_key_1;
+  coinbaseKeyOutput1.key = coinbaseEphemeralPublicKey1;
   coinbaseTransactionOutput1.target = coinbaseKeyOutput1;
 
   coinbaseTransaction1.outputs.push_back(coinbaseTransactionOutput1);
@@ -2654,12 +2818,12 @@ TEST(Blockchain, 26)
   generate_key_derivation(transactionPublicKeyToAlice, aliceViewSecretKey, derivation1);
   derive_secret_key(derivation1, outputIndex1, aliceSpendSecretKey, coinbase_eph_secret_key_1);
 
-  ASSERT_TRUE(publicKeysEqual(input_eph_key_pair_2.publicKey, coinbase_eph_public_key_1));
+  ASSERT_TRUE(publicKeysEqual(input_eph_key_pair_2.publicKey, coinbaseEphemeralPublicKey1));
   ASSERT_TRUE(secretKeysEqual(input_eph_key_pair_2.secretKey, coinbase_eph_secret_key_1));
 
   std::vector<const Crypto::PublicKey*> keys_ptrs2;
   // keys_ptrs2.push_back(&input_eph_key_pair_2.publicKey);
-  keys_ptrs2.push_back(&coinbase_eph_public_key_1);
+  keys_ptrs2.push_back(&coinbaseEphemeralPublicKey1);
 
   transaction2.signatures.push_back(std::vector<Crypto::Signature>());
   std::vector<Crypto::Signature>& sigs = transaction2.signatures.back();
@@ -3419,16 +3583,14 @@ TEST(Blockchain, 37)
   std::string config_folder = Tools::getDefaultDataDirectory();
   ASSERT_TRUE(blockchain.init(config_folder, false));
 
-  Crypto::Hash transactionHash = getRandHash();
+  Crypto::Hash transactionHash;
   std::vector<uint32_t> indexes;
-  ASSERT_FALSE(blockchain.getTransactionOutputGlobalIndexes(transactionHash, indexes));
 
   std::vector<Crypto::Hash> transactionHashes;
 
   // add 10 blocks to blockchain
   for (int i = 0; i < 10; i++)
   {
-    Crypto::Hash transactionHash;
     ASSERT_TRUE(addBlock3(blockchain, currency, tx_memory_pool, transactionHash));
     transactionHashes.push_back(transactionHash);
   }

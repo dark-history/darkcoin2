@@ -12,6 +12,7 @@
 #include "CryptoNoteCore/MinerConfig.h"
 #include "CryptoNoteCore/TransactionExtra.h"
 #include "Common/Math.h"
+#include "CryptoNoteConfig.h"
 
 using namespace CryptoNote;
 
@@ -154,12 +155,15 @@ bool addBlock1(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
     currentBlockSize = actualBlockSize;
   }
 
-  difficulty_type currentDifficulty = blockchain.getDifficultyForNextBlock();
+  // add merkle root
+  block.merkleRoot = get_tx_tree_hash(block);
+
+  difficulty_type difficulty = blockchain.getDifficultyForNextBlock();
 
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, currentDifficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -187,17 +191,17 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, core& core, const Acc
 
   core.get_block_template(block, minerPublicAddress, difficulty, height, extraNonce);
 
-  block.timestamp = time(nullptr) + (currentBlockchainHeight * parameters::DIFFICULTY_TARGET);
-
   transactionPublicKey = getTransactionPublicKeyFromExtra(block.baseTransaction.extra);
 
   transactionHash = getObjectHash(block.baseTransaction);
 
+  // add merkle root
+  block.merkleRoot = get_tx_tree_hash(block);
+
   // find nonce appropriate for current difficulty
-  difficulty_type currentDifficulty = blockchain.getDifficultyForNextBlock();
-  Crypto::Hash proofOfWorkIgnore = NULL_HASH;
+  Crypto::Hash proofOfWorkIgnore;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, currentDifficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -209,7 +213,7 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, core& core, const Acc
 
 // Adds an empty block to the blockchain
 // return block that was added
-bool addBlock8(core& core, Block& block)
+bool addBlock8(core& core, Currency& currency, Block& block)
 {
   uint32_t currentBlockchainHeight = core.get_current_blockchain_height();
 
@@ -226,7 +230,18 @@ bool addBlock8(core& core, Block& block)
 
   core.get_block_template(block, accountPublicAddress, difficulty, height, extraNonce);
 
-  block.timestamp = time(nullptr) + (currentBlockchainHeight * parameters::DIFFICULTY_TARGET);
+  block.timestamp = time(nullptr);
+
+  // add merkle root
+  block.merkleRoot = get_tx_tree_hash(block);
+
+  // find nonce appropriate for current difficulty
+  Crypto::Hash proofOfWorkIgnore;
+  Crypto::cn_context context;
+  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  {
+    block.nonce++;
+  }
 
   bool blockAdded = core.handle_block_found(block);
 
@@ -235,14 +250,11 @@ bool addBlock8(core& core, Block& block)
 
 // creates a transaction and adds it to the mempool
 // returns transaction created
-bool createTransaction4(core& core, const AccountKeys& senderAccountKeys,
-                const AccountPublicAddress& receiverAccountPublicAddress,
-                              Crypto::PublicKey inputTransactionPublicKey,
-              Crypto::Hash inputTransactionHash, Transaction& transaction)
+bool createTransaction4(core& core, Blockchain& blockchain, const AccountKeys& senderAccountKeys, const AccountPublicAddress& receiverAccountPublicAddress, Crypto::PublicKey inputTransactionPublicKey, Crypto::Hash inputTransactionHash, Transaction& transaction)
 {
   // create transaction
   transaction.version = CURRENT_TRANSACTION_VERSION;
-  transaction.unlockTime = 0;
+  transaction.unlockTime = blockchain.getCurrentBlockchainHeight() + parameters::CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
 
   // create transaction random transaction key
   KeyPair transactionKeyPair = generateKeyPair();
@@ -406,7 +418,7 @@ TEST(BlockchainExplorerDataBuilder, 2)
 
   // add new block to blockchain
   Block block;
-  ASSERT_TRUE(addBlock8(core, block));
+  ASSERT_TRUE(addBlock8(core, currency, block));
 
   ASSERT_TRUE(blockchainExplorerDataBuilder.fillBlockDetails(block, blockDetails));
 }
@@ -477,7 +489,7 @@ TEST(BlockchainExplorerDataBuilder, 3)
   // create a transaction and add it to the mempool
   Crypto::Hash inputTransactionHash = transactionHash;
   Transaction transaction;
-  ASSERT_TRUE(createTransaction4(core, senderAccountKeys, receiverAccountPublicAddress, transactionPublicKey, inputTransactionHash, transaction));
+  ASSERT_TRUE(createTransaction4(core, blockchain, senderAccountKeys, receiverAccountPublicAddress, transactionPublicKey, inputTransactionHash, transaction));
 
   // add transaction to a block
   ASSERT_TRUE(addBlock1(blockchain, currency, tx_memory_pool, blockHashIgnore));
