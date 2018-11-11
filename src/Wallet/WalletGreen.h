@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 #include "IFusionManager.h"
-#include "WalletIndices.h"
+#include "WalletIndexes.h"
 
 #include <System/Dispatcher.h>
 #include <System/Event.h>

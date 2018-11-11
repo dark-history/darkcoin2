@@ -60,7 +60,7 @@ struct employee
   }
 };
 
-// define a multiple indexed set with indices by id and name
+// define a multiple indexed set with indexes by id and name
 typedef multi_index_container<
   employee,
   indexed_by<
@@ -72,7 +72,7 @@ typedef multi_index_container<
   > 
 > employee_set;
 
-// Indices are accessed via get<N>() where N ranges between 0 and the number of comparison predicates minus one
+// Indexes are accessed via get<N>() where N ranges between 0 and the number of comparison predicates minus one
 
 */
 

@@ -429,7 +429,7 @@ namespace CryptoNote {
       m_paymentIdIndex.clear();
       m_timestampIndex.clear();
     } else {
-      buildIndices();
+      buildIndexes();
     }
 
     removeExpiredTransactions();
@@ -637,7 +637,7 @@ namespace CryptoNote {
     return m_observerManager.remove(observer);
   }
 
-  void tx_memory_pool::buildIndices() {
+  void tx_memory_pool::buildIndexes() {
     std::lock_guard<std::recursive_mutex> lock(m_transactions_lock);
     for (auto it = m_transactions.begin(); it != m_transactions.end(); it++) {
       m_paymentIdIndex.add(it->tx);

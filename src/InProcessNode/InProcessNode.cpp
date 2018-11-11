@@ -169,7 +169,7 @@ std::error_code InProcessNode::doGetNewBlocks(std::vector<Crypto::Hash>&& knownB
   return std::error_code();
 }
 
-void InProcessNode::getTransactionOutsGlobalIndices(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndices,
+void InProcessNode::getTransactionOutsGlobalIndexes(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndexes,
     const Callback& callback)
 {
   std::unique_lock<std::mutex> lock(mutex);
@@ -180,24 +180,24 @@ void InProcessNode::getTransactionOutsGlobalIndices(const Crypto::Hash& transact
   }
 
   ioService.post(
-    std::bind(&InProcessNode::getTransactionOutsGlobalIndicesAsync,
+    std::bind(&InProcessNode::getTransactionOutsGlobalIndexesAsync,
       this,
       std::cref(transactionHash),
-      std::ref(outsGlobalIndices),
+      std::ref(outsGlobalIndexes),
       callback
     )
   );
 }
 
-void InProcessNode::getTransactionOutsGlobalIndicesAsync(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndices,
+void InProcessNode::getTransactionOutsGlobalIndexesAsync(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndexes,
     const Callback& callback)
 {
-  std::error_code ec = doGetTransactionOutsGlobalIndices(transactionHash, outsGlobalIndices);
+  std::error_code ec = doGetTransactionOutsGlobalIndexes(transactionHash, outsGlobalIndexes);
   callback(ec);
 }
 
 //it's always protected with mutex
-std::error_code InProcessNode::doGetTransactionOutsGlobalIndices(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndices) {
+std::error_code InProcessNode::doGetTransactionOutsGlobalIndexes(const Crypto::Hash& transactionHash, std::vector<uint32_t>& outsGlobalIndexes) {
   {
     std::unique_lock<std::mutex> lock(mutex);
     if (state != INITIALIZED) {
@@ -206,7 +206,7 @@ std::error_code InProcessNode::doGetTransactionOutsGlobalIndices(const Crypto::H
   }
 
   try {
-    bool r = core.get_tx_outputs_gindexs(transactionHash, outsGlobalIndices);
+    bool r = core.get_tx_outputs_gindexes(transactionHash, outsGlobalIndexes);
     if(!r) {
       return make_error_code(CryptoNote::error::REQUEST_ERROR);
     }

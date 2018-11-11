@@ -1,3 +1,5 @@
+# Original file from 2011-2016 Cryptonote Developers
+
 all: all-release
 
 cmake-debug:

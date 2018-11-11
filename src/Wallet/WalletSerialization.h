@@ -6,7 +6,7 @@
 #pragma once
 
 #include "IWallet.h"
-#include "WalletIndices.h"
+#include "WalletIndexes.h"
 #include "Common/IInputStream.h"
 #include "Common/IOutputStream.h"
 #include "Transfers/TransfersSynchronizer.h"

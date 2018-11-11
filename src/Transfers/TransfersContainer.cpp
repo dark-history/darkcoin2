@@ -376,7 +376,7 @@ bool TransfersContainer::deleteUnconfirmedTransaction(const Hash& transactionHas
 }
 
 bool TransfersContainer::markTransactionConfirmed(const TransactionBlockInfo& block, const Hash& transactionHash,
-                                                  const std::vector<uint32_t>& globalIndices) {
+                                                  const std::vector<uint32_t>& globalIndexes) {
   if (block.height == WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT) {
     throw std::invalid_argument("Block height equals WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT");
   }
@@ -402,13 +402,13 @@ bool TransfersContainer::markTransactionConfirmed(const TransactionBlockInfo& bl
     auto transfer = *transferIt;
     assert(transfer.blockHeight == WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT);
     assert(transfer.globalOutputIndex == UNCONFIRMED_TRANSACTION_GLOBAL_OUTPUT_INDEX);
-    if (transfer.outputInTransaction >= globalIndices.size()) {
-      throw std::invalid_argument("Not enough elements in globalIndices");
+    if (transfer.outputInTransaction >= globalIndexes.size()) {
+      throw std::invalid_argument("Not enough elements in globalIndexes");
     }
 
     transfer.blockHeight = block.height;
     transfer.transactionIndex = block.transactionIndex;
-    transfer.globalOutputIndex = globalIndices[transfer.outputInTransaction];
+    transfer.globalOutputIndex = globalIndexes[transfer.outputInTransaction];
 
     if (transfer.type == TransactionTypes::OutputType::Multisignature) {
       SpentOutputDescriptor descriptor(transfer);

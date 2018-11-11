@@ -57,7 +57,7 @@ void copyBlockchainFiles(bool testnet, const std::string& from, const std::strin
     std::make_pair("blockindexes.dat", true),
     std::make_pair("blocks.dat", true),
     std::make_pair("blockscache.dat", false),
-    std::make_pair("blockchainindices.dat", false)
+    std::make_pair("blockchainindexes.dat", false)
   };
 
   for (const auto& item : files) {

@@ -474,8 +474,8 @@ bool core::get_random_outs_for_amounts(const COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_
   return m_blockchain.getRandomOutsByAmount(req, res);
 }
 
-bool core::get_tx_outputs_gindexs(const Crypto::Hash& tx_id, std::vector<uint32_t>& indexs) {
-  return m_blockchain.getTransactionOutputGlobalIndexes(tx_id, indexs);
+bool core::get_tx_outputs_gindexes(const Crypto::Hash& tx_id, std::vector<uint32_t>& indexes) {
+  return m_blockchain.getTransactionOutputGlobalIndexes(tx_id, indexes);
 }
 
 bool core::getOutByMSigGIndex(uint64_t amount, uint64_t gindex, MultisignatureOutput& out) {
@@ -881,7 +881,7 @@ bool core::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64_t a
   return m_currency.getBlockReward(medianSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange);
 }
 
-bool core::scanOutputkeysForIndices(const KeyInput& txInToKey, std::list<std::pair<Crypto::Hash, size_t>>& outputReferences) {
+bool core::scanOutputkeysForIndexes(const KeyInput& txInToKey, std::list<std::pair<Crypto::Hash, size_t>>& outputReferences) {
   struct outputs_visitor
   {
     std::list<std::pair<Crypto::Hash, size_t>>& m_resultsCollector;

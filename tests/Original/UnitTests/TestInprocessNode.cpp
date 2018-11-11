@@ -119,31 +119,31 @@ TEST_F(InProcessNodeTests, getLastKnownBlockHeightSuccess) {
   ASSERT_EQ(10, node.getLastKnownBlockHeight() + 1);
 }
 
-TEST_F(InProcessNodeTests, getTransactionOutsGlobalIndicesSuccess) {
+TEST_F(InProcessNodeTests, getTransactionOutsGlobalIndexesSuccess) {
   Crypto::Hash ignore;
-  std::vector<uint32_t> indices;
-  std::vector<uint32_t> expectedIndices;
+  std::vector<uint32_t> indexes;
+  std::vector<uint32_t> expectedIndexes;
 
   uint64_t start = 10;
-  std::generate_n(std::back_inserter(expectedIndices), 5, [&start] () { return start++; });
-  coreStub.set_outputs_gindexs(expectedIndices, true);
+  std::generate_n(std::back_inserter(expectedIndexes), 5, [&start] () { return start++; });
+  coreStub.set_outputs_gindexes(expectedIndexes, true);
 
   CallbackStatus status;
-  node.getTransactionOutsGlobalIndices(ignore, indices, [&status] (std::error_code ec) { status.setStatus(ec); });
+  node.getTransactionOutsGlobalIndexes(ignore, indexes, [&status] (std::error_code ec) { status.setStatus(ec); });
   ASSERT_TRUE(status.ok());
 
-  ASSERT_EQ(expectedIndices.size(), indices.size());
-  std::sort(indices.begin(), indices.end());
-  ASSERT_TRUE(std::equal(indices.begin(), indices.end(), expectedIndices.begin()));
+  ASSERT_EQ(expectedIndexes.size(), indexes.size());
+  std::sort(indexes.begin(), indexes.end());
+  ASSERT_TRUE(std::equal(indexes.begin(), indexes.end(), expectedIndexes.begin()));
 }
 
-TEST_F(InProcessNodeTests, getTransactionOutsGlobalIndicesFailure) {
+TEST_F(InProcessNodeTests, getTransactionOutsGlobalIndexesFailure) {
   Crypto::Hash ignore;
-  std::vector<uint32_t> indices;
-  coreStub.set_outputs_gindexs(indices, false);
+  std::vector<uint32_t> indexes;
+  coreStub.set_outputs_gindexes(indexes, false);
 
   CallbackStatus status;
-  node.getTransactionOutsGlobalIndices(ignore, indices, [&status] (std::error_code ec) { status.setStatus(ec); });
+  node.getTransactionOutsGlobalIndexes(ignore, indexes, [&status] (std::error_code ec) { status.setStatus(ec); });
   ASSERT_TRUE(status.wait());
   ASSERT_NE(std::error_code(), status.getStatus());
 }
@@ -211,12 +211,12 @@ TEST_F(InProcessNodeTests, getNewBlocksUninitialized) {
   ASSERT_NE(std::error_code(), status.getStatus());
 }
 
-TEST_F(InProcessNodeTests, getTransactionOutsGlobalIndicesUninitialized) {
+TEST_F(InProcessNodeTests, getTransactionOutsGlobalIndexesUninitialized) {
   CryptoNote::InProcessNode newNode(coreStub, protocolQueryStub);
-  std::vector<uint32_t> outsGlobalIndices;
+  std::vector<uint32_t> outsGlobalIndexes;
 
   CallbackStatus status;
-  newNode.getTransactionOutsGlobalIndices(Crypto::Hash(), outsGlobalIndices, [&] (std::error_code ec) { status.setStatus(ec); });
+  newNode.getTransactionOutsGlobalIndexes(Crypto::Hash(), outsGlobalIndexes, [&] (std::error_code ec) { status.setStatus(ec); });
   ASSERT_TRUE(status.wait());
   ASSERT_NE(std::error_code(), status.getStatus());
 }

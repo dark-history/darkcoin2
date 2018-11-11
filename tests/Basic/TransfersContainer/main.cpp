@@ -266,8 +266,8 @@ TEST(TransfersContainer, 4)
 
   block.height = 1;
 
-  std::vector<uint32_t> globalIndices = {0};
-  ASSERT_TRUE(container.markTransactionConfirmed(block, transactionHash, globalIndices));
+  std::vector<uint32_t> globalIndexes = {0};
+  ASSERT_TRUE(container.markTransactionConfirmed(block, transactionHash, globalIndexes));
 }
 
 // detach()

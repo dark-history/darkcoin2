@@ -271,7 +271,7 @@ bool createTransaction4(core& core, Blockchain& blockchain, const AccountKeys& s
   // transaction input
 
   std::vector<uint32_t> indexes;
-  core.get_tx_outputs_gindexs(inputTransactionHash, indexes);
+  core.get_tx_outputs_gindexes(inputTransactionHash, indexes);
 
   // amount = 894069565
   //                     5

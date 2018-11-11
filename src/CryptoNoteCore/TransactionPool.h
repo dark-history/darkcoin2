@@ -29,7 +29,7 @@
 #include "CryptoNoteCore/ITransactionValidator.h"
 #include "CryptoNoteCore/ITxPoolObserver.h"
 #include "CryptoNoteCore/VerificationContext.h"
-#include "CryptoNoteCore/BlockchainIndices.h"
+#include "CryptoNoteCore/BlockchainIndexes.h"
 
 #include <Logging/LoggerRef.h>
 
@@ -185,7 +185,7 @@ namespace CryptoNote {
     bool removeExpiredTransactions();
     bool is_transaction_ready_to_go(const Transaction& tx, TransactionCheckInfo& txd) const;
 
-    void buildIndices();
+    void buildIndexes();
 
     Tools::ObserverManager<ITxPoolObserver> m_observerManager;
     const CryptoNote::Currency& m_currency;

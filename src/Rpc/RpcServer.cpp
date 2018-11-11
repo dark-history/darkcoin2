@@ -270,7 +270,7 @@ bool RpcServer::on_query_blocks_lite(const COMMAND_RPC_QUERY_BLOCKS_LITE::reques
 
 bool RpcServer::on_get_indexes(const COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES::request& req, COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES::response& res) {
   std::vector<uint32_t> outputIndexes;
-  if (!m_core.get_tx_outputs_gindexs(req.txid, outputIndexes)) {
+  if (!m_core.get_tx_outputs_gindexes(req.txid, outputIndexes)) {
     res.status = "Failed";
     return true;
   }

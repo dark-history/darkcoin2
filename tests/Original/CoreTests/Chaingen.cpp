@@ -83,7 +83,7 @@ namespace
   }
 }
 
-bool init_output_indices(map_output_idx_t& outs, std::map<uint64_t, std::vector<size_t> >& outs_mine, const std::vector<CryptoNote::Block>& blockchain, const map_hash2tx_t& mtx, const CryptoNote::AccountBase& from) {
+bool init_output_indexes(map_output_idx_t& outs, std::map<uint64_t, std::vector<size_t> >& outs_mine, const std::vector<CryptoNote::Block>& blockchain, const map_hash2tx_t& mtx, const CryptoNote::AccountBase& from) {
 
     BOOST_FOREACH (const Block& blk, blockchain) {
         vector<const Transaction*> vtx;
@@ -126,7 +126,7 @@ bool init_output_indices(map_output_idx_t& outs, std::map<uint64_t, std::vector<
     return true;
 }
 
-bool init_spent_output_indices(map_output_idx_t& outs, map_output_t& outs_mine, const std::vector<CryptoNote::Block>& blockchain, const map_hash2tx_t& mtx, const CryptoNote::AccountBase& from) {
+bool init_spent_output_indexes(map_output_idx_t& outs, map_output_t& outs_mine, const std::vector<CryptoNote::Block>& blockchain, const map_hash2tx_t& mtx, const CryptoNote::AccountBase& from) {
 
     for (const map_output_t::value_type& o: outs_mine) {
         for (size_t i = 0; i < o.second.size(); ++i) {
@@ -155,16 +155,16 @@ bool init_spent_output_indices(map_output_idx_t& outs, map_output_t& outs_mine, 
     return true;
 }
 
-bool fill_output_entries(std::vector<output_index>& out_indices, size_t sender_out, size_t nmix, size_t& real_entry_idx, std::vector<TransactionSourceEntry::OutputEntry>& output_entries)
+bool fill_output_entries(std::vector<output_index>& out_indexes, size_t sender_out, size_t nmix, size_t& real_entry_idx, std::vector<TransactionSourceEntry::OutputEntry>& output_entries)
 {
-  if (out_indices.size() <= nmix)
+  if (out_indexes.size() <= nmix)
     return false;
 
   bool sender_out_found = false;
   size_t rest = nmix;
-  for (size_t i = 0; i < out_indices.size() && (0 < rest || !sender_out_found); ++i)
+  for (size_t i = 0; i < out_indexes.size() && (0 < rest || !sender_out_found); ++i)
   {
-    const output_index& oi = out_indices[i];
+    const output_index& oi = out_indexes[i];
     if (oi.spent)
       continue;
 
@@ -202,10 +202,10 @@ bool fill_tx_sources(std::vector<TransactionSourceEntry>& sources, const std::ve
     if (!find_block_chain(events, blockchain, mtx, get_block_hash(blk_head)))
         return false;
 
-    if (!init_output_indices(outs, outs_mine, blockchain, mtx, from))
+    if (!init_output_indexes(outs, outs_mine, blockchain, mtx, from))
         return false;
 
-    if (!init_spent_output_indices(outs, outs_mine, blockchain, mtx, from))
+    if (!init_spent_output_indexes(outs, outs_mine, blockchain, mtx, from))
         return false;
 
     // Iterate in reverse is more efficiency
@@ -303,10 +303,10 @@ uint64_t get_balance(const CryptoNote::AccountBase& addr, const std::vector<Cryp
     map_hash2tx_t confirmed_txs;
     get_confirmed_txs(blockchain, mtx, confirmed_txs);
 
-    if (!init_output_indices(outs, outs_mine, blockchain, confirmed_txs, addr))
+    if (!init_output_indexes(outs, outs_mine, blockchain, confirmed_txs, addr))
         return false;
 
-    if (!init_spent_output_indices(outs, outs_mine, blockchain, confirmed_txs, addr))
+    if (!init_spent_output_indexes(outs, outs_mine, blockchain, confirmed_txs, addr))
         return false;
 
     BOOST_FOREACH (const map_output_t::value_type &o, outs_mine) {
