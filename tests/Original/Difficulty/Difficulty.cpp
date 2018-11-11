@@ -53,41 +53,41 @@ int main(int argc, char *argv[]) {
                 << "Found: " << res << endl;
 
 
-            // below is used to print out the correct values to the file "data.txt"
+            // // below is used to print out the correct values to the file "data.txt"
             
 
-            data.close();
+            // data.close();
 
-            string x;
-            ifstream file ( "/media/sf_Shared/cryptonote/tests/Difficulty/data.txt" );
-            ofstream ofile ( "/media/sf_Shared/cryptonote/tests/Difficulty/data2.txt" );
+            // string x;
+            // ifstream file ( "/media/sf_Shared/cryptonote/tests/Difficulty/data.txt" );
+            // ofstream ofile ( "/media/sf_Shared/cryptonote/tests/Difficulty/data2.txt" );
 
-            size_t count = 0;
+            // size_t count = 0;
 
-            while (!file.eof())
-            {
-              getline(file, x);
+            // while (!file.eof())
+            // {
+              // getline(file, x);
 
-              if (count == n)
-              {
-                ofile << timestamp << " " << res << endl;
-              }
-              else
-              {
-                ofile << x << endl;
-              }
+              // if (count == n)
+              // {
+                // ofile << timestamp << " " << res << endl;
+              // }
+              // else
+              // {
+                // ofile << x << endl;
+              // }
 
-              count++;
-            }
+              // count++;
+            // }
 
-            file.close();
-            ofile.close();
+            // file.close();
+            // ofile.close();
 
-            remove( "/media/sf_Shared/cryptonote/tests/Difficulty/data.txt" );
+            // remove( "/media/sf_Shared/cryptonote/tests/Difficulty/data.txt" );
 
-            char oldname[] = "/media/sf_Shared/cryptonote/tests/Difficulty/data2.txt";
-            char newname[] = "/media/sf_Shared/cryptonote/tests/Difficulty/data.txt";
-            rename( oldname , newname );
+            // char oldname[] = "/media/sf_Shared/cryptonote/tests/Difficulty/data2.txt";
+            // char newname[] = "/media/sf_Shared/cryptonote/tests/Difficulty/data.txt";
+            // rename( oldname , newname );
 
             
 

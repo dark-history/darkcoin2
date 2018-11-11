@@ -984,6 +984,16 @@ bool Blockchain::handle_alternative_block(const Block& b, const Crypto::Hash& id
       return false;
     }
 
+    // check merkle root
+    Crypto::Hash merkleRoot = get_tx_tree_hash(b);
+    if (merkleRoot != b.merkleRoot) {
+      logger(INFO, BRIGHT_WHITE) <<
+        "Block with id: " << id << ", for alternative chain," << 
+        " merkle root supplied " << b.merkleRoot << " does not match merkle root calculated " << merkleRoot;
+      bvc.m_verification_failed = true;
+      return false;
+    }
+
     BlockEntry bei = boost::value_initialized<BlockEntry>();
     bei.bl = b;
     bei.height = static_cast<uint32_t>(alt_chain.size() ? it_prev->second.height + 1 : mainPrevHeight + 1);

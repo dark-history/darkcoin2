@@ -303,8 +303,6 @@ Block createEmptyBlock(core& core)
 // Adds an empty block to the blockchain
 bool addBlock1(core& core)
 {
-  uint32_t currentBlockchainHeight = core.get_current_blockchain_height();
-
   AccountPublicAddress accountPublicAddress;
   KeyPair viewKeyPair = generateKeyPair();
   KeyPair spendKeyPair = generateKeyPair();
@@ -319,7 +317,13 @@ bool addBlock1(core& core)
 
   core.get_block_template(block, accountPublicAddress, difficulty, height, extraNonce);
 
-  block.timestamp = time(nullptr) + (currentBlockchainHeight * parameters::DIFFICULTY_TARGET);
+  // find nonce appropriate for current difficulty
+  Crypto::Hash proofOfWorkIgnore = NULL_HASH;
+  Crypto::cn_context context;
+  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  {
+    block.nonce++;
+  }
 
   bool blockAdded = core.handle_block_found(block);
 
@@ -327,9 +331,8 @@ bool addBlock1(core& core)
 }
 
 // Adds an empty block to the blockchain
-// able to set timestamp
-// finds nonce appropriate for difficulty
-bool addBlock2(core& core, const uint64_t timestamp)
+// returns the hash of the block added
+bool addBlock3(core& core, Crypto::Hash& blockHash)
 {
   AccountPublicAddress accountPublicAddress;
   KeyPair viewKeyPair = generateKeyPair();
@@ -345,49 +348,21 @@ bool addBlock2(core& core, const uint64_t timestamp)
 
   core.get_block_template(block, accountPublicAddress, difficulty, height, extraNonce);
 
-  block.timestamp = timestamp;
+  block.timestamp = time(nullptr);
 
-  // find nonce appropriate for difficulty
+  // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
-  Currency currency = core.currency();
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
 
-  bool added = core.handle_block_found(block);
-
-  return added;
-}
-
-// Adds an empty block to the blockchain
-// returns the hash of the block added
-bool addBlock3(core& core, Crypto::Hash& blockHash)
-{
-  uint32_t currentBlockchainHeight = core.get_current_blockchain_height();
-
-  AccountPublicAddress accountPublicAddress;
-  KeyPair viewKeyPair = generateKeyPair();
-  KeyPair spendKeyPair = generateKeyPair();
-  accountPublicAddress.viewPublicKey = viewKeyPair.publicKey;
-  accountPublicAddress.spendPublicKey = spendKeyPair.publicKey;
-
-  BinaryArray extraNonce;
-
-  Block block;
-  difficulty_type difficulty;
-  uint32_t height;
-
-  core.get_block_template(block, accountPublicAddress, difficulty, height, extraNonce);
-
-  block.timestamp = time(nullptr) + (currentBlockchainHeight * parameters::DIFFICULTY_TARGET);
-
   blockHash = get_block_hash(block);
 
-  bool added = core.handle_block_found(block);
+  bool blockAdded = core.handle_block_found(block);
 
-  return added;
+  return blockAdded;
 }
 
 // Adds an empty block to the blockchain
@@ -418,57 +393,6 @@ bool addBlock4(core& core, Crypto::Hash& blockHash, uint64_t timestamp)
   return added;
 }
 
-// Adds a new alternative or orphaned block to the blockchain
-bool addOrphanBlock(core& core, Crypto::Hash& blockHash, const Crypto::Hash& prevBlockHash, const uint32_t blockHeight)
-{
-  // create block
-  Block block;
-  block.nonce = 0;
-  block.timestamp = time(nullptr) + (blockHeight * parameters::DIFFICULTY_TARGET);
-  block.previousBlockHash = prevBlockHash;
-
-  std::vector<Transaction> transactions;
-
-  // create coinbase transaction
-  block.baseTransaction = boost::value_initialized<Transaction>();
-
-  // need to get the hash of the block on the main chain that is at the same hight as the last block on the alternative chain to calculate alreadyGeneratedCoins
-  uint64_t alreadyGeneratedCoins;
-  // uint32_t prevAltBlockHeight;
-  // blockchain.getBlockHeight(prevBlockHash, prevAltBlockHeight);
-  // Crypto::Hash mainChainBlockHash = blockchain.getBlockIdByHeight(prevAltBlockHeight);
-  Crypto::Hash mainChainBlockHash = core.getBlockIdByHeight(blockHeight - 1);
-  core.getAlreadyGeneratedCoins(mainChainBlockHash, alreadyGeneratedCoins);
-
-  uint64_t fee = 0;
-  size_t medianBlockSize = getMedianBlockSize(core);
-  size_t currentBlockSize = getBlockSize(block.baseTransaction, transactions);
-  size_t maxOuts = 1;
-
-  Currency currency = core.currency();
-
-  while (true)
-  {
-    currency.constructMinerTx(blockHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
-    fee, AccountPublicAddress(), block.baseTransaction, BinaryArray(), maxOuts);
-
-    size_t actualBlockSize = getBlockSize(block.baseTransaction, transactions);
-
-    if (actualBlockSize == currentBlockSize)
-    {
-      break;
-    }
-
-    currentBlockSize = actualBlockSize;
-  }
-
-  blockHash = get_block_hash(block);
-
-  bool addedToMainChain = core.handle_block_found(block);
-
-  return !addedToMainChain;
-}
-
 // Adds an empty block to the blockchain
 // returns transaction public key of the coinbase transaction
 bool addBlock5(core& core, const AccountPublicAddress& minerPublicAddress, Crypto::PublicKey& transactionPublicKey, Crypto::Hash& transactionHash)
@@ -483,9 +407,15 @@ bool addBlock5(core& core, const AccountPublicAddress& minerPublicAddress, Crypt
 
   core.get_block_template(block, minerPublicAddress, difficulty, height, extraNonce);
 
-  block.timestamp = time(nullptr) + (currentBlockchainHeight * parameters::DIFFICULTY_TARGET);
-
   transactionPublicKey = getTransactionPublicKeyFromExtra(block.baseTransaction.extra);
+
+  // find nonce appropriate for current difficulty
+  Crypto::Hash proofOfWorkIgnore;
+  Crypto::cn_context context;
+  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  {
+    block.nonce++;
+  }
 
   transactionHash = getObjectHash(block.baseTransaction);
 
@@ -511,7 +441,13 @@ bool addBlock6(core& core, const AccountPublicAddress& minerPublicAddress,
 
   core.get_block_template(block, minerPublicAddress, difficulty, height, extraNonce);
 
-  block.timestamp = time(nullptr) + (currentBlockchainHeight * parameters::DIFFICULTY_TARGET);
+  // find nonce appropriate for current difficulty
+  Crypto::Hash proofOfWorkIgnore;
+  Crypto::cn_context context;
+  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  {
+    block.nonce++;
+  }
 
   transactionPublicKey = getTransactionPublicKeyFromExtra(block.baseTransaction.extra);
 
@@ -544,7 +480,13 @@ bool addBlock6(core& core, Crypto::Hash& transactionHash)
 
   core.get_block_template(block, accountPublicAddress, difficulty, height, extraNonce);
 
-  block.timestamp = time(nullptr) + (currentBlockchainHeight * parameters::DIFFICULTY_TARGET);
+  // find nonce appropriate for current difficulty
+  Crypto::Hash proofOfWorkIgnore;
+  Crypto::cn_context context;
+  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  {
+    block.nonce++;
+  }
 
   bool blockAdded = core.handle_block_found(block);
 
@@ -619,6 +561,69 @@ bool addBlock8(core& core, const uint64_t timestamp, Crypto::Hash& transactionHa
   bool added = core.handle_block_found(block);
 
   return added;
+}
+
+// Adds a new alternative or orphaned block to the blockchain
+bool addOrphanBlock(core& core, Crypto::Hash& blockHash, const Crypto::Hash& prevBlockHash, const uint32_t blockHeight)
+{
+  // create block
+  Block block;
+  block.nonce = 0;
+  block.timestamp = time(nullptr);
+  block.previousBlockHash = prevBlockHash;
+
+  std::vector<Transaction> transactions;
+
+  // create coinbase transaction
+  block.baseTransaction = boost::value_initialized<Transaction>();
+
+  // need to get the hash of the block on the main chain that is at the same hight as the last block on the alternative chain to calculate alreadyGeneratedCoins
+  uint64_t alreadyGeneratedCoins;
+  // uint32_t prevAltBlockHeight;
+  // blockchain.getBlockHeight(prevBlockHash, prevAltBlockHeight);
+  // Crypto::Hash mainChainBlockHash = blockchain.getBlockIdByHeight(prevAltBlockHeight);
+  Crypto::Hash mainChainBlockHash = core.getBlockIdByHeight(blockHeight - 1);
+  core.getAlreadyGeneratedCoins(mainChainBlockHash, alreadyGeneratedCoins);
+
+  uint64_t fee = 0;
+  size_t medianBlockSize = getMedianBlockSize(core);
+  size_t currentBlockSize = getBlockSize(block.baseTransaction, transactions);
+  size_t maxOuts = 1;
+
+  Currency currency = core.currency();
+
+  while (true)
+  {
+    currency.constructMinerTx(blockHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
+    fee, AccountPublicAddress(), block.baseTransaction, BinaryArray(), maxOuts);
+
+    size_t actualBlockSize = getBlockSize(block.baseTransaction, transactions);
+
+    if (actualBlockSize == currentBlockSize)
+    {
+      break;
+    }
+
+    currentBlockSize = actualBlockSize;
+  }
+
+  // add merkle root
+  block.merkleRoot = get_tx_tree_hash(block);
+
+  // find nonce appropriate for current difficulty
+  difficulty_type difficulty = core.getNextBlockDifficulty();
+  Crypto::Hash proofOfWorkIgnore;
+  Crypto::cn_context context;
+  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  {
+    block.nonce++;
+  }
+
+  blockHash = get_block_hash(block);
+
+  bool addedToMainChain = core.handle_block_found(block);
+
+  return !addedToMainChain;
 }
 
 // creates a transaction and adds it to the mempool
@@ -1336,11 +1341,11 @@ TEST(Core, 17)
   size_t blockSize;
 
   core.getBlockSize(blockHash, blockSize);
-  ASSERT_EQ(77, blockSize);
+  ASSERT_EQ(78, blockSize);
 
   ASSERT_TRUE(addBlock1(core));
   core.getBlockSize(blockHash, blockSize);
-  ASSERT_EQ(77, blockSize);
+  ASSERT_EQ(78, blockSize);
 }
 
 // getAlreadyGeneratedCoins()
@@ -1359,7 +1364,7 @@ TEST(Core, 18)
   Crypto::Hash lastBlockHash = core.get_tail_id();
   core.getAlreadyGeneratedCoins(lastBlockHash, alreadyGeneratedCoins);
   // I don't know why this is not 0
-  ASSERT_EQ(89406967, alreadyGeneratedCoins);
+  ASSERT_EQ(894069671, alreadyGeneratedCoins);
 
   // add genesis block
   Block genesisBlock = currency.genesisBlock();
@@ -1367,14 +1372,14 @@ TEST(Core, 18)
 
   lastBlockHash = core.get_tail_id();
   core.getAlreadyGeneratedCoins(lastBlockHash, alreadyGeneratedCoins);
-  ASSERT_EQ(89406967, alreadyGeneratedCoins);
+  ASSERT_EQ(894069671, alreadyGeneratedCoins);
 
   // add a block
   ASSERT_TRUE(addBlock1(core));
 
   lastBlockHash = core.get_tail_id();
   core.getAlreadyGeneratedCoins(lastBlockHash, alreadyGeneratedCoins);
-  ASSERT_EQ(89406967+ 89406961, alreadyGeneratedCoins);
+  ASSERT_EQ(894069671+ 894069618, alreadyGeneratedCoins);
 }
 
 // getBlockReward()
@@ -1404,7 +1409,7 @@ TEST(Core, 19)
   size_t currentBlockSize = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
 
   ASSERT_TRUE(core.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
-  ASSERT_EQ(89406961, reward);
+  ASSERT_EQ(894069618, reward);
 
   // add a block
   Block block = createEmptyBlock(core);
@@ -1414,7 +1419,7 @@ TEST(Core, 19)
   core.getAlreadyGeneratedCoins(lastBlockHash, alreadyGeneratedCoins);
 
   ASSERT_TRUE(core.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
-  ASSERT_EQ(89406956, reward);
+  ASSERT_EQ(894069565, reward);
 }
 
 // getBlockDifficulty()
@@ -1440,8 +1445,7 @@ TEST(Core, 20)
   ASSERT_EQ(1, difficulty);
 
   // add block
-  uint64_t timestamp = time(nullptr);
-  ASSERT_TRUE(addBlock2(core, timestamp));
+  ASSERT_TRUE(addBlock1(core));
 
   // check difficulty
   height = core.get_current_blockchain_height() - 1;
@@ -1449,58 +1453,13 @@ TEST(Core, 20)
   ASSERT_EQ(1, difficulty);
 
   // add block
-  timestamp += 10;
-  ASSERT_TRUE(addBlock2(core, timestamp));
+  ASSERT_TRUE(addBlock1(core));
 
   // check difficulty
   height = core.get_current_blockchain_height() - 1;
   ASSERT_TRUE(core.getBlockDifficulty(height, difficulty));
-  ASSERT_EQ(1, difficulty);
-
-  // add block
-  timestamp += 5;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-
-  // check difficulty
-  height = core.get_current_blockchain_height() - 1;
-  ASSERT_TRUE(core.getBlockDifficulty(height, difficulty));
-  ASSERT_EQ(1, difficulty);
-
-  // add block
-  timestamp += 5;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-
-  // check difficulty
-  height = core.get_current_blockchain_height() - 1;
-  ASSERT_TRUE(core.getBlockDifficulty(height, difficulty));
-  ASSERT_EQ(1, difficulty);
-
-  // add block
-  timestamp += 1;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-
-  // check difficulty
-  height = core.get_current_blockchain_height() - 1;
-  ASSERT_TRUE(core.getBlockDifficulty(height, difficulty));
-  ASSERT_EQ(1, difficulty);
-
-  // add block
-  timestamp += 1;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-
-  // check difficulty
-  height = core.get_current_blockchain_height() - 1;
-  ASSERT_TRUE(core.getBlockDifficulty(height, difficulty));
-  ASSERT_EQ(2, difficulty);
-
-  // add block
-  timestamp += 0;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-
-  // check difficulty
-  height = core.get_current_blockchain_height() - 1;
-  ASSERT_TRUE(core.getBlockDifficulty(height, difficulty));
-  ASSERT_EQ(3, difficulty);
+  ASSERT_EQ(100000, difficulty);
+ 
 }
 
 // getOrphanBlocksByHeight()
@@ -1737,52 +1696,9 @@ TEST(Core, 28)
 
   ASSERT_EQ(1, nextDifficulty);
 
-  uint64_t timestamp = time(nullptr);
-  ASSERT_TRUE(addBlock2(core, timestamp));
+  ASSERT_TRUE(addBlock1(core));
   nextDifficulty = core.getNextBlockDifficulty();
-  ASSERT_EQ(1, nextDifficulty);
-
-  // comment below out because it takes too long to run
-
-  timestamp += 1;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-  nextDifficulty = core.getNextBlockDifficulty();
-  ASSERT_EQ(1, nextDifficulty);
-
-  timestamp += 1;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-  nextDifficulty = core.getNextBlockDifficulty();
-  ASSERT_EQ(1, nextDifficulty);
-
-  timestamp += 1;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-  nextDifficulty = core.getNextBlockDifficulty();
-  ASSERT_EQ(9, nextDifficulty);
-
-  timestamp += 1;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-  nextDifficulty = core.getNextBlockDifficulty();
-  ASSERT_EQ(11, nextDifficulty);
-
-  timestamp += 1;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-  nextDifficulty = core.getNextBlockDifficulty();
-  ASSERT_EQ(14, nextDifficulty);
-
-  timestamp += 1;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-  nextDifficulty = core.getNextBlockDifficulty();
-  ASSERT_EQ(16, nextDifficulty);
-
-  timestamp += 1;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-  nextDifficulty = core.getNextBlockDifficulty();
-  ASSERT_EQ(18, nextDifficulty);
-
-  timestamp += 20;
-  ASSERT_TRUE(addBlock2(core, timestamp));
-  nextDifficulty = core.getNextBlockDifficulty();
-  ASSERT_EQ(4, nextDifficulty);
+  ASSERT_EQ(100000, nextDifficulty);
 }
 
 // getBlockHeight()
@@ -1982,12 +1898,12 @@ TEST(Core, 33)
   ASSERT_TRUE(core.init(coreConfig, minerConfig, loadExisting));
 
   uint64_t total = core.getTotalGeneratedAmount();
-  ASSERT_EQ(89406967, total);
+  ASSERT_EQ(894069671, total);
 
   ASSERT_TRUE(addBlock1(core));
 
   total = core.getTotalGeneratedAmount();
-  ASSERT_EQ(89406967 + 89406961, total);
+  ASSERT_EQ(894069671 + 894069618, total);
 }
 
 // get_alternative_blocks()
@@ -2914,18 +2830,16 @@ TEST(Core, 45)
   uint32_t end_index = core.get_current_blockchain_height();
   core.print_blockchain(start_index, end_index);
 
-  uint64_t timestamp = time(nullptr);
-
   ASSERT_TRUE(addBlock1(core));
 
   end_index = core.get_current_blockchain_height();
   core.print_blockchain(start_index, end_index);
 
   // raise the difficulty so that nonce changes
-  ASSERT_TRUE(addBlock2(core, timestamp++));
-  ASSERT_TRUE(addBlock2(core, timestamp++));
-  ASSERT_TRUE(addBlock2(core, timestamp++));
-  ASSERT_TRUE(addBlock2(core, timestamp++));
+  ASSERT_TRUE(addBlock1(core));
+  ASSERT_TRUE(addBlock1(core));
+  ASSERT_TRUE(addBlock1(core));
+  ASSERT_TRUE(addBlock1(core));
 
   end_index = core.get_current_blockchain_height();
   core.print_blockchain(start_index, end_index);
@@ -3236,7 +3150,8 @@ TEST(Core, 51)
   ASSERT_EQ(1, coreStatInfo.blockchain_height);
   ASSERT_EQ(0, coreStatInfo.mining_speed);
   ASSERT_EQ(0, coreStatInfo.alternative_blocks);
-  ASSERT_EQ("01aab5498f4fe6319b210f418ff2fd5bccd185e322776ea5466889477901bfc1", coreStatInfo.top_block_id_str);
+  // genesis block hash
+  ASSERT_EQ("3cb6cb55ddf0eeb58476b9d93edbcfc4ffbe2a3d37dbcffb3897bc161e9d345c", coreStatInfo.top_block_id_str);
 
   // add a block
   ASSERT_TRUE(addBlock1(core));
