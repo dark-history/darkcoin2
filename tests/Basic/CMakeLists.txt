@@ -4,19 +4,19 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../version)
 
 include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
 
-file(GLOB_RECURSE Blockchain Blockchain/*)
+file(GLOB_RECURSE BlockchainExplorerDataBuilder BlockchainExplorerDataBuilder/*)
 
-source_group("" FILES ${Blockchain})
+source_group("" FILES ${BlockchainExplorerDataBuilder})
 
-add_executable(Blockchain ${Blockchain})
+add_executable(BlockchainExplorerDataBuilder ${BlockchainExplorerDataBuilder})
 
-target_link_libraries(Blockchain gtest_main CryptoNoteCore Crypto Serialization Logging BlockchainExplorer System Common ${Boost_LIBRARIES})
+target_link_libraries(BlockchainExplorerDataBuilder gtest_main BlockchainExplorer CryptoNoteCore Crypto Serialization Logging System Common ${Boost_LIBRARIES})
 
-add_custom_target(Basic DEPENDS Blockchain)
+add_custom_target(Basic DEPENDS BlockchainExplorerDataBuilder)
 
-set_property(TARGET Basic Blockchain PROPERTY FOLDER "Basic")
+set_property(TARGET Basic BlockchainExplorerDataBuilder PROPERTY FOLDER "Basic")
 
-set_property(TARGET Blockchain PROPERTY OUTPUT_NAME "Blockchain")
+set_property(TARGET BlockchainExplorerDataBuilder PROPERTY OUTPUT_NAME "BlockchainExplorerDataBuilder")
 
 if(NOT MSVC)
   # suppress warnings from gtest
