@@ -38,7 +38,7 @@ namespace CryptoNote {
     ~core();
 
     bool on_idle() override;
-    virtual bool handle_incoming_tx(const BinaryArray& tx_blob, tx_verification_context& tvc, bool keeped_by_block) override; //Deprecated. Should be removed with CryptoNoteProtocolHandler.
+    virtual bool handle_incoming_tx(const BinaryArray& tx_blob, tx_verification_context& tvc, bool kept_by_block) override; //Deprecated. Should be removed with CryptoNoteProtocolHandler.
     bool handle_incoming_block_blob(const BinaryArray& block_blob, block_verification_context& bvc, bool control_miner, bool relay_block) override;
     virtual i_cryptonote_protocol* get_protocol() override {return m_pprotocol;}
     const Currency& currency() const { return m_currency; }
@@ -139,13 +139,13 @@ namespace CryptoNote {
     uint64_t getTotalGeneratedAmount();
 
   private:
-    bool add_new_tx(const Transaction& tx, const Crypto::Hash& tx_hash, size_t blob_size, tx_verification_context& tvc, bool keeped_by_block);
+    bool add_new_tx(const Transaction& tx, const Crypto::Hash& tx_hash, size_t blob_size, tx_verification_context& tvc, bool kept_by_block);
     bool load_state_data();
     bool parse_tx_from_blob(Transaction& tx, Crypto::Hash& tx_hash, Crypto::Hash& tx_prefix_hash, const BinaryArray& blob);
     bool handle_incoming_block(const Block& b, block_verification_context& bvc, bool control_miner, bool relay_block);
 
     bool check_tx_syntax(const Transaction& tx);
-    bool check_tx_semantic(const Transaction& tx, bool keeped_by_block);
+    bool check_tx_semantic(const Transaction& tx, bool kept_by_block);
 
     bool check_tx_mixin(const Transaction& tx);
     bool is_key_image_spent(const Crypto::KeyImage& key_im);

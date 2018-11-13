@@ -94,8 +94,8 @@ bool gen_double_spend_base<concrete_test>::check_double_spend(CryptoNote::core& 
 
 //======================================================================================================================
 
-template<bool txs_keeped_by_block>
-bool gen_double_spend_in_tx<txs_keeped_by_block>::generate(std::vector<test_event_entry>& events) const
+template<bool txs_kept_by_block>
+bool gen_double_spend_in_tx<txs_kept_by_block>::generate(std::vector<test_event_entry>& events) const
 {
   INIT_DOUBLE_SPEND_TEST();
   DO_CALLBACK(events, "mark_last_valid_block");
@@ -121,7 +121,7 @@ bool gen_double_spend_in_tx<txs_keeped_by_block>::generate(std::vector<test_even
   if (!constructTransaction(bob_account.getAccountKeys(), sources, destinations, std::vector<uint8_t>(), tx_1, 0, this->m_logger))
     return false;
 
-  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, txs_keeped_by_block);
+  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_kept_by_block, txs_kept_by_block);
   DO_CALLBACK(events, "mark_invalid_tx");
   events.push_back(tx_1);
   DO_CALLBACK(events, "mark_invalid_block");
@@ -131,13 +131,13 @@ bool gen_double_spend_in_tx<txs_keeped_by_block>::generate(std::vector<test_even
   return true;
 }
 
-template<bool txs_keeped_by_block>
-bool gen_double_spend_in_the_same_block<txs_keeped_by_block>::generate(std::vector<test_event_entry>& events) const
+template<bool txs_kept_by_block>
+bool gen_double_spend_in_the_same_block<txs_kept_by_block>::generate(std::vector<test_event_entry>& events) const
 {
   INIT_DOUBLE_SPEND_TEST();
 
   DO_CALLBACK(events, "mark_last_valid_block");
-  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, txs_keeped_by_block);
+  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_kept_by_block, txs_kept_by_block);
 
   MAKE_TX_LIST_START(events, txs_1, bob_account, alice_account, send_amount - this->m_currency.minimumFee(), blk_1);
   CryptoNote::Transaction tx_1 = txs_1.front();
@@ -158,13 +158,13 @@ bool gen_double_spend_in_the_same_block<txs_keeped_by_block>::generate(std::vect
   return true;
 }
 
-template<bool txs_keeped_by_block>
-bool gen_double_spend_in_different_blocks<txs_keeped_by_block>::generate(std::vector<test_event_entry>& events) const
+template<bool txs_kept_by_block>
+bool gen_double_spend_in_different_blocks<txs_kept_by_block>::generate(std::vector<test_event_entry>& events) const
 {
   INIT_DOUBLE_SPEND_TEST();
 
   DO_CALLBACK(events, "mark_last_valid_block");
-  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, txs_keeped_by_block);
+  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_kept_by_block, txs_kept_by_block);
 
   // Create two identical transactions, but don't push it to events list
   MAKE_TX(events, tx_blk_2, bob_account, alice_account, send_amount - this->m_currency.minimumFee(), blk_1);
@@ -189,12 +189,12 @@ bool gen_double_spend_in_different_blocks<txs_keeped_by_block>::generate(std::ve
   return true;
 }
 
-template<bool txs_keeped_by_block>
-bool gen_double_spend_in_alt_chain_in_the_same_block<txs_keeped_by_block>::generate(std::vector<test_event_entry>& events) const
+template<bool txs_kept_by_block>
+bool gen_double_spend_in_alt_chain_in_the_same_block<txs_kept_by_block>::generate(std::vector<test_event_entry>& events) const
 {
   INIT_DOUBLE_SPEND_TEST();
 
-  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, txs_keeped_by_block);
+  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_kept_by_block, txs_kept_by_block);
 
   // Main chain
   MAKE_NEXT_BLOCK(events, blk_2, blk_1r, miner_account);
@@ -224,12 +224,12 @@ bool gen_double_spend_in_alt_chain_in_the_same_block<txs_keeped_by_block>::gener
   return true;
 }
 
-template<bool txs_keeped_by_block>
-bool gen_double_spend_in_alt_chain_in_different_blocks<txs_keeped_by_block>::generate(std::vector<test_event_entry>& events) const
+template<bool txs_kept_by_block>
+bool gen_double_spend_in_alt_chain_in_different_blocks<txs_kept_by_block>::generate(std::vector<test_event_entry>& events) const
 {
   INIT_DOUBLE_SPEND_TEST();
 
-  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, txs_keeped_by_block);
+  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_kept_by_block, txs_kept_by_block);
 
   // Main chain
   MAKE_NEXT_BLOCK(events, blk_2, blk_1r, miner_account);

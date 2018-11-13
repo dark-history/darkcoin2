@@ -304,8 +304,8 @@ bool addBlock1(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   
   // add transaction to transaction mempool
   tx_verification_context tvc;
-  bool keeped_by_block = true;
-  tx_memory_pool.add_tx(transaction, tvc, keeped_by_block);
+  bool kept_by_block = true;
+  tx_memory_pool.add_tx(transaction, tvc, kept_by_block);
 
   // create coinbase transaction
   block.baseTransaction = boost::value_initialized<Transaction>();
@@ -397,8 +397,8 @@ bool addBlock2(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   
   // add transaction to transaction mempool
   tx_verification_context tvc;
-  bool keeped_by_block = true;
-  tx_memory_pool.add_tx(transaction, tvc, keeped_by_block);
+  bool kept_by_block = true;
+  tx_memory_pool.add_tx(transaction, tvc, kept_by_block);
 
   // create coinbase transaction
   block.baseTransaction = boost::value_initialized<Transaction>();
@@ -485,8 +485,8 @@ bool addBlock3(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   
   // add transaction to transaction mempool
   tx_verification_context tvc;
-  bool keeped_by_block = true;
-  tx_memory_pool.add_tx(transaction, tvc, keeped_by_block);
+  bool kept_by_block = true;
+  tx_memory_pool.add_tx(transaction, tvc, kept_by_block);
 
   // create coinbase transaction
   block.baseTransaction = boost::value_initialized<Transaction>();
@@ -768,8 +768,8 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
 
   // add transaction2 to transaction mempool
   tx_verification_context tvc;
-  bool keeped_by_block = false;
-  tx_memory_pool.add_tx(transaction2, tvc, keeped_by_block);
+  bool kept_by_block = false;
+  tx_memory_pool.add_tx(transaction2, tvc, kept_by_block);
 
   // add transaction 2 to block 2
   transactionHash = getObjectHash(transaction2);
@@ -1071,8 +1071,8 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
 
   // add transaction2 to transaction mempool
   tx_verification_context tvc;
-  bool keeped_by_block = false;
-  tx_memory_pool.add_tx(transaction2, tvc, keeped_by_block);
+  bool kept_by_block = false;
+  tx_memory_pool.add_tx(transaction2, tvc, kept_by_block);
 
   // add transaction 2 to block 2
   transactionHash = getObjectHash(transaction2);
@@ -1190,8 +1190,8 @@ bool addBlock7(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   
   // add transaction to transaction mempool
   tx_verification_context tvc;
-  bool keeped_by_block = true;
-  tx_memory_pool.add_tx(transaction, tvc, keeped_by_block);
+  bool kept_by_block = true;
+  tx_memory_pool.add_tx(transaction, tvc, kept_by_block);
 
   // create coinbase transaction
   block.baseTransaction = boost::value_initialized<Transaction>();
@@ -1286,8 +1286,8 @@ bool addBlock8(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
     
     // add transaction to transaction mempool
     tx_verification_context tvc;
-    bool keeped_by_block = true;
-    tx_memory_pool.add_tx(transaction, tvc, keeped_by_block);
+    bool kept_by_block = true;
+    tx_memory_pool.add_tx(transaction, tvc, kept_by_block);
   }
 
   // create coinbase transaction
@@ -1432,8 +1432,8 @@ bool addBlock9(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   
   // add transaction to transaction mempool
   tx_verification_context tvc;
-  bool keeped_by_block = true;
-  tx_memory_pool.add_tx(transaction, tvc, keeped_by_block);
+  bool kept_by_block = true;
+  tx_memory_pool.add_tx(transaction, tvc, kept_by_block);
 
   // add merkle root
   block.merkleRoot = get_tx_tree_hash(block);
@@ -1486,8 +1486,8 @@ bool addAlternativeBlock(Blockchain& blockchain, Currency& currency, tx_memory_p
   
   // add transaction to transaction mempool
   tx_verification_context tvc;
-  bool keeped_by_block = true;
-  tx_memory_pool.add_tx(transaction, tvc, keeped_by_block);
+  bool kept_by_block = true;
+  tx_memory_pool.add_tx(transaction, tvc, kept_by_block);
 
   // create coinbase transaction
   block.baseTransaction = boost::value_initialized<Transaction>();
@@ -1651,8 +1651,8 @@ TEST(Blockchain, 4)
   
   // add transaction to transaction mempool
   tx_verification_context tvc;
-  bool keeped_by_block = true;
-  ASSERT_TRUE(tx_memory_pool.add_tx(transaction, tvc, keeped_by_block));
+  bool kept_by_block = true;
+  ASSERT_TRUE(tx_memory_pool.add_tx(transaction, tvc, kept_by_block));
 
   // add merkle root
   block.merkleRoot = get_tx_tree_hash(block);
@@ -2263,93 +2263,6 @@ TEST(Blockchain, 19)
   size_t sec_index = 0;
   generate_ring_signature(transactionPrefixHash, keyImage2, ephemeralPublicKeysPtrs, coinbaseEphemeralSecretKey1, sec_index, signatures.data());
 
-/*
-
-  // add transaction2 to transaction mempool
-  tx_verification_context tvc;
-  bool keeped_by_block = false;
-  tx_memory_pool.add_tx(transaction2, tvc, keeped_by_block);
-
-  // add transaction 2 to block 2
-  Crypto::Hash transactionHash = getObjectHash(transaction2);
-  block2.transactionHashes.push_back(transactionHash);
-
-  // create coinbase transaction 2
-
-  Transaction coinbaseTransaction2;
-  coinbaseTransaction2.version = CURRENT_TRANSACTION_VERSION;
-  coinbaseTransaction2.unlockTime = blockchain.getCurrentBlockchainHeight() + parameters::CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
-
-  // coinbase transaction input 2
-
-  BaseInput coinbaseInput2;
-  coinbaseInput2.blockIndex = blockchain.getCurrentBlockchainHeight();
-  coinbaseTransaction2.inputs.push_back(coinbaseInput2);
-
-  // coinbase transaction output 2
-
-  TransactionOutput coinbaseTransactionOutput2;
-
-  // coinbase transaction public key 2
-  KeyPair coinbaseTransactionKeyPair2 = generateKeyPair();
-  Crypto::PublicKey coinbaseTransactionPublicKey2 = coinbaseTransactionKeyPair2.publicKey;
-  Crypto::SecretKey coinbaseTransactionSecretKey2 = coinbaseTransactionKeyPair2.secretKey;
-
-  // create keyOutput public key 2
-  Crypto::KeyDerivation derivation2;
-  Crypto::PublicKey coinbaseEphemeralPublicKey2;
-  size_t outputIndex2 = 0;
-  generate_key_derivation(aliceViewPublicKey, coinbaseTransactionSecretKey2, derivation2);
-  derive_public_key(derivation2, outputIndex2, aliceSpendPublicKey, coinbaseEphemeralPublicKey2);
-
-  // set coinbase transaction output amount 2
-  size_t medianSize2 = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
-  size_t currentBlockSize2 = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
-
-  uint64_t alreadyGeneratedCoins2;
-  Crypto::Hash lastBlockHash2 = blockchain.getTailId();
-  blockchain.getAlreadyGeneratedCoins(lastBlockHash2, alreadyGeneratedCoins2);
-
-  uint64_t fee2 = keyInput2.amount - totalOutputAmount;
-  uint64_t reward2;
-  int64_t emissionChange2;
-  currency.getBlockReward(medianSize2, currentBlockSize2, alreadyGeneratedCoins2, fee2, reward2, emissionChange2);
-  coinbaseTransactionOutput2.amount = reward2;
-
-  // create output target 2
-  KeyOutput coinbaseKeyOutput2;
-
-  coinbaseKeyOutput2.key = coinbaseEphemeralPublicKey2;
-  coinbaseTransactionOutput2.target = coinbaseKeyOutput2;
-
-  coinbaseTransaction2.outputs.push_back(coinbaseTransactionOutput2);
-
-  // create coinbase transaction extra 2
-  
-  coinbaseTransaction2.extra = {1}; // 1 signifies a transaction public key
-  for (int i = 0; i < 32; i++)
-  {
-    coinbaseTransaction2.extra.push_back(coinbaseTransactionPublicKey2.data[i]);
-  }
-
-  // add coinbase transaction 2 to block 2
-  block2.baseTransaction = coinbaseTransaction2;
-
-  // add merkle root
-  block2.merkleRoot = get_tx_tree_hash(block2);
-
-  difficulty = blockchain.getDifficultyForNextBlock();
-
-  // find nonce appropriate for current difficulty
-  while(!currency.checkProofOfWork(context, block2, difficulty, proofOfWorkIgnore))
-  {
-    block2.nonce++;
-  }
-
-  ASSERT_TRUE(blockchain.addNewBlock(block2, bvc));
-
-*/
-
   BlockInfo maxUsedBlock;
   // maxUsedBlock height and id must be filled out or checkTransactionInputs() fails for some reason
   maxUsedBlock.height = blockchain.getCurrentBlockchainHeight() - 1;
@@ -2842,8 +2755,8 @@ TEST(Blockchain, 26)
 
   // add transaction2 to transaction mempool
   tx_verification_context tvc;
-  bool keeped_by_block = false;
-  tx_memory_pool.add_tx(transaction2, tvc, keeped_by_block);
+  bool kept_by_block = false;
+  tx_memory_pool.add_tx(transaction2, tvc, kept_by_block);
 
   // add transaction 2 to block 2
   block2.transactionHashes.push_back(getObjectHash(transaction2));

@@ -1208,7 +1208,7 @@ bool Blockchain::getRandomOutsByAmount(const COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_
     auto it = m_outputs.find(amount);
     if (it == m_outputs.end()) {
       logger(ERROR, BRIGHT_RED) <<
-        "COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS: not outs for amount " << amount << ", wallet should use some real outs when it lookup for some mix, so, at least one out for this amount should exist";
+        "COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS: no outs for amount " << amount;
       continue;//actually this is strange situation, wallet should use some real outs when it lookup for some mix, so, at least one out for this amount should exist
     }
 

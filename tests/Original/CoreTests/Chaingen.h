@@ -119,16 +119,16 @@ typedef serialized_object<CryptoNote::Transaction> serialized_transaction;
 struct event_visitor_settings
 {
   int valid_mask;
-  bool txs_keeped_by_block;
+  bool txs_kept_by_block;
 
   enum settings
   {
-    set_txs_keeped_by_block = 1 << 0
+    set_txs_kept_by_block = 1 << 0
   };
 
-  event_visitor_settings(int a_valid_mask = 0, bool a_txs_keeped_by_block = false)
+  event_visitor_settings(int a_valid_mask = 0, bool a_txs_kept_by_block = false)
     : valid_mask(a_valid_mask)
-    , txs_keeped_by_block(a_txs_keeped_by_block)
+    , txs_kept_by_block(a_txs_kept_by_block)
   {
   }
 
@@ -139,7 +139,7 @@ private:
   void serialize(Archive & ar, const unsigned int /*version*/)
   {
     ar & valid_mask;
-    ar & txs_keeped_by_block;
+    ar & txs_kept_by_block;
   }
 };
 
@@ -251,7 +251,7 @@ private:
   t_test_class& m_validator;
   size_t m_ev_index;
 
-  bool m_txs_keeped_by_block;
+  bool m_txs_kept_by_block;
 
 public:
   push_core_event_visitor(CryptoNote::core& c, const std::vector<test_event_entry>& events, t_test_class& validator)
@@ -259,7 +259,7 @@ public:
     , m_events(events)
     , m_validator(validator)
     , m_ev_index(0)
-    , m_txs_keeped_by_block(false)
+    , m_txs_kept_by_block(false)
   {
   }
 
@@ -272,9 +272,9 @@ public:
   {
     log_event("event_visitor_settings");
 
-    if (settings.valid_mask & event_visitor_settings::set_txs_keeped_by_block)
+    if (settings.valid_mask & event_visitor_settings::set_txs_kept_by_block)
     {
-      m_txs_keeped_by_block = settings.txs_keeped_by_block;
+      m_txs_kept_by_block = settings.txs_kept_by_block;
     }
 
     return true;
@@ -286,7 +286,7 @@ public:
 
     CryptoNote::tx_verification_context tvc = boost::value_initialized<decltype(tvc)>();
     size_t pool_size = m_c.get_pool_transactions_count();
-    m_c.handle_incoming_tx(toBinaryArray(tx), tvc, m_txs_keeped_by_block);
+    m_c.handle_incoming_tx(toBinaryArray(tx), tvc, m_txs_kept_by_block);
     bool tx_added = pool_size + 1 == m_c.get_pool_transactions_count();
     bool r = check_tx_verification_context(tvc, tx_added, m_ev_index, tx, m_validator);
     CHECK_AND_NO_ASSERT_MES(r, false, "tx verification context check failed");
@@ -339,7 +339,7 @@ public:
 
     CryptoNote::tx_verification_context tvc = boost::value_initialized<decltype(tvc)>();;
     size_t pool_size = m_c.get_pool_transactions_count();
-    m_c.handle_incoming_tx(sr_tx.data, tvc, m_txs_keeped_by_block);
+    m_c.handle_incoming_tx(sr_tx.data, tvc, m_txs_kept_by_block);
     bool tx_added = pool_size + 1 == m_c.get_pool_transactions_count();
 
     CryptoNote::Transaction tx;

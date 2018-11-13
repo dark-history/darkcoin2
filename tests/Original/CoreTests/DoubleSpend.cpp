@@ -21,7 +21,7 @@ bool gen_double_spend_in_different_chains::generate(std::vector<test_event_entry
 {
   INIT_DOUBLE_SPEND_TEST();
 
-  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, true);
+  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_kept_by_block, true);
   MAKE_TX(events, tx_1, bob_account, alice_account, send_amount / 2 - m_currency.minimumFee(), blk_1);
   events.pop_back();
   MAKE_TX(events, tx_2, bob_account, alice_account, send_amount - m_currency.minimumFee(), blk_1);
@@ -189,8 +189,8 @@ TransactionBuilder DoubleSpendBase::createBobToAliceTx() const {
 // MultiSigTx_DoubleSpendInTx
 //======================================================================================================================
 
-MultiSigTx_DoubleSpendInTx::MultiSigTx_DoubleSpendInTx(bool txsKeepedByBlock) 
-  : m_txsKeepedByBlock(txsKeepedByBlock)
+MultiSigTx_DoubleSpendInTx::MultiSigTx_DoubleSpendInTx(bool txsKeptByBlock) 
+  : m_txsKeptByBlock(txsKeptByBlock)
 {
   has_invalid_tx = true;
 }
@@ -208,7 +208,7 @@ bool MultiSigTx_DoubleSpendInTx::generate(std::vector<test_event_entry>& events)
     addOutput(TransactionDestinationEntry(send_amount*2 - m_currency.minimumFee(), m_alice_account.getAccountKeys().address)).
     build();
 
-  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, m_txsKeepedByBlock);
+  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_kept_by_block, m_txsKeptByBlock);
 
   generator.addCallback("mark_invalid_tx"); // should be rejected by the core
   generator.addEvent(tx);
@@ -222,16 +222,16 @@ bool MultiSigTx_DoubleSpendInTx::generate(std::vector<test_event_entry>& events)
 //======================================================================================================================
 // MultiSigTx_DoubleSpendSameBlock
 //======================================================================================================================
-MultiSigTx_DoubleSpendSameBlock::MultiSigTx_DoubleSpendSameBlock(bool txsKeepedByBlock) 
-  : m_txsKeepedByBlock(txsKeepedByBlock) {
-  has_invalid_tx = !txsKeepedByBlock;
+MultiSigTx_DoubleSpendSameBlock::MultiSigTx_DoubleSpendSameBlock(bool txsKeptByBlock) 
+  : m_txsKeptByBlock(txsKeptByBlock) {
+  has_invalid_tx = !txsKeptByBlock;
 }
 
 bool MultiSigTx_DoubleSpendSameBlock::generate(std::vector<test_event_entry>& events) const {
   TestGenerator generator(prepare(events));
 
   generator.addCallback("mark_last_valid_block");
-  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, m_txsKeepedByBlock);
+  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_kept_by_block, m_txsKeptByBlock);
 
   std::list<Transaction> txs;
 
@@ -261,16 +261,16 @@ bool MultiSigTx_DoubleSpendSameBlock::generate(std::vector<test_event_entry>& ev
 //======================================================================================================================
 // MultiSigTx_DoubleSpendDifferentBlocks
 //======================================================================================================================
-MultiSigTx_DoubleSpendDifferentBlocks::MultiSigTx_DoubleSpendDifferentBlocks(bool txsKeepedByBlock)
-  : m_txsKeepedByBlock(txsKeepedByBlock) { 
-  has_invalid_tx = !txsKeepedByBlock;
+MultiSigTx_DoubleSpendDifferentBlocks::MultiSigTx_DoubleSpendDifferentBlocks(bool txsKeptByBlock)
+  : m_txsKeptByBlock(txsKeptByBlock) { 
+  has_invalid_tx = !txsKeptByBlock;
 }
 
 bool MultiSigTx_DoubleSpendDifferentBlocks::generate(std::vector<test_event_entry>& events) const {
   TestGenerator generator(prepare(events));
 
   generator.addCallback("mark_last_valid_block");
-  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, m_txsKeepedByBlock);
+  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_kept_by_block, m_txsKeptByBlock);
 
   auto builder = createBobToAliceTx();
 
@@ -298,9 +298,9 @@ bool MultiSigTx_DoubleSpendDifferentBlocks::generate(std::vector<test_event_entr
 // MultiSigTx_DoubleSpendAltChainSameBlock
 //======================================================================================================================
 
-MultiSigTx_DoubleSpendAltChainSameBlock::MultiSigTx_DoubleSpendAltChainSameBlock(bool txsKeepedByBlock)
-  : m_txsKeepedByBlock(txsKeepedByBlock) {
-  has_invalid_tx = !txsKeepedByBlock;
+MultiSigTx_DoubleSpendAltChainSameBlock::MultiSigTx_DoubleSpendAltChainSameBlock(bool txsKeptByBlock)
+  : m_txsKeptByBlock(txsKeptByBlock) {
+  has_invalid_tx = !txsKeptByBlock;
 }
 
 bool MultiSigTx_DoubleSpendAltChainSameBlock::generate(std::vector<test_event_entry>& events) const {
@@ -310,7 +310,7 @@ bool MultiSigTx_DoubleSpendAltChainSameBlock::generate(std::vector<test_event_en
   mainChain.makeNextBlock(); // main chain
   mainChain.addCallback("mark_last_valid_block");
 
-  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, m_txsKeepedByBlock);
+  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_kept_by_block, m_txsKeptByBlock);
 
   auto builder = createBobToAliceTx();
 
@@ -333,9 +333,9 @@ bool MultiSigTx_DoubleSpendAltChainSameBlock::generate(std::vector<test_event_en
 // MultiSigTx_DoubleSpendAltChainDifferentBlocks
 //======================================================================================================================
 
-MultiSigTx_DoubleSpendAltChainDifferentBlocks::MultiSigTx_DoubleSpendAltChainDifferentBlocks(bool txsKeepedByBlock)
-  : m_txsKeepedByBlock(txsKeepedByBlock) {
-  has_invalid_tx = !txsKeepedByBlock;
+MultiSigTx_DoubleSpendAltChainDifferentBlocks::MultiSigTx_DoubleSpendAltChainDifferentBlocks(bool txsKeptByBlock)
+  : m_txsKeptByBlock(txsKeptByBlock) {
+  has_invalid_tx = !txsKeptByBlock;
 }
 
 bool MultiSigTx_DoubleSpendAltChainDifferentBlocks::generate(std::vector<test_event_entry>& events) const {
@@ -345,7 +345,7 @@ bool MultiSigTx_DoubleSpendAltChainDifferentBlocks::generate(std::vector<test_ev
   mainChain.makeNextBlock(); // main chain
 
   mainChain.addCallback("mark_last_valid_block");
-  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, m_txsKeepedByBlock);
+  SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_kept_by_block, m_txsKeptByBlock);
 
   auto builder = createBobToAliceTx();
 

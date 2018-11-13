@@ -36,8 +36,6 @@ public
 // Adds a new block to the blockchain
 bool addBlock1(core& core)
 {
-  uint32_t currentBlockchainHeight = core.get_current_blockchain_height();
-
   AccountPublicAddress accountPublicAddress;
   KeyPair viewKeyPair = generateKeyPair();
   KeyPair spendKeyPair = generateKeyPair();
@@ -69,8 +67,6 @@ bool addBlock1(core& core)
 // returns transaction public key of the coinbase transaction
 bool addBlock5(core& core, const AccountPublicAddress& minerPublicAddress, Crypto::PublicKey& transactionPublicKey, Crypto::Hash& transactionHash)
 {
-  uint32_t currentBlockchainHeight = core.get_current_blockchain_height();
-
   BinaryArray extraNonce;
 
   Block block;
@@ -100,8 +96,6 @@ bool addBlock5(core& core, const AccountPublicAddress& minerPublicAddress, Crypt
 // return block that was added
 bool addBlock8(core& core, Block& block)
 {
-  uint32_t currentBlockchainHeight = core.get_current_blockchain_height();
-
   AccountPublicAddress accountPublicAddress;
   KeyPair viewKeyPair = generateKeyPair();
   KeyPair spendKeyPair = generateKeyPair();
@@ -208,14 +202,8 @@ bool createTransaction4(core& core, const AccountKeys& senderAccountKeys, const 
 
   // transaction signature
 
-  // Crypto::SecretKey coinbase_eph_secret_key_1;
-  // Crypto::KeyDerivation derivation1;
-  // generate_key_derivation(inputTransactionPublicKey, senderAccountKeys.viewSecretKey, derivation1);
-  // derive_secret_key(derivation1, 0, senderAccountKeys.spendSecretKey, coinbase_eph_secret_key_1);
-
   std::vector<const Crypto::PublicKey*> keys_ptrs;
   keys_ptrs.push_back(&inputStealthKeyPair.publicKey);
-  // keys_ptrs.push_back(&coinbase_eph_public_key_1);
 
   transaction.signatures.push_back(std::vector<Crypto::Signature>());
   std::vector<Crypto::Signature>& sigs = transaction.signatures.back();
@@ -225,7 +213,6 @@ bool createTransaction4(core& core, const AccountKeys& senderAccountKeys, const 
   Crypto::KeyImage image = keyImage;
   std::vector<const Crypto::PublicKey *> pubs = keys_ptrs;
   Crypto::SecretKey sec = inputStealthKeyPair.secretKey;
-  // Crypto::SecretKey sec = coinbase_eph_secret_key_1;
   size_t sec_index = 0;
   Crypto::Signature *sig = sigs.data();
   generate_ring_signature(prefix_hash, image, pubs, sec, sec_index, sig);

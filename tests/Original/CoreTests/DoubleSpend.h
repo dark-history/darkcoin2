@@ -33,8 +33,8 @@ private:
 };
 
 
-template<bool txs_keeped_by_block>
-struct gen_double_spend_in_tx : public gen_double_spend_base< gen_double_spend_in_tx<txs_keeped_by_block> >
+template<bool txs_kept_by_block>
+struct gen_double_spend_in_tx : public gen_double_spend_base< gen_double_spend_in_tx<txs_kept_by_block> >
 {
   static const uint64_t send_amount = MK_COINS(17);
   static const bool has_invalid_tx = true;
@@ -46,11 +46,11 @@ struct gen_double_spend_in_tx : public gen_double_spend_base< gen_double_spend_i
 };
 
 
-template<bool txs_keeped_by_block>
-struct gen_double_spend_in_the_same_block : public gen_double_spend_base< gen_double_spend_in_the_same_block<txs_keeped_by_block> >
+template<bool txs_kept_by_block>
+struct gen_double_spend_in_the_same_block : public gen_double_spend_base< gen_double_spend_in_the_same_block<txs_kept_by_block> >
 {
   static const uint64_t send_amount = MK_COINS(17);
-  static const bool has_invalid_tx = !txs_keeped_by_block;
+  static const bool has_invalid_tx = !txs_kept_by_block;
   static const size_t expected_pool_txs_count = has_invalid_tx ? 1 : 2;
   static const uint64_t expected_bob_balance = send_amount;
   static const uint64_t expected_alice_balance = 0;
@@ -59,32 +59,32 @@ struct gen_double_spend_in_the_same_block : public gen_double_spend_base< gen_do
 };
 
 
-template<bool txs_keeped_by_block>
-struct gen_double_spend_in_different_blocks : public gen_double_spend_base< gen_double_spend_in_different_blocks<txs_keeped_by_block> >
+template<bool txs_kept_by_block>
+struct gen_double_spend_in_different_blocks : public gen_double_spend_base< gen_double_spend_in_different_blocks<txs_kept_by_block> >
 {
   static const uint64_t send_amount = MK_COINS(17);
-  static const bool has_invalid_tx = !txs_keeped_by_block;
+  static const bool has_invalid_tx = !txs_kept_by_block;
   static const size_t expected_pool_txs_count = has_invalid_tx ? 0 : 1;
   static const uint64_t expected_bob_balance = 0;
   static uint64_t expected_alice_balance;
 
   gen_double_spend_in_different_blocks() :
-    gen_double_spend_base< gen_double_spend_in_different_blocks<txs_keeped_by_block> >() {
+    gen_double_spend_base< gen_double_spend_in_different_blocks<txs_kept_by_block> >() {
     expected_alice_balance = send_amount - this->m_currency.minimumFee();
   }
 
   bool generate(std::vector<test_event_entry>& events) const;
 };
 
-template<bool txs_keeped_by_block>
-uint64_t gen_double_spend_in_different_blocks<txs_keeped_by_block>::expected_alice_balance;
+template<bool txs_kept_by_block>
+uint64_t gen_double_spend_in_different_blocks<txs_kept_by_block>::expected_alice_balance;
 
 
-template<bool txs_keeped_by_block>
-struct gen_double_spend_in_alt_chain_in_the_same_block : public gen_double_spend_base< gen_double_spend_in_alt_chain_in_the_same_block<txs_keeped_by_block> >
+template<bool txs_kept_by_block>
+struct gen_double_spend_in_alt_chain_in_the_same_block : public gen_double_spend_base< gen_double_spend_in_alt_chain_in_the_same_block<txs_kept_by_block> >
 {
   static const uint64_t send_amount = MK_COINS(17);
-  static const bool has_invalid_tx = !txs_keeped_by_block;
+  static const bool has_invalid_tx = !txs_kept_by_block;
   static const size_t expected_pool_txs_count = has_invalid_tx ? 1 : 2;
   static const uint64_t expected_bob_balance = send_amount;
   static const uint64_t expected_alice_balance = 0;
@@ -93,11 +93,11 @@ struct gen_double_spend_in_alt_chain_in_the_same_block : public gen_double_spend
 };
 
 
-template<bool txs_keeped_by_block>
-struct gen_double_spend_in_alt_chain_in_different_blocks : public gen_double_spend_base< gen_double_spend_in_alt_chain_in_different_blocks<txs_keeped_by_block> >
+template<bool txs_kept_by_block>
+struct gen_double_spend_in_alt_chain_in_different_blocks : public gen_double_spend_base< gen_double_spend_in_alt_chain_in_different_blocks<txs_kept_by_block> >
 {
   static const uint64_t send_amount = MK_COINS(17);
-  static const bool has_invalid_tx = !txs_keeped_by_block;
+  static const bool has_invalid_tx = !txs_kept_by_block;
   static const size_t expected_pool_txs_count = has_invalid_tx ? 1 : 2;
   static const uint64_t expected_bob_balance = send_amount;
   static const uint64_t expected_alice_balance = 0;
@@ -160,18 +160,18 @@ private:
 
 struct MultiSigTx_DoubleSpendInTx : public DoubleSpendBase
 { 
-  const bool m_txsKeepedByBlock;
+  const bool m_txsKeptByBlock;
 
-  MultiSigTx_DoubleSpendInTx(bool txsKeepedByBlock);
+  MultiSigTx_DoubleSpendInTx(bool txsKeptByBlock);
 
   bool generate(std::vector<test_event_entry>& events) const;
 };
 
 struct MultiSigTx_DoubleSpendSameBlock : public DoubleSpendBase
 {
-  const bool m_txsKeepedByBlock;
+  const bool m_txsKeptByBlock;
 
-  MultiSigTx_DoubleSpendSameBlock(bool txsKeepedByBlock);
+  MultiSigTx_DoubleSpendSameBlock(bool txsKeptByBlock);
 
   bool generate(std::vector<test_event_entry>& events) const;
 };
@@ -179,18 +179,18 @@ struct MultiSigTx_DoubleSpendSameBlock : public DoubleSpendBase
 
 struct MultiSigTx_DoubleSpendDifferentBlocks : public DoubleSpendBase
 {
-  const bool m_txsKeepedByBlock;
+  const bool m_txsKeptByBlock;
 
-  MultiSigTx_DoubleSpendDifferentBlocks(bool txsKeepedByBlock);
+  MultiSigTx_DoubleSpendDifferentBlocks(bool txsKeptByBlock);
 
   bool generate(std::vector<test_event_entry>& events) const;
 };
 
 struct MultiSigTx_DoubleSpendAltChainSameBlock : public DoubleSpendBase
 {
-  const bool m_txsKeepedByBlock;
+  const bool m_txsKeptByBlock;
 
-  MultiSigTx_DoubleSpendAltChainSameBlock(bool txsKeepedByBlock);
+  MultiSigTx_DoubleSpendAltChainSameBlock(bool txsKeptByBlock);
 
   bool check_tx_verification_context(const CryptoNote::tx_verification_context& tvc, bool tx_added, size_t event_idx, const CryptoNote::Transaction& tx) {
     return true;
@@ -205,8 +205,8 @@ struct MultiSigTx_DoubleSpendAltChainSameBlock : public DoubleSpendBase
 
 struct MultiSigTx_DoubleSpendAltChainDifferentBlocks : public DoubleSpendBase
 {
-  const bool m_txsKeepedByBlock;
-  MultiSigTx_DoubleSpendAltChainDifferentBlocks(bool txsKeepedByBlock);
+  const bool m_txsKeptByBlock;
+  MultiSigTx_DoubleSpendAltChainDifferentBlocks(bool txsKeptByBlock);
   bool generate(std::vector<test_event_entry>& events) const;
 };
 
