@@ -395,10 +395,9 @@ bool addBlock4(core& core, Crypto::Hash& blockHash, uint64_t timestamp)
 
 // Adds an empty block to the blockchain
 // returns transaction public key of the coinbase transaction
+// returns hash of the coinbase transaction
 bool addBlock5(core& core, const AccountPublicAddress& minerPublicAddress, Crypto::PublicKey& transactionPublicKey, Crypto::Hash& transactionHash)
 {
-  uint32_t currentBlockchainHeight = core.get_current_blockchain_height();
-
   BinaryArray extraNonce;
 
   Block block;
@@ -409,6 +408,8 @@ bool addBlock5(core& core, const AccountPublicAddress& minerPublicAddress, Crypt
 
   transactionPublicKey = getTransactionPublicKeyFromExtra(block.baseTransaction.extra);
 
+  transactionHash = getObjectHash(block.baseTransaction);
+
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore;
   Crypto::cn_context context;
@@ -416,8 +417,6 @@ bool addBlock5(core& core, const AccountPublicAddress& minerPublicAddress, Crypt
   {
     block.nonce++;
   }
-
-  transactionHash = getObjectHash(block.baseTransaction);
 
   bool added = core.handle_block_found(block);
 
@@ -635,7 +634,7 @@ bool createTransaction(core& core, const AccountKeys& senderAccountKeys,
   // create transaction
   Transaction transaction;
   transaction.version = CURRENT_TRANSACTION_VERSION;
-  transaction.unlockTime = 0;
+  transaction.unlockTime = core.get_current_blockchain_height() + parameters::CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
 
   // create transaction random transaction key
   KeyPair transactionKeyPair = generateKeyPair();
@@ -654,28 +653,28 @@ bool createTransaction(core& core, const AccountKeys& senderAccountKeys,
   std::vector<uint32_t> indexes;
   core.get_tx_outputs_gindexes(inputTransactionHash, indexes);
 
-  // amount = 89406956
-  //                    6
-  //                   /  50
-  //                  /  /  900
-  //                 /  /  /  6000
-  //                /  /  /  /  400000
-  //               /  /  /  /  /  9000000
-  //              /  /  /  /  /  /  80000000
-  //             /  /  /  /  /  /  /
-  // indexes = {0, 0, 1, 1, 1, 1, 1} 
-
+  // amount = 894069565
+  //                     5
+  //                    /  60
+  //                   /  /  500
+  //                  /  /  /  9000
+  //                 /  /  /  /  60000
+  //                /  /  /  /  /  4000000
+  //               /  /  /  /  /  /  90000000
+  //              /  /  /  /  /  /  /  800000000
+  //             /  /  /  /  /  /  /  /
+  // indexes = {0, 0, 0, 1, 1, 1, 1, 1} 
 
   // create key image
   KeyPair inputStealthKeyPair;
   Crypto::KeyImage keyImage;
-  size_t realOutputIndex = 3; // index in indexes
+  size_t realOutputIndex = 4; // index in indexes
   generate_key_image_helper(senderAccountKeys, inputTransactionPublicKey, realOutputIndex, inputStealthKeyPair, keyImage);
 
   KeyInput keyInput;
-  keyInput.amount = 6000;
+  keyInput.amount = 60000;
   keyInput.keyImage = keyImage;
-  keyInput.outputIndexes = {indexes[realOutputIndex]}; // value in indexes (in this case indexes[3] = 1)
+  keyInput.outputIndexes = {indexes[realOutputIndex]}; // value in indexes (in this case indexes[4] = 1)
   keyInput.outputIndexes = absolute_output_offsets_to_relative(keyInput.outputIndexes);
   transaction.inputs.push_back(keyInput);
 
@@ -704,14 +703,8 @@ bool createTransaction(core& core, const AccountKeys& senderAccountKeys,
 
   // transaction signature
 
-  // Crypto::SecretKey coinbase_eph_secret_key_1;
-  // Crypto::KeyDerivation derivation1;
-  // generate_key_derivation(inputTransactionPublicKey, senderAccountKeys.viewSecretKey, derivation1);
-  // derive_secret_key(derivation1, 0, senderAccountKeys.spendSecretKey, coinbase_eph_secret_key_1);
-
   std::vector<const Crypto::PublicKey*> keys_ptrs;
   keys_ptrs.push_back(&inputStealthKeyPair.publicKey);
-  // keys_ptrs.push_back(&coinbase_eph_public_key_1);
 
   transaction.signatures.push_back(std::vector<Crypto::Signature>());
   std::vector<Crypto::Signature>& sigs = transaction.signatures.back();
@@ -721,7 +714,6 @@ bool createTransaction(core& core, const AccountKeys& senderAccountKeys,
   Crypto::KeyImage image = keyImage;
   std::vector<const Crypto::PublicKey *> pubs = keys_ptrs;
   Crypto::SecretKey sec = inputStealthKeyPair.secretKey;
-  // Crypto::SecretKey sec = coinbase_eph_secret_key_1;
   size_t sec_index = 0;
   Crypto::Signature *sig = sigs.data();
   generate_ring_signature(prefix_hash, image, pubs, sec, sec_index, sig);
@@ -745,7 +737,7 @@ bool createTransaction2(core& core, const AccountKeys& senderAccountKeys,
   // create transaction
   Transaction transaction;
   transaction.version = CURRENT_TRANSACTION_VERSION;
-  transaction.unlockTime = 0;
+  transaction.unlockTime = core.get_current_blockchain_height() + parameters::CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
 
   // create transaction random transaction key
   KeyPair transactionKeyPair = generateKeyPair();
@@ -764,28 +756,28 @@ bool createTransaction2(core& core, const AccountKeys& senderAccountKeys,
   std::vector<uint32_t> indexes;
   core.get_tx_outputs_gindexes(inputTransactionHash, indexes);
 
-  // amount = 89406956
-  //                    6
-  //                   /  50
-  //                  /  /  900
-  //                 /  /  /  6000
-  //                /  /  /  /  400000
-  //               /  /  /  /  /  9000000
-  //              /  /  /  /  /  /  80000000
-  //             /  /  /  /  /  /  /
-  // indexes = {0, 0, 1, 1, 1, 1, 1} 
-
+  // amount = 894069565
+  //                     5
+  //                    /  60
+  //                   /  /  500
+  //                  /  /  /  9000
+  //                 /  /  /  /  60000
+  //                /  /  /  /  /  4000000
+  //               /  /  /  /  /  /  90000000
+  //              /  /  /  /  /  /  /  800000000
+  //             /  /  /  /  /  /  /  /
+  // indexes = {0, 0, 0, 1, 1, 1, 1, 1} 
 
   // create key image
   KeyPair inputStealthKeyPair;
   Crypto::KeyImage keyImage;
-  size_t realOutputIndex = 3; // index in indexes
+  size_t realOutputIndex = 4; // index in indexes
   generate_key_image_helper(senderAccountKeys, inputTransactionPublicKey, realOutputIndex, inputStealthKeyPair, keyImage);
 
   KeyInput keyInput;
-  keyInput.amount = 6000;
+  keyInput.amount = 60000;
   keyInput.keyImage = keyImage;
-  keyInput.outputIndexes = {indexes[realOutputIndex]}; // value in indexes (in this case indexes[3] = 1)
+  keyInput.outputIndexes = {indexes[realOutputIndex]}; // value in indexes (in this case indexes[4] = 1)
   keyInput.outputIndexes = absolute_output_offsets_to_relative(keyInput.outputIndexes);
   transaction.inputs.push_back(keyInput);
 
@@ -814,14 +806,8 @@ bool createTransaction2(core& core, const AccountKeys& senderAccountKeys,
 
   // transaction signature
 
-  // Crypto::SecretKey coinbase_eph_secret_key_1;
-  // Crypto::KeyDerivation derivation1;
-  // generate_key_derivation(inputTransactionPublicKey, senderAccountKeys.viewSecretKey, derivation1);
-  // derive_secret_key(derivation1, 0, senderAccountKeys.spendSecretKey, coinbase_eph_secret_key_1);
-
   std::vector<const Crypto::PublicKey*> keys_ptrs;
   keys_ptrs.push_back(&inputStealthKeyPair.publicKey);
-  // keys_ptrs.push_back(&coinbase_eph_public_key_1);
 
   transaction.signatures.push_back(std::vector<Crypto::Signature>());
   std::vector<Crypto::Signature>& sigs = transaction.signatures.back();
@@ -831,7 +817,6 @@ bool createTransaction2(core& core, const AccountKeys& senderAccountKeys,
   Crypto::KeyImage image = keyImage;
   std::vector<const Crypto::PublicKey *> pubs = keys_ptrs;
   Crypto::SecretKey sec = inputStealthKeyPair.secretKey;
-  // Crypto::SecretKey sec = coinbase_eph_secret_key_1;
   size_t sec_index = 0;
   Crypto::Signature *sig = sigs.data();
   generate_ring_signature(prefix_hash, image, pubs, sec, sec_index, sig);
@@ -856,7 +841,7 @@ bool createTransaction3(core& core, const AccountKeys& senderAccountKeys,
   // create transaction
   Transaction transaction;
   transaction.version = CURRENT_TRANSACTION_VERSION;
-  transaction.unlockTime = 0;
+  transaction.unlockTime = core.get_current_blockchain_height() + parameters::CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
 
   // create transaction random transaction key
   KeyPair transactionKeyPair = generateKeyPair();
@@ -864,8 +849,6 @@ bool createTransaction3(core& core, const AccountKeys& senderAccountKeys,
   Crypto::SecretKey transactionSecretKey = transactionKeyPair.secretKey;
 
   // create transaction extra
-
-  // transaction public key
   transaction.extra = {1};
   for (int i = 0; i < 32; i++)
   {
@@ -890,28 +873,28 @@ bool createTransaction3(core& core, const AccountKeys& senderAccountKeys,
   std::vector<uint32_t> indexes;
   core.get_tx_outputs_gindexes(inputTransactionHash, indexes);
 
-  // amount = 89406956
-  //                    6
-  //                   /  50
-  //                  /  /  900
-  //                 /  /  /  6000
-  //                /  /  /  /  400000
-  //               /  /  /  /  /  9000000
-  //              /  /  /  /  /  /  80000000
-  //             /  /  /  /  /  /  /
-  // indexes = {0, 0, 1, 1, 1, 1, 1} 
-
+  // amount = 894069565
+  //                     5
+  //                    /  60
+  //                   /  /  500
+  //                  /  /  /  9000
+  //                 /  /  /  /  60000
+  //                /  /  /  /  /  4000000
+  //               /  /  /  /  /  /  90000000
+  //              /  /  /  /  /  /  /  800000000
+  //             /  /  /  /  /  /  /  /
+  // indexes = {0, 0, 0, 1, 1, 1, 1, 1} 
 
   // create key image
   KeyPair inputStealthKeyPair;
   Crypto::KeyImage keyImage;
-  size_t realOutputIndex = 3; // index in indexes
+  size_t realOutputIndex = 4; // index in indexes
   generate_key_image_helper(senderAccountKeys, inputTransactionPublicKey, realOutputIndex, inputStealthKeyPair, keyImage);
 
   KeyInput keyInput;
-  keyInput.amount = 6000;
+  keyInput.amount = 60000;
   keyInput.keyImage = keyImage;
-  keyInput.outputIndexes = {indexes[realOutputIndex]}; // value in indexes (in this case indexes[3] = 1)
+  keyInput.outputIndexes = {indexes[realOutputIndex]}; // value in indexes (in this case indexes[4] = 1)
   keyInput.outputIndexes = absolute_output_offsets_to_relative(keyInput.outputIndexes);
   transaction.inputs.push_back(keyInput);
 
@@ -940,14 +923,8 @@ bool createTransaction3(core& core, const AccountKeys& senderAccountKeys,
 
   // transaction signature
 
-  // Crypto::SecretKey coinbase_eph_secret_key_1;
-  // Crypto::KeyDerivation derivation1;
-  // generate_key_derivation(inputTransactionPublicKey, senderAccountKeys.viewSecretKey, derivation1);
-  // derive_secret_key(derivation1, 0, senderAccountKeys.spendSecretKey, coinbase_eph_secret_key_1);
-
   std::vector<const Crypto::PublicKey*> keys_ptrs;
   keys_ptrs.push_back(&inputStealthKeyPair.publicKey);
-  // keys_ptrs.push_back(&coinbase_eph_public_key_1);
 
   transaction.signatures.push_back(std::vector<Crypto::Signature>());
   std::vector<Crypto::Signature>& sigs = transaction.signatures.back();
@@ -957,7 +934,6 @@ bool createTransaction3(core& core, const AccountKeys& senderAccountKeys,
   Crypto::KeyImage image = keyImage;
   std::vector<const Crypto::PublicKey *> pubs = keys_ptrs;
   Crypto::SecretKey sec = inputStealthKeyPair.secretKey;
-  // Crypto::SecretKey sec = coinbase_eph_secret_key_1;
   size_t sec_index = 0;
   Crypto::Signature *sig = sigs.data();
   generate_ring_signature(prefix_hash, image, pubs, sec, sec_index, sig);
@@ -2863,89 +2839,74 @@ TEST(Core, 46)
   }
 
   CryptoNote::COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_request request;
-  request.amounts.push_back(80000000);
+  request.amounts.push_back(800000000); // this is equal to 0.8 cash2s
   request.outs_count = 5;
   CryptoNote::COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_response response = boost::value_initialized<CryptoNote::COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_response>();
   ASSERT_TRUE(core.get_random_outs_for_amounts(request, response));
 
-  //  response =
-  //    {
-  //      outs = 
-  //        {
-  //          {
-  //          amount = 80000000, 
-  //          outs = 
-  //            {
-  //              {
-  //                global_amount_index = 15,
-  //                out_key = 
-  //                  {
-  //                    data =
-  //                      {
-  //                        0xed, 0x1e, 0x4a, 0x48, 0xd5, 0x82, 0xbb, 0x28, 0xde, 0xd5,
-  //                        0x6e, 0x52, 0x4e, 0x9c, 0x8e, 0x71, 0xb2, 0x1b, 0x49, 0xf0,
-  //                        0x4d, 0x52, 0xfc, 0xbc, 0xda, 0x8, 0xa1, 0xb0, 0xd7, 0xa0,
-  //                        0x48, 0xb8
-  //                      }
-  //                  }
-  //              },
-  //              {
-  //                global_amount_index = 25,
-  //                out_key = 
-  //                  {
-  //                    data =
-  //                      {
-  //                        0xc4, 0x1, 0x85, 0x54, 0x9e, 0x7b, 0x7d, 0xa5, 0x17, 0xd,
-  //                        0xb3, 0x93, 0x17, 0x15, 0x7d, 0xf9, 0xe1, 0x44, 0xf5, 0xb7,
-  //                        0x4e, 0xba, 0x29, 0x4f, 0xf5, 0xa9, 0xc3, 0xf6, 0x4, 0x8c,
-  //                        0x11, 0x4c
-  //                      }
-  //                  }
-  //              },
-  //              {
-  //                global_amount_index = 4,
-  //                out_key =
-  //                  {
-  //                    data =
-  //                      {
-  //                        0x9e, 0x69, 0x48, 0x8e, 0x2f, 0x9d, 0x27, 0x5f, 0x65, 0x9b,
-  //                        0x61, 0x94, 0xad, 0x76, 0x9, 0x77, 0x1e, 0x4, 0x85, 0x85,
-  //                        0xef, 0x87, 0x85, 0xcc, 0x6a, 0x37, 0xe2, 0x89, 0x62, 0x50,
-  //                        0x58, 0xb1
-  //                      }
-  //                  }
-  //              },
-  //              {
-  //                global_amount_index = 11, 
-  //                out_key =
-  //                  {
-  //                    data =
-  //                      {
-  //                        0xf3, 0x9c, 0x4c, 0xad, 0xda, 0x1, 0x55, 0x49, 0xaf, 0xf3,
-  //                        0x96, 0x39, 0xfc, 0xcd, 0x3a, 0x37, 0x18, 0x1, 0x5f, 0xd4,
-  //                        0x35, 0x61, 0xc4, 0x48, 0xeb, 0x41, 0x25, 0xc4, 0xe3, 0xd,
-  //                        0x69, 0xd4
-  //                      }
-  //                  }
-  //              },
-  //              {
-  //                global_amount_index = 29,
-  //                out_key =
-  //                  {
-  //                    data =
-  //                      {
-  //                        0xb3, 0xe3, 0xf0, 0x5e, 0x44, 0xb7, 0x6, 0x61, 0xd7, 0x7,
-  //                        0x1f, 0xd6, 0xfc, 0xef, 0x9a, 0x89, 0x1a, 0xa5, 0x3e, 0x57,
-  //                        0x95, 0xb6, 0xbf, 0xc0, 0x94, 0xab, 0x98, 0x45, 0x51, 0x2c,
-  //                        0x4c, 0xbf
-  //                      }
-  //                  }
-  //              }
-  //            }
-  //          }
-  //        }, 
-  //      status = ""
-  //    }
+  // response =
+  // {
+  //   outs = 
+  //   {
+  //     {
+  //       amount = 0x2faf0800, // 800000000
+  //       outs = 
+  //       {
+  //         {
+  //           global_amount_index = 0xf, // 15
+  //           out_key = 
+  //           {
+  //             0x66, 0x13, 0x94, 0x56, 0x57, 0x56, 0x1d, 0x68, 0x37, 0x39, 
+  //             0x28, 0x8a, 0x17, 0x11, 0x1a, 0x82, 0x1b, 0x70, 0x53, 0xb5,
+  //             0x5c, 0x8d, 0x66, 0xa9, 0x1a, 0x9e, 0x77, 0x86, 0x73, 0xb0,
+  //             0xb8, 0xef
+  //           }
+  //         },
+  //         {
+  //           global_amount_index = 0x27, // 39
+  //           out_key = 
+  //           {
+  //             0xb3, 0x66, 0xf, 0x51, 0x2b, 0xd, 0xb4, 0x7b, 0x39, 0x8d,
+  //             0x4f, 0x87, 0xe9, 0xf2, 0xd7, 0xe0, 0xbb, 0x8b, 0x53, 0xcf,
+  //             0xf3, 0x47, 0xf9, 0x91, 0xe2, 0xa3, 0x92, 0x34, 0x44, 0x55,
+  //             0x63, 0x9e
+  //           }
+  //         },
+  //         {
+  //           global_amount_index = 0x4, // 4
+  //           out_key = 
+  //           {
+  //             0x43, 0x9c, 0x46, 0x7c, 0x9e, 0xed, 0x2f, 0xcb, 0xea, 0x5,
+  //             0xfe, 0xa6, 0x33, 0xe5, 0x9, 0xfb, 0x87, 0x5c, 0xd3, 0x92,
+  //             0x51, 0xd9, 0x1, 0x10, 0x5f, 0x13, 0x55, 0xc8, 0x98, 0x74,
+  //             0xb5, 0xb6
+  //           }
+  //         },
+  //         {
+  //           global_amount_index = 0x18, // 24
+  //           out_key = 
+  //           {
+  //             0xa7, 0xb4, 0x98, 0xa8, 0xb3, 0x1e, 0x3b, 0xa2, 0xda, 0xa8, 
+  //             0xb5, 0xe3, 0x3c, 0x2f, 0x8a, 0xff, 0x5a, 0x6b, 0xdb, 0x4,
+  //             0xa0, 0x17, 0xf8, 0x81, 0xd5, 0x5a, 0x9e, 0x4f, 0x9, 0x56,
+  //             0x2b, 0xfb
+  //           }
+  //         },
+  //         {
+  //           global_amount_index = 0x14, // 20
+  //           out_key = 
+  //           {
+  //             0xeb, 0xb8, 0xaa, 0x5c, 0x85, 0x32, 0x0, 0xe0, 0x7d, 0xe,
+  //             0x46, 0x67, 0xb7, 0xfb, 0xb1, 0xe0, 0x98, 0xf4, 0xd6, 0xb8,
+  //             0xf0, 0x3, 0x24, 0x2b, 0xa8, 0x48, 0x4d, 0x5f, 0x31, 0x16,
+  //             0x6d, 0x13
+  //           }
+  //         }
+  //       }
+  //     }
+  //   },
+  //   status = ""
+  // }
 }
 
 // print_blockchain_index()

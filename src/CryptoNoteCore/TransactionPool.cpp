@@ -145,8 +145,10 @@ namespace CryptoNote {
     // check inputs
     bool inputsValid = m_validator.checkTransactionInputs(tx, maxUsedBlock);
 
-    if (!inputsValid) {
-      if (!keptByBlock) {
+    if (!inputsValid) 
+    {
+      if (!keptByBlock)
+      {
         logger(INFO) << "tx used wrong inputs, rejected";
         tvc.m_verification_failed = true;
         return false;
@@ -154,6 +156,10 @@ namespace CryptoNote {
 
       maxUsedBlock.clear();
       tvc.m_verification_impossible = true;
+    }
+    else
+    {
+      tvc.m_verification_impossible = false;
     }
 
     if (!keptByBlock) {
@@ -215,11 +221,11 @@ namespace CryptoNote {
   }
 
   //---------------------------------------------------------------------------------
-  bool tx_memory_pool::add_tx(const Transaction &tx, tx_verification_context& tvc, bool keeped_by_block) {
+  bool tx_memory_pool::add_tx(const Transaction &tx, tx_verification_context& tvc, bool kept_by_block) {
     Crypto::Hash h = NULL_HASH;
     size_t blobSize = 0;
     getObjectHash(tx, h, blobSize);
-    return add_tx(tx, h, blobSize, tvc, keeped_by_block);
+    return add_tx(tx, h, blobSize, tvc, kept_by_block);
   }
   //---------------------------------------------------------------------------------
   bool tx_memory_pool::take_tx(const Crypto::Hash &id, Transaction &tx, size_t& blobSize, uint64_t& fee) {

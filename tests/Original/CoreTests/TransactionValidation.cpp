@@ -688,7 +688,7 @@ bool GenerateTransactionWithZeroFee::generate(std::vector<test_event_entry>& eve
     DO_CALLBACK(events, "mark_invalid_tx");
   } else {
     event_visitor_settings settings;
-    settings.txs_keeped_by_block = true;
+    settings.txs_kept_by_block = true;
     settings.valid_mask = 1;
     events.push_back(settings);
   }
