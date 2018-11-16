@@ -2,21 +2,19 @@ add_definitions(-DSTATICLIB)
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../version)
 
-include_directories(${CMAKE_SOURCE_DIR}/tests/Basic/HelperFunctions)
+file(GLOB_RECURSE Account Account/*)
 
-file(GLOB_RECURSE Blockchain Blockchain/*)
+source_group("" FILES ${Account})
 
-source_group("" FILES ${Blockchain})
+add_executable(Account ${Account})
 
-add_executable(Blockchain ${Blockchain})
+target_link_libraries(Account gtest_main CryptoNoteCore Crypto Common Serialization Logging)
 
-target_link_libraries(Blockchain gtest_main CryptoNoteCore Crypto Serialization Logging BlockchainExplorer System Common ${Boost_LIBRARIES})
+add_custom_target(Basic DEPENDS Account)
 
-add_custom_target(Basic DEPENDS Blockchain)
+set_property(TARGET Basic Account PROPERTY FOLDER "Basic")
 
-set_property(TARGET Basic Blockchain PROPERTY FOLDER "Basic")
-
-set_property(TARGET Blockchain PROPERTY OUTPUT_NAME "Blockchain")
+set_property(TARGET Account PROPERTY OUTPUT_NAME "Account")
 
 if(NOT MSVC)
   # suppress warnings from gtest
