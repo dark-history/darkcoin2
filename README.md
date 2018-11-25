@@ -20,7 +20,8 @@ Launch date : December 5, 2018 9:00 am EST
 [Whitepaper](https://cash2.org/Cash2+Whitepaper+English+11012018.pdf)
 
 Recommended Mining Hardware  
-https://shop.bitmain.com/product/detail?pid=000201811071659320918shK4zCH068F
+[Antminer A3 by Bitmain](https://shop.bitmain.com/product/detail?pid=000201811071659320918shK4zCH068F)
+[APW7 by Bitmain](https://shop.bitmain.com/product/detail?pid=000201809111802447941Bf38AO30604)
 
 Contact  
 Paul Aphivantrakul  
@@ -71,23 +72,23 @@ Fast block times requires a fast hashing algorithm, and BLAKE2b is one of the fa
 
 ## How To Compile from Source
 
-### Cloning the repository
+#### Cloning the repository
 
 `$ git clone --recursive https://github.com/cash2/cash2`
 
-### Linux Ubuntu
+#### Linux Ubuntu
 
 - `sudo apt-get install -y build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libpgm-dev libunbound-dev libsodium-dev`
-- `cd <your_cash2_directory>`
+- `cd <your cash2 directory>`
 - `make`
 
-### Windows (Instructions borrowed from Turtlecoin)
+#### Windows (Instructions borrowed from Turtlecoin)
 
 - Install [Visual Studio 2017 Community Edition](https://www.visualstudio.com/thank-you-downloading-visual-studio/?sku=Community&rel=15&page=inlineinstall)
 - When installing Visual Studio, it is required that you install Desktop development with C++
 - Install the latest version of [Boost](https://bintray.com/boostorg/release/download_file?file_path=1.68.0%2Fbinaries%2Fboost_1_68_0-msvc-14.1-64.exe) - Currently Boost 1.68.
 - From the start menu, search for 'x64 Native Tools Command Prompt for vs2017'.
-- `cd <your_cash2_directory>`
+- `cd <your cash2 directory>`
 - `mkdir build`
 - `cd build`
 - `set PATH="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin";%PATH%`
