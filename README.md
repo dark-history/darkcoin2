@@ -17,8 +17,7 @@ Launch date : December 5, 2018 9:00 am EST
 - Cryptonote based
 - Recommended mining hardware is the [Antminer A3 by Bitmain](https://shop.bitmain.com/product/detail?pid=000201811071659320918shK4zCH068F)
 
-[Whitepaper]  
-(https://cash2.org/Cash2+Whitepaper+English+11012018.pdf)
+[Whitepaper] (https://cash2.org/Cash2+Whitepaper+English+11012018.pdf)
 
 Recommended Mining Hardware  
 https://shop.bitmain.com/product/detail?pid=000201811071659320918shK4zCH068F
