@@ -98,8 +98,4 @@ If you have errors on this step about not being able to find the following stati
 
 - `MSBuild Cash2.sln /p:Configuration=Release /m`
 
-The binaries will be in the `src/Release` folder when you are complete.
-
-- `cd src`
-- `cd Release`
-- `simplewallet.exe --version`
+The `.exe` files will be in the `src/Release` folder when you are complete.
