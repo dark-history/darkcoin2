@@ -14,7 +14,7 @@ Launch date : December 5, 2018 9:00 am EST
 - No premine
 - BLAKE2b hashing algorithm
 - 15,000,000 maximum supply
-- Cryptonote based
+- CryptoNote based
 - Recommended mining hardware is the [Antminer A3 by Bitmain](https://shop.bitmain.com/product/detail?pid=000201811071659320918shK4zCH068F)
 
 [Whitepaper](https://cash2.org/Cash2+Whitepaper+English+11012018.pdf)
@@ -98,8 +98,4 @@ If you have errors on this step about not being able to find the following stati
 
 - `MSBuild Cash2.sln /p:Configuration=Release /m`
 
-The binaries will be in the `src/Release` folder when you are complete.
-
-- `cd src`
-- `cd Release`
-- `simplewallet.exe --version`
+The `.exe` files will be in the `src/Release` folder when you are complete.
