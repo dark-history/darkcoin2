@@ -14,7 +14,7 @@ Launch date : December 5, 2018 9:00 am EST
 - No premine
 - BLAKE2b hashing algorithm
 - 15,000,000 maximum supply
-- Cryptonote based
+- CryptoNote based
 - Recommended mining hardware is the [Antminer A3 by Bitmain](https://shop.bitmain.com/product/detail?pid=000201811071659320918shK4zCH068F)
 
 [Whitepaper](https://cash2.org/Cash2+Whitepaper+English+11012018.pdf)
