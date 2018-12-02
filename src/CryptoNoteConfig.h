@@ -12,35 +12,39 @@ namespace CryptoNote {
 namespace parameters {
 
 const uint64_t DIFFICULTY_TARGET                             = 9; // seconds
-const uint64_t CRYPTONOTE_MAX_BLOCK_NUMBER                   = ((uint64_t)(-1)); // 18,446,744,073,709,551,616 blocks
+
+const uint64_t CRYPTONOTE_MAX_BLOCK_NUMBER                   = 500000000;
 const size_t   CRYPTONOTE_MAX_BLOCK_BLOB_SIZE                = 500000000;
 const size_t   CRYPTONOTE_MAX_TX_SIZE                        = 1000000000;
 const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 0x6; // all Cash2 addresses start with a '2' 
 const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 60;
-const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 3 * DIFFICULTY_TARGET;
-const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 11;
+const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 60 * 60 * 2;
+const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 60;
 const uint64_t MONEY_SUPPLY                                  = UINT64_C(15000000000000000); // 15,000,000.000000000 total coins
 const unsigned EMISSION_SPEED_FACTOR                         = 24;
+
 static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED_FACTOR");
+
 const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 60 * 24 * 60 * 60 / DIFFICULTY_TARGET; // number of blocks produced in 60 days
-const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 1024 * 1024; //size of block (bytes) after which reward for block calculated using block size, 1 mb
+const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 200 * 1024; //size of block (bytes) after which reward for block calculated using block size, 200 kb
 const size_t   CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        = 600;
 const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 9; // number of digits after decimal poin
 const uint64_t MINIMUM_FEE                                   = 0; // free transactions
 const uint64_t DEFAULT_DUST_THRESHOLD                        = MINIMUM_FEE;
 const uint64_t MAX_MIXIN                                     = 3;
-const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
-const size_t   DIFFICULTY_WINDOW                             = 158; // blocks, N = int(45 * (600 / T) ^ 0.3)), N is the difficulty window, T is the target time
-const size_t   DIFFICULTY_CUT                                = 40;  // timestamps to cut after sorting (originally 60)
+const size_t   DIFFICULTY_WINDOW                             = 3600; // blocks, number of blocks expected in 9 hours
+const size_t   DIFFICULTY_CUT                                = 60;  // timestamps to cut after sorting
 const size_t   DIFFICULTY_LAG                                = 15;
+
 static_assert(2 * DIFFICULTY_CUT <= DIFFICULTY_WINDOW - 2, "Bad DIFFICULTY_WINDOW or DIFFICULTY_CUT");
-const size_t   MAX_BLOCK_SIZE_INITIAL                        = 2 * 1024 * 1024; // 2 mb
+
+const size_t   MAX_BLOCK_SIZE_INITIAL                        = 400 * 1024; // 400 kb
 const uint64_t MAX_BLOCK_SIZE_GROWTH_SPEED_NUMERATOR         = 100 * 1024;
 const uint64_t MAX_BLOCK_SIZE_GROWTH_SPEED_DENOMINATOR       = 365 * 24 * 60 * 60 / DIFFICULTY_TARGET;
 const uint64_t CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS     = 1;
 const uint64_t CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_SECONDS    = DIFFICULTY_TARGET * CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS;
-const uint64_t CRYPTONOTE_MEMPOOL_TX_LIVETIME                = 60 * 5; //seconds, 5 minutes
-const uint64_t CRYPTONOTE_MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME = 60 * 5; //seconds, 5 minutes
+const uint64_t CRYPTONOTE_MEMPOOL_TX_LIVETIME                = 60 * 60; //seconds, 1 hour
+const uint64_t CRYPTONOTE_MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME = 60 * 60; //seconds, 1 hour
 const uint64_t CRYPTONOTE_NUMBER_OF_PERIODS_TO_FORGET_TX_DELETED_FROM_POOL = 1;  // CRYPTONOTE_NUMBER_OF_PERIODS_TO_FORGET_TX_DELETED_FROM_POOL * CRYPTONOTE_MEMPOOL_TX_LIVETIME = time to forget tx
 const size_t   FUSION_TX_MAX_SIZE                            = CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE * 30 / 100;
 const size_t   FUSION_TX_MIN_INPUT_COUNT                     = 12;

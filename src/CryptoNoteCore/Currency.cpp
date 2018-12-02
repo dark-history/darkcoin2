@@ -1,4 +1,6 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2016-2018  zawy12
+// Copyright (c) 2016-2018, The Karbowanec developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -87,7 +89,7 @@ bool Currency::generateGenesisBlock() {
   }
 
   // genesis block message
-  // "December 5, 2018. To my mom, dad, and sister, I love you. Bitcoin block 549852 hash 00000000000000000013da30f52759345e332c75c9ca40450f08eb04a342c522"
+  // "December 5, 2018. To my mom, dad, and sister, I love you. Bitcoin block 551105 hash 000000000000000000174b45aea57bb0ce896fbfcbe699645736c1eb3f7c667a"
   m_genesisBlock.baseTransaction.extra = 
   {
     0x44, 0x65, 0x63, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x20, 0x35,
@@ -97,14 +99,14 @@ bool Currency::generateGenesisBlock() {
     0x73, 0x74, 0x65, 0x72, 0x2c, 0x20, 0x49, 0x20, 0x6c, 0x6f,
     0x76, 0x65, 0x20, 0x79, 0x6f, 0x75, 0x2e, 0x20, 0x42, 0x69,
     0x74, 0x63, 0x6f, 0x69, 0x6e, 0x20, 0x62, 0x6c, 0x6f, 0x63,
-    0x6b, 0x20, 0x35, 0x34, 0x39, 0x38, 0x35, 0x32, 0x20, 0x68,
+    0x6b, 0x20, 0x35, 0x35, 0x31, 0x31, 0x30, 0x35, 0x20, 0x68,
     0x61, 0x73, 0x68, 0x20, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
     0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-    0x30, 0x30, 0x31, 0x33, 0x64, 0x61, 0x33, 0x30, 0x66, 0x35,
-    0x32, 0x37, 0x35, 0x39, 0x33, 0x34, 0x35, 0x65, 0x33, 0x33,
-    0x32, 0x63, 0x37, 0x35, 0x63, 0x39, 0x63, 0x61, 0x34, 0x30,
-    0x34, 0x35, 0x30, 0x66, 0x30, 0x38, 0x65, 0x62, 0x30, 0x34,
-    0x61, 0x33, 0x34, 0x32, 0x63, 0x35, 0x32, 0x32
+    0x30, 0x30, 0x31, 0x37, 0x34, 0x62, 0x34, 0x35, 0x61, 0x65,
+    0x61, 0x35, 0x37, 0x62, 0x62, 0x30, 0x63, 0x65, 0x38, 0x39,
+    0x36, 0x66, 0x62, 0x66, 0x63, 0x62, 0x65, 0x36, 0x39, 0x39,
+    0x36, 0x34, 0x35, 0x37, 0x33, 0x36, 0x63, 0x31, 0x65, 0x62,
+    0x33, 0x66, 0x37, 0x63, 0x36, 0x36, 0x37, 0x61
   };
 
   m_genesisBlock.timestamp = 0;
@@ -374,8 +376,8 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
   return Common::fromString(strAmount, amount);
 }
 
-difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties) const
-{
+difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
+  std::vector<difficulty_type> cumulativeDifficulties) const {
   assert(m_difficultyWindow >= 2);
 
   if (timestamps.size() > m_difficultyWindow) {
@@ -383,60 +385,52 @@ difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps, std::
     cumulativeDifficulties.resize(m_difficultyWindow);
   }
 
-  assert(timestamps.size() == cumulativeDifficulties.size());
-  assert(timestamps.size() <= m_difficultyWindow);
-
-  // LWMA-2 difficulty algorithm 
-  // Copyright (c) 2017-2018 Zawy, MIT License
-  // https://github.com/zawy12/difficulty-algorithms/issues/3
-  // See commented version for required config file changes.
-  // N = int(45 * (600 / T) ^ 0.3));
-
-  int64_t T = m_difficultyTarget; // target solvetime seconds
-  int64_t N = m_difficultyWindow; //  N=45, 60, and 90 for T=600, 120, 60.
-  int64_t FTL = m_blockFutureTimeLimit; // < 3xT
-  int64_t L(0), ST, sum_3_ST(0), next_D, prev_D;
-      
-  // If it's a new coin, do startup code. 
-  // Increase difficulty_guess if it needs to be much higher, but guess lower than lowest guess.
-  uint64_t difficulty_guess = 100000; 
-
-  // set difficulty of genesis block to 1
-  if (timestamps.size() == 0)
-  {
+  size_t length = timestamps.size();
+  assert(length == cumulativeDifficulties.size());
+  assert(length <= m_difficultyWindow);
+  if (length <= 1) {
     return 1;
   }
 
-  if (timestamps.size() <= 10 )
+  if (length < 10)
   {
-    return difficulty_guess;
+    return 1000000;
   }
 
-  if (timestamps.size() < static_cast<uint64_t>(N + 1))
-  {
-    N = timestamps.size() - 1;
-  }
-  
-  for (int64_t i = 1; i <= N; i++) {  
-    ST = std::max(-FTL, std::min( static_cast<int64_t>(timestamps[i]) - static_cast<int64_t>(timestamps[i - 1]), 6 * T));
-    L +=  ST * i ; 
-    if (i > N - 3)
-    {
-      sum_3_ST += ST;
-    } 
-  }
-  next_D = (static_cast<int64_t>(cumulativeDifficulties[N] - cumulativeDifficulties[0]) * T * (N + 1) * 99) / (100 * 2 * L);
+  sort(timestamps.begin(), timestamps.end());
 
-  // implement LWMA-2 changes from LWMA. Large coins change 8 to 7, and 110 to 107.
-  // N = 90 coins change 110 to 107. The 110 setting may turn out to be too high. Waiting on live data.
-  prev_D = cumulativeDifficulties[N] - cumulativeDifficulties[N - 1];
-  next_D = std::max((prev_D * 67) / 100, std::min(next_D, (prev_D * 150) / 100));
-  if (sum_3_ST < (8 * T) / 10)
-  {
-    next_D = std::max(next_D, (prev_D * 110) / 100);
+  size_t cutBegin, cutEnd;
+  assert(2 * m_difficultyCut <= m_difficultyWindow - 2);
+  if (length <= m_difficultyWindow - 2 * m_difficultyCut) {
+    cutBegin = 0;
+    cutEnd = length;
+  } else {
+    cutBegin = (length - (m_difficultyWindow - 2 * m_difficultyCut) + 1) / 2;
+    cutEnd = cutBegin + (m_difficultyWindow - 2 * m_difficultyCut);
+  }
+  assert(/*cut_begin >= 0 &&*/ cutBegin + 2 <= cutEnd && cutEnd <= length);
+  uint64_t timeSpan = timestamps[cutEnd - 1] - timestamps[cutBegin];
+  if (timeSpan == 0) {
+    timeSpan = 1;
   }
 
-  return static_cast<uint64_t>(next_D);
+  difficulty_type totalWork = cumulativeDifficulties[cutEnd - 1] - cumulativeDifficulties[cutBegin];
+  assert(totalWork > 0);
+
+  uint64_t low, high;
+  low = mul128(totalWork, m_difficultyTarget, &high);
+  if (high != 0 || low + timeSpan - 1 < low) {
+    return 0;
+  }
+
+  difficulty_type difficulty = (low + timeSpan - 1) / timeSpan;
+
+  if (difficulty < 30000000000000) // 10,000,000,000,000 per miner expected to mine Cash2 on launch day
+  {
+    return 30000000000000;
+  }
+
+  return difficulty;
 }
 
 bool Currency::checkProofOfWork(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic,
