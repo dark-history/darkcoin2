@@ -60,7 +60,7 @@ const char     MINER_CONFIG_FILE_NAME[]                      = "miner_conf.json"
 } // end namespace parameters
 
 const char     CRYPTONOTE_NAME[]                             = "cash2";
-const char     GENESIS_COINBASE_TX_HEX[]                     = "";
+const char     GENESIS_COINBASE_TX_HEX[]                     = "013c01ff0001a7d7a9aa03028037deeee59fb526b6474696bd4246c21b2e7dbd4fc17a02a6037ca6835e3a4f2101f6632c8a6d6102c85597eaccb5c0be3880b7220aee0d0e4c5b852d8757f5b67f";
 const uint8_t  CURRENT_TRANSACTION_VERSION                   = 1;
 const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        = 10000;  //by default, blocks ids count in synchronizing
 const size_t   BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            = 200;    //by default, blocks count in blocks downloading
@@ -82,7 +82,10 @@ const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000;          //
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "";
 
 //seed nodes
-const std::initializer_list<const char*> SEED_NODES = {};
+const std::initializer_list<const char*> SEED_NODES = {
+  "52.200.158.167:12275",
+  "52.203.127.98:12275",
+};
 
 struct CheckpointData {
   uint32_t height;
