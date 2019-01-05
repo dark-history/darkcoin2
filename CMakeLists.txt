@@ -14,7 +14,7 @@ enable_testing()
 # copy CTestCustom.cmake to build dir to disable long running tests in 'make test'
 configure_file(${CMAKE_SOURCE_DIR}/CTestCustom.cmake ${CMAKE_BINARY_DIR})
 
-project(CryptoNote)
+project(Cash2)
 
 include_directories(include src external "${CMAKE_BINARY_DIR}/version")
 if(APPLE)
