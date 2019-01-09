@@ -28,7 +28,7 @@ static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED
 const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 60 * 24 * 60 * 60 / DIFFICULTY_TARGET; // number of blocks produced in 60 days
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 200 * 1024; //size of block (bytes) after which reward for block calculated using block size, 200 kb
 const size_t   CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        = 600;
-const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 9; // number of digits after decimal poin
+const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 9; // number of digits after decimal point
 const uint64_t MINIMUM_FEE                                   = 0; // free transactions
 const uint64_t DEFAULT_DUST_THRESHOLD                        = MINIMUM_FEE;
 const uint64_t MAX_MIXIN                                     = 3;
@@ -57,6 +57,8 @@ const char     P2P_NET_DATA_FILENAME[]                       = "p2pstate.bin";
 const char     CRYPTONOTE_BLOCKCHAIN_INDEXES_FILENAME[]      = "blockchainindexes.dat";
 const char     MINER_CONFIG_FILE_NAME[]                      = "miner_conf.json";
 
+const uint64_t HARD_FORK_HEIGHT_1                            = 230500;
+
 } // end namespace parameters
 
 const char     CRYPTONOTE_NAME[]                             = "cash2";
@@ -83,8 +85,8 @@ const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "";
 
 //seed nodes
 const std::initializer_list<const char*> SEED_NODES = {
-  "52.200.158.167:12275",
-  "52.203.127.98:12275",
+  "seed1.cash2.org:12275",
+  "seed2.cash2.org:12275",
 };
 
 struct CheckpointData {

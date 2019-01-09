@@ -45,7 +45,7 @@ namespace CryptoNote {
 
     //-------------------- IMinerHandler -----------------------
     virtual bool handle_block_found(Block& b) override;
-    virtual bool get_block_template(Block& b, const AccountPublicAddress& adr, difficulty_type& diffic, uint32_t& height, const BinaryArray& ex_nonce) override;
+    virtual bool get_block_template(Block& b, const AccountPublicAddress& adr, difficulty_type& diffic, uint32_t& blockchainHeight, const BinaryArray& ex_nonce) override;
 
     bool addObserver(ICoreObserver* observer) override;
     bool removeObserver(ICoreObserver* observer) override;
@@ -62,7 +62,9 @@ namespace CryptoNote {
     virtual bool getBackwardBlocksSizes(uint32_t fromHeight, std::vector<size_t>& sizes, size_t count) override;
     virtual bool getBlockSize(const Crypto::Hash& hash, size_t& size) override;
     virtual bool getAlreadyGeneratedCoins(const Crypto::Hash& hash, uint64_t& generatedCoins) override;
-    virtual bool getBlockReward(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee,
+    virtual bool getBlockReward1(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee,
+                                uint64_t& reward, int64_t& emissionChange) override;
+    virtual bool getBlockReward2(uint32_t blockHeight, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee,
                                 uint64_t& reward, int64_t& emissionChange) override;
     virtual bool scanOutputkeysForIndexes(const KeyInput& txInToKey, std::list<std::pair<Crypto::Hash, size_t>>& outputReferences) override;
     virtual bool getBlockDifficulty(uint32_t height, difficulty_type& difficulty) override;
@@ -126,7 +128,7 @@ namespace CryptoNote {
     void print_blockchain(uint32_t start_index, uint32_t end_index);
     void print_blockchain_index();
     std::string print_pool(bool short_format);
-	std::list<CryptoNote::tx_memory_pool::TransactionDetails> getMemoryPool() const;
+    std::list<CryptoNote::tx_memory_pool::TransactionDetails> getMemoryPool() const;
     void print_blockchain_outs(const std::string& file);
     virtual bool getPoolChanges(const Crypto::Hash& tailBlockId, const std::vector<Crypto::Hash>& knownTxsIds,
                                  std::vector<Transaction>& addedTxs, std::vector<Crypto::Hash>& deletedTxsIds) override;

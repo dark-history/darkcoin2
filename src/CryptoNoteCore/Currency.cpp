@@ -62,6 +62,7 @@ bool Currency::init() {
   }
 
   if (isTestnet()) {
+    m_hardForkHeight1 = 0;
     m_blocksFileName = "testnet_" + m_blocksFileName;
     m_blocksCacheFileName = "testnet_" + m_blocksCacheFileName;
     m_blockIndexesFileName = "testnet_" + m_blockIndexesFileName;
@@ -120,8 +121,8 @@ bool Currency::generateGenesisBlock() {
   return true;
 }
 
-bool Currency::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins,
-  uint64_t fee, uint64_t& reward, int64_t& emissionChange) const {
+bool Currency::getBlockReward1(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee, uint64_t& reward, int64_t& emissionChange) const
+{
   assert(alreadyGeneratedCoins <= m_moneySupply);
   assert(m_emissionSpeedFactor > 0 && m_emissionSpeedFactor <= 8 * sizeof(uint64_t));
 
@@ -142,7 +143,28 @@ bool Currency::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64
   return true;
 }
 
-size_t Currency::maxBlockCumulativeSize(uint64_t height) const {
+bool Currency::getBlockReward2(uint32_t blockHeight, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee, uint64_t& reward, int64_t& emissionChange) const
+{
+  
+  assert(alreadyGeneratedCoins <= m_moneySupply);
+  assert(m_emissionSpeedFactor > 0 && m_emissionSpeedFactor <= 8 * sizeof(uint64_t));
+
+  uint64_t baseReward = (m_moneySupply - alreadyGeneratedCoins) >> m_emissionSpeedFactor;
+
+  size_t maxBlockSize = maxBlockCumulativeSize(blockHeight);
+  if (currentBlockSize > maxBlockSize) {
+    logger(TRACE) << "Block cumulative size is too big: " << currentBlockSize << ", expected less than " << maxBlockSize;
+    return false;
+  }
+
+  emissionChange = baseReward;
+  reward = baseReward + fee;
+
+  return true;
+}
+
+size_t Currency::maxBlockCumulativeSize(uint64_t height) const
+{
   assert(height <= std::numeric_limits<uint64_t>::max() / m_maxBlockSizeGrowthSpeedNumerator);
   size_t maxSize = static_cast<size_t>(m_maxBlockSizeInitial +
     (height * m_maxBlockSizeGrowthSpeedNumerator) / m_maxBlockSizeGrowthSpeedDenominator);
@@ -150,7 +172,7 @@ size_t Currency::maxBlockCumulativeSize(uint64_t height) const {
   return maxSize;
 }
 
-bool Currency::constructMinerTx(uint32_t height, size_t medianSize, uint64_t alreadyGeneratedCoins, size_t currentBlockSize,
+bool Currency::constructMinerTx1(uint32_t height, size_t medianSize, uint64_t alreadyGeneratedCoins, size_t currentBlockSize,
   uint64_t fee, const AccountPublicAddress& minerAddress, Transaction& tx,
   const BinaryArray& extraNonce, size_t maxOuts) const {
   tx.inputs.clear();
@@ -170,7 +192,87 @@ bool Currency::constructMinerTx(uint32_t height, size_t medianSize, uint64_t alr
 
   uint64_t blockReward;
   int64_t emissionChange;
-  if (!getBlockReward(medianSize, currentBlockSize, alreadyGeneratedCoins, fee, blockReward, emissionChange)) {
+  if (!getBlockReward1(medianSize, currentBlockSize, alreadyGeneratedCoins, fee, blockReward, emissionChange)) {
+    logger(INFO) << "Block is too big";
+    return false;
+  }
+
+  std::vector<uint64_t> outAmounts;
+  decompose_amount_into_digits(blockReward, m_defaultDustThreshold,
+    [&outAmounts](uint64_t a_chunk) { outAmounts.push_back(a_chunk); },
+    [&outAmounts](uint64_t a_dust) { outAmounts.push_back(a_dust); });
+
+  if (!(1 <= maxOuts)) { logger(ERROR, BRIGHT_RED) << "max_out must be non-zero"; return false; }
+  while (maxOuts < outAmounts.size()) {
+    outAmounts[outAmounts.size() - 2] += outAmounts.back();
+    outAmounts.resize(outAmounts.size() - 1);
+  }
+
+  uint64_t summaryAmounts = 0;
+  for (size_t no = 0; no < outAmounts.size(); no++) {
+    Crypto::KeyDerivation derivation = boost::value_initialized<Crypto::KeyDerivation>();
+    Crypto::PublicKey outEphemeralPubKey = boost::value_initialized<Crypto::PublicKey>();
+
+    bool r = Crypto::generate_key_derivation(minerAddress.viewPublicKey, txkey.secretKey, derivation);
+
+    if (!(r)) {
+      logger(ERROR, BRIGHT_RED)
+        << "while creating outs: failed to generate_key_derivation("
+        << minerAddress.viewPublicKey << ", " << txkey.secretKey << ")";
+      return false;
+    }
+
+    r = Crypto::derive_public_key(derivation, no, minerAddress.spendPublicKey, outEphemeralPubKey);
+
+    if (!(r)) {
+      logger(ERROR, BRIGHT_RED)
+        << "while creating outs: failed to derive_public_key("
+        << derivation << ", " << no << ", "
+        << minerAddress.spendPublicKey << ")";
+      return false;
+    }
+
+    KeyOutput tk;
+    tk.key = outEphemeralPubKey;
+
+    TransactionOutput out;
+    summaryAmounts += out.amount = outAmounts[no];
+    out.target = tk;
+    tx.outputs.push_back(out);
+  }
+
+  if (!(summaryAmounts == blockReward)) {
+    logger(ERROR, BRIGHT_RED) << "Failed to construct miner tx, summaryAmounts = " << summaryAmounts << " not equal blockReward = " << blockReward;
+    return false;
+  }
+
+  tx.version = CURRENT_TRANSACTION_VERSION;
+  //lock
+  tx.unlockTime = height + m_minedMoneyUnlockWindow;
+  tx.inputs.push_back(in);
+  return true;
+}
+
+bool Currency::constructMinerTx2(uint32_t height, uint64_t alreadyGeneratedCoins, size_t currentBlockSize, uint64_t fee, const AccountPublicAddress& minerAddress, Transaction& tx, const BinaryArray& extraNonce, size_t maxOuts) const
+{
+  tx.inputs.clear();
+  tx.outputs.clear();
+  tx.extra.clear();
+
+  KeyPair txkey = generateKeyPair();
+  addTransactionPublicKeyToExtra(tx.extra, txkey.publicKey);
+  if (!extraNonce.empty()) {
+    if (!addExtraNonceToTransactionExtra(tx.extra, extraNonce)) {
+      return false;
+    }
+  }
+
+  BaseInput in;
+  in.blockIndex = height;
+
+  uint64_t blockReward;
+  int64_t emissionChange;
+  if (!getBlockReward2(height, currentBlockSize, alreadyGeneratedCoins, fee, blockReward, emissionChange)) {
     logger(INFO) << "Block is too big";
     return false;
   }
@@ -515,13 +617,15 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
   txPoolFileName(parameters::CRYPTONOTE_POOLDATA_FILENAME);
   blockchainIndexesFileName(parameters::CRYPTONOTE_BLOCKCHAIN_INDEXES_FILENAME);
 
+  hardForkHeight1(parameters::HARD_FORK_HEIGHT_1);
+
   testnet(false);
 }
 
 Transaction CurrencyBuilder::generateGenesisTransaction() {
   CryptoNote::Transaction tx;
   CryptoNote::AccountPublicAddress ac = boost::value_initialized<CryptoNote::AccountPublicAddress>();
-  m_currency.constructMinerTx(0, 0, 0, 0, 0, ac, tx); // zero fee in genesis
+  m_currency.constructMinerTx1(0, 0, 0, 0, 0, ac, tx); // zero fee in genesis
 
   return tx;
 }

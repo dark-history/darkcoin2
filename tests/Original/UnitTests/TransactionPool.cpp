@@ -75,7 +75,7 @@ public:
     {
       m_miners[i].generate();
 
-      if (!m_currency.constructMinerTx(0, 0, 0, 2, 0, m_miners[i].getAccountKeys().address, m_miner_txs[i])) {
+      if (!m_currency.constructMinerTx1(0, 0, 0, 2, 0, m_miners[i].getAccountKeys().address, m_miner_txs[i])) {
         return false;
       }
 
@@ -288,7 +288,7 @@ TEST_F(tx_pool, DISABLED_fillblock_same_fee)
   uint64_t txFee = 0;
   uint64_t median = 5000;
 
-  ASSERT_TRUE(pool.fill_block_template(bl, median, textMaxCumulativeSize, 0, totalSize, txFee));
+  ASSERT_TRUE(pool.fill_block_template1(bl, median, textMaxCumulativeSize, 0, totalSize, txFee));
   ASSERT_TRUE(totalSize <= 2 * median);
 
   // now, check that the block is opimally filled
@@ -348,7 +348,7 @@ TEST_F(tx_pool, DISABLED_fillblock_same_size)
   uint64_t txFee = 0;
   uint64_t median = 5000;
 
-  ASSERT_TRUE(pool.fill_block_template(bl, median, textMaxCumulativeSize, 0, totalSize, txFee));
+  ASSERT_TRUE(pool.fill_block_template1(bl, median, textMaxCumulativeSize, 0, totalSize, txFee));
   ASSERT_TRUE(totalSize <= 2 * median);
 
   // check that fill_block_template prefers transactions with double fee
@@ -761,7 +761,7 @@ public:
     Block block;
     size_t totalSize;
     uint64_t totalFee;
-    ASSERT_TRUE(pool->fill_block_template(block, currency.blockGrantedFullRewardZone(), std::numeric_limits<size_t>::max(), 0, totalSize, totalFee));
+    ASSERT_TRUE(pool->fill_block_template1(block, currency.blockGrantedFullRewardZone(), std::numeric_limits<size_t>::max(), 0, totalSize, totalFee));
 
     size_t fusionTxCount = 0;
     size_t ordinaryTxCount = 0;
