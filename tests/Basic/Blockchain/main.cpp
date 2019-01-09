@@ -327,7 +327,7 @@ bool addBlock1(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // Must use a while loop find the actual current block size so that the coinbase transaction output amount is correct
   while (true)
   {
-    currency.constructMinerTx(currentBlockchainHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
+    currency.constructMinerTx1(currentBlockchainHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
     fee, AccountPublicAddress(), block.baseTransaction, BinaryArray(), maxOuts);
 
     size_t actualBlockSize = getBlockSize(block.baseTransaction, transactions);
@@ -420,7 +420,7 @@ bool addBlock2(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // Must use a while loop find the actual current block size so that the coinbase transaction output amount is correct
   while (true)
   {
-    currency.constructMinerTx(currentBlockchainHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
+    currency.constructMinerTx1(currentBlockchainHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
     fee, AccountPublicAddress(), block.baseTransaction, BinaryArray(), maxOuts);
 
     size_t actualBlockSize = getBlockSize(block.baseTransaction, transactions);
@@ -508,7 +508,7 @@ bool addBlock3(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // Must use a while loop find the actual current block size so that the coinbase transaction output amount is correct
   while (true)
   {
-    currency.constructMinerTx(currentBlockchainHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
+    currency.constructMinerTx1(currentBlockchainHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
     fee, AccountPublicAddress(), block.baseTransaction, BinaryArray(), maxOuts);
 
     size_t actualBlockSize = getBlockSize(block.baseTransaction, transactions);
@@ -633,7 +633,7 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   uint64_t fee1 = 0;
   uint64_t reward1;
   int64_t emissionChange1;
-  currency.getBlockReward(medianSize1, currentBlockSize1, alreadyGeneratedCoins1, fee1, reward1, emissionChange1);
+  currency.getBlockReward1(medianSize1, currentBlockSize1, alreadyGeneratedCoins1, fee1, reward1, emissionChange1);
   coinbaseTransactionOutput1.amount = reward1;
 
   // coinbase output target 1
@@ -814,7 +814,7 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   uint64_t fee2 = keyInput2.amount - totalOutputAmount;
   uint64_t reward2;
   int64_t emissionChange2;
-  currency.getBlockReward(medianSize2, currentBlockSize2, alreadyGeneratedCoins2, fee2, reward2, emissionChange2);
+  currency.getBlockReward1(medianSize2, currentBlockSize2, alreadyGeneratedCoins2, fee2, reward2, emissionChange2);
   coinbaseTransactionOutput2.amount = reward2;
 
   // create output target 2
@@ -940,7 +940,7 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   uint64_t fee1 = 0;
   uint64_t reward1;
   int64_t emissionChange1;
-  currency.getBlockReward(medianSize1, currentBlockSize1, alreadyGeneratedCoins1, fee1, reward1, emissionChange1);
+  currency.getBlockReward1(medianSize1, currentBlockSize1, alreadyGeneratedCoins1, fee1, reward1, emissionChange1);
   coinbaseTransactionOutput1.amount = reward1;
 
   // coinbase output target 1
@@ -1117,7 +1117,7 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   uint64_t fee2 = keyInput2.amount - totalOutputAmount;
   uint64_t reward2;
   int64_t emissionChange2;
-  currency.getBlockReward(medianSize2, currentBlockSize2, alreadyGeneratedCoins2, fee2, reward2, emissionChange2);
+  currency.getBlockReward1(medianSize2, currentBlockSize2, alreadyGeneratedCoins2, fee2, reward2, emissionChange2);
   coinbaseTransactionOutput2.amount = reward2;
 
   // create output target 2
@@ -1213,7 +1213,7 @@ bool addBlock7(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // Must use a while loop find the actual current block size so that the coinbase transaction output amount is correct
   while (true)
   {
-    currency.constructMinerTx(currentBlockchainHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
+    currency.constructMinerTx1(currentBlockchainHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
     fee, AccountPublicAddress(), block.baseTransaction, BinaryArray(), maxOuts);
 
     size_t actualBlockSize = getBlockSize(block.baseTransaction, transactions);
@@ -1310,7 +1310,7 @@ bool addBlock8(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // Must use a while loop find the actual current block size so that the coinbase transaction output amount is correct
   while (true)
   {
-    currency.constructMinerTx(currentBlockchainHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
+    currency.constructMinerTx1(currentBlockchainHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
     fee, AccountPublicAddress(), block.baseTransaction, BinaryArray(), maxOuts);
 
     size_t actualBlockSize = getBlockSize(block.baseTransaction, transactions);
@@ -1376,7 +1376,7 @@ bool addBlock9(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   uint64_t fee = 0;
   uint64_t reward;
   int64_t emissionChange;
-  currency.getBlockReward(medianSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange);
+  currency.getBlockReward1(medianSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange);
   baseOutput.amount = reward;
 
   // create output target
@@ -1514,7 +1514,7 @@ bool addAlternativeBlock(Blockchain& blockchain, Currency& currency, tx_memory_p
 
   while (true)
   {
-    currency.constructMinerTx(blockHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
+    currency.constructMinerTx1(blockHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
     fee, AccountPublicAddress(), block.baseTransaction, BinaryArray(), maxOuts);
 
     size_t actualBlockSize = getBlockSize(block.baseTransaction, transactions);
@@ -2130,7 +2130,7 @@ TEST(Blockchain, 19)
   uint64_t fee1 = 0;
   uint64_t reward1;
   int64_t emissionChange1;
-  currency.getBlockReward(medianSize1, currentBlockSize1, alreadyGeneratedCoins1, fee1, reward1, emissionChange1);
+  currency.getBlockReward1(medianSize1, currentBlockSize1, alreadyGeneratedCoins1, fee1, reward1, emissionChange1);
   coinbaseTransactionOutput1.amount = reward1;
 
   // coinbase output target 1
@@ -2433,7 +2433,7 @@ TEST(Blockchain, 24)
   uint64_t fee1 = 0;
   uint64_t reward1;
   int64_t emissionChange1;
-  currency.getBlockReward(medianSize1, currentBlockSize1, alreadyGeneratedCoins1, fee1, reward1, emissionChange1);
+  currency.getBlockReward1(medianSize1, currentBlockSize1, alreadyGeneratedCoins1, fee1, reward1, emissionChange1);
   coinbaseTransactionOutput1.amount = reward1;
 
   // create output target
@@ -2598,7 +2598,7 @@ TEST(Blockchain, 26)
   uint64_t fee1 = 0;
   uint64_t reward1;
   int64_t emissionChange1;
-  currency.getBlockReward(medianSize1, currentBlockSize1, alreadyGeneratedCoins1, fee1, reward1, emissionChange1);
+  currency.getBlockReward1(medianSize1, currentBlockSize1, alreadyGeneratedCoins1, fee1, reward1, emissionChange1);
   coinbaseTransactionOutput1.amount = reward1;
 
   // coinbase output target 1
@@ -2802,7 +2802,7 @@ TEST(Blockchain, 26)
   uint64_t fee2 = totalInputAmount - totalOutputAmount;
   uint64_t reward2;
   int64_t emissionChange2;
-  currency.getBlockReward(medianSize2, currentBlockSize2, alreadyGeneratedCoins2, fee2, reward2, emissionChange2);
+  currency.getBlockReward1(medianSize2, currentBlockSize2, alreadyGeneratedCoins2, fee2, reward2, emissionChange2);
   coinbaseTransactionOutput2.amount = reward2;
 
   // create output target 2

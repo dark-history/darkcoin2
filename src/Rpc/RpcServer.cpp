@@ -535,7 +535,7 @@ namespace {
 
 bool RpcServer::on_getblocktemplate(const COMMAND_RPC_GETBLOCKTEMPLATE::request& req, COMMAND_RPC_GETBLOCKTEMPLATE::response& res) {
   if (req.reserve_size > TX_EXTRA_NONCE_MAX_COUNT) {
-    throw JsonRpc::JsonRpcError{ CORE_RPC_ERROR_CODE_TOO_BIG_RESERVE_SIZE, "To big reserved size, maximum 255" };
+    throw JsonRpc::JsonRpcError{ CORE_RPC_ERROR_CODE_TOO_BIG_RESERVE_SIZE, "Too big reserved size, maximum 60" };
   }
 
   AccountPublicAddress acc = boost::value_initialized<AccountPublicAddress>();
@@ -757,12 +757,15 @@ bool RpcServer::f_on_blocks_list_json(const F_COMMAND_RPC_GET_BLOCKS_LIST::reque
   return true;
 }
 
+
+
 bool RpcServer::f_on_block_json(const F_COMMAND_RPC_GET_BLOCK_DETAILS::request& req, F_COMMAND_RPC_GET_BLOCK_DETAILS::response& res) {
   Hash hash;
+  uint32_t blockHeight;
 
   try {
-    uint32_t height = boost::lexical_cast<uint32_t>(req.hash);
-    hash = m_core.getBlockIdByHeight(height);
+    blockHeight = boost::lexical_cast<uint32_t>(req.hash);
+    hash = m_core.getBlockIdByHeight(blockHeight);
   } catch (boost::bad_lexical_cast &) {
     if (!parse_hash256(req.hash, hash)) {
       throw JsonRpc::JsonRpcError{
@@ -801,12 +804,6 @@ bool RpcServer::f_on_block_json(const F_COMMAND_RPC_GET_BLOCK_DETAILS::request& 
 
   res.block.reward = block_header.reward;
 
-  std::vector<size_t> blocksSizes;
-  if (!m_core.getBackwardBlocksSizes(res.block.height, blocksSizes, parameters::CRYPTONOTE_REWARD_BLOCKS_WINDOW)) {
-    return false;
-  }
-  res.block.sizeMedian = Common::medianValue(blocksSizes);
-
   size_t blockSize = 0;
   if (!m_core.getBlockSize(hash, blockSize)) {
     return false;
@@ -836,14 +833,33 @@ bool RpcServer::f_on_block_json(const F_COMMAND_RPC_GET_BLOCK_DETAILS::request& 
   uint64_t maxReward = 0;
   uint64_t currentReward = 0;
   int64_t emissionChange = 0;
-  size_t blockGrantedFullRewardZone =  CryptoNote::parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
-  res.block.effectiveSizeMedian = std::max(res.block.sizeMedian, blockGrantedFullRewardZone);
+  size_t blockGrantedFullRewardZone =  CryptoNote::parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE; 
 
-  if (!m_core.getBlockReward(res.block.sizeMedian, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
-    return false;
+  if (blockHeight < parameters::HARD_FORK_HEIGHT_1)
+  {
+    std::vector<size_t> blocksSizes;
+    if (!m_core.getBackwardBlocksSizes(res.block.height, blocksSizes, parameters::CRYPTONOTE_REWARD_BLOCKS_WINDOW)) {
+      return false;
+    }
+    res.block.sizeMedian = Common::medianValue(blocksSizes);
+
+    res.block.effectiveSizeMedian = std::max(res.block.sizeMedian, blockGrantedFullRewardZone);
+
+    if (!m_core.getBlockReward1(res.block.sizeMedian, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
+      return false;
+    }
+    if (!m_core.getBlockReward1(res.block.sizeMedian, res.block.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
+      return false;
+    }
   }
-  if (!m_core.getBlockReward(res.block.sizeMedian, res.block.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
-    return false;
+  else
+  {
+    if (!m_core.getBlockReward2(blockHeight, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
+      return false;
+    }
+    if (!m_core.getBlockReward2(blockHeight, res.block.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
+      return false;
+    }
   }
 
   res.block.baseReward = maxReward;

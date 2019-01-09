@@ -93,7 +93,10 @@ bool BlockchainExplorerDataBuilder::fillBlockDetails(const Block &block, BlockDe
   }
 
   if (block.baseTransaction.inputs.front().type() != typeid(BaseInput))
+  {
     return false;
+  }
+
   blockDetails.height = boost::get<BaseInput>(block.baseTransaction.inputs.front()).blockIndex;
 
   Crypto::Hash tmpHash = core.getBlockIdByHeight(blockDetails.height);
@@ -102,12 +105,6 @@ bool BlockchainExplorerDataBuilder::fillBlockDetails(const Block &block, BlockDe
   if (!core.getBlockDifficulty(blockDetails.height, blockDetails.difficulty)) {
     return false;
   }
-
-  std::vector<size_t> blocksSizes;
-  if (!core.getBackwardBlocksSizes(blockDetails.height, blocksSizes, parameters::CRYPTONOTE_REWARD_BLOCKS_WINDOW)) {
-    return false;
-  }
-  blockDetails.sizeMedian = median(blocksSizes);
 
   size_t blockSize = 0;
   if (!core.getBlockSize(hash, blockSize)) {
@@ -136,11 +133,36 @@ bool BlockchainExplorerDataBuilder::fillBlockDetails(const Block &block, BlockDe
   uint64_t maxReward = 0;
   uint64_t currentReward = 0;
   int64_t emissionChange = 0;
-  if (!core.getBlockReward(blockDetails.sizeMedian, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
-    return false;
+
+  // get current blockchain height
+  
+  if (blockDetails.height < parameters::HARD_FORK_HEIGHT_1)
+  {
+    std::vector<size_t> blocksSizes;
+    if (!core.getBackwardBlocksSizes(blockDetails.height, blocksSizes, parameters::CRYPTONOTE_REWARD_BLOCKS_WINDOW)) {
+      return false;
+    }
+
+    blockDetails.sizeMedian = median(blocksSizes);
+
+    if (!core.getBlockReward1(blockDetails.sizeMedian, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
+      return false;
+    }
+    if (!core.getBlockReward1(blockDetails.sizeMedian, blockDetails.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
+      return false;
+    }
   }
-  if (!core.getBlockReward(blockDetails.sizeMedian, blockDetails.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
-    return false;
+  else
+  {
+    // hard fork 1 no longer calculates the block reward based on the median block size
+    blockDetails.sizeMedian = 0;
+
+    if (!core.getBlockReward2(blockDetails.height, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
+      return false;
+    }
+    if (!core.getBlockReward2(blockDetails.height, blockDetails.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
+      return false;
+    }
   }
 
   blockDetails.baseReward = maxReward;
@@ -152,7 +174,6 @@ bool BlockchainExplorerDataBuilder::fillBlockDetails(const Block &block, BlockDe
     }
     blockDetails.penalty = static_cast<double>(maxReward - currentReward) / static_cast<double>(maxReward);
   }
-
 
   blockDetails.transactions.reserve(block.transactionHashes.size() + 1);
   TransactionDetails transactionDetails;

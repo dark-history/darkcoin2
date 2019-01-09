@@ -342,13 +342,13 @@ bool core::add_new_tx(const Transaction& tx, const Crypto::Hash& tx_hash, size_t
   return m_mempool.add_tx(tx, tx_hash, blob_size, tvc, kept_by_block);
 }
 
-bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficulty_type& diffic, uint32_t& height, const BinaryArray& ex_nonce) {
+bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficulty_type& diffic, uint32_t& blockchainHeight, const BinaryArray& ex_nonce) {
   size_t median_size;
   uint64_t already_generated_coins;
 
   {
     LockedBlockchainStorage blockchainLock(m_blockchain);
-    height = m_blockchain.getCurrentBlockchainHeight();
+    blockchainHeight = m_blockchain.getCurrentBlockchainHeight();
     diffic = m_blockchain.getDifficultyForNextBlock();
     
     if (!(diffic))
@@ -365,10 +365,10 @@ bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficu
     // Don't generate a block template with invalid timestamp
     // Fix by Jagerman
     // https://github.com/graft-project/GraftNetwork/pull/118/commits
-    if (height >= m_currency.timestampCheckWindow())
+    if (blockchainHeight >= m_currency.timestampCheckWindow())
     {
       std::vector<uint64_t> timestamps;
-      for(size_t offset = height - m_currency.timestampCheckWindow(); offset < height; ++offset)
+      for(size_t offset = blockchainHeight - m_currency.timestampCheckWindow(); offset < blockchainHeight; ++offset)
       {
         Crypto::Hash blockHash = getBlockIdByHeight(offset);
         Block block;
@@ -386,67 +386,94 @@ bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficu
       }
     }
 
-    median_size = m_blockchain.getCurrentCumulativeBlocksizeLimit() / 2;
+    if (blockchainHeight < parameters::HARD_FORK_HEIGHT_1)
+    {
+      median_size = m_blockchain.getCurrentCumulativeBlocksizeLimit() / 2;
+    }
+    
     already_generated_coins = m_blockchain.getCoinsInCirculation();
   }
 
-  size_t txs_size;
-  uint64_t fee;
-  if (!m_mempool.fill_block_template(b, median_size, m_currency.maxBlockCumulativeSize(height), already_generated_coins,
-    txs_size, fee)) {
-    return false;
-  }
-
-  /*
-     two-phase miner transaction generation: we don't know exact block size until we prepare block, but we don't know reward until we know
-     block size, so first miner transaction generated with fake amount of money, and with phase we know think we know expected block size
-     */
-  //make blocks coin-base tx looks close to real coinbase tx to get truthful blob size
-  bool r = m_currency.constructMinerTx(height, median_size, already_generated_coins, txs_size, fee, adr, b.baseTransaction, ex_nonce, 11);
-  if (!r) { 
-    logger(ERROR, BRIGHT_RED) << "Failed to construct miner tx, first chance"; 
-    return false; 
-  }
-
-  size_t cumulative_size = txs_size + getObjectBinarySize(b.baseTransaction);
-  for (size_t try_count = 0; try_count != 10; ++try_count) {
-    r = m_currency.constructMinerTx(height, median_size, already_generated_coins, cumulative_size, fee, adr, b.baseTransaction, ex_nonce, 11);
-
-    if (!(r)) { logger(ERROR, BRIGHT_RED) << "Failed to construct miner tx, second chance"; return false; }
-    size_t coinbase_blob_size = getObjectBinarySize(b.baseTransaction);
-    if (coinbase_blob_size > cumulative_size - txs_size) {
-      cumulative_size = txs_size + coinbase_blob_size;
-      continue;
+  if (blockchainHeight < parameters::HARD_FORK_HEIGHT_1)
+  {
+    size_t txs_size;
+    uint64_t fee;
+    if (!m_mempool.fill_block_template1(b, median_size, m_currency.maxBlockCumulativeSize(blockchainHeight), already_generated_coins,
+      txs_size, fee)) {
+      return false;
     }
 
-    if (coinbase_blob_size < cumulative_size - txs_size) {
-      size_t delta = cumulative_size - txs_size - coinbase_blob_size;
-      b.baseTransaction.extra.insert(b.baseTransaction.extra.end(), delta, 0);
-      //here  could be 1 byte difference, because of extra field counter is varint, and it can become from 1-byte len to 2-bytes len.
-      if (cumulative_size != txs_size + getObjectBinarySize(b.baseTransaction)) {
-        if (!(cumulative_size + 1 == txs_size + getObjectBinarySize(b.baseTransaction))) { logger(ERROR, BRIGHT_RED) << "unexpected case: cumulative_size=" << cumulative_size << " + 1 is not equal txs_cumulative_size=" << txs_size << " + get_object_blobsize(b.baseTransaction)=" << getObjectBinarySize(b.baseTransaction); return false; }
-        b.baseTransaction.extra.resize(b.baseTransaction.extra.size() - 1);
-        if (cumulative_size != txs_size + getObjectBinarySize(b.baseTransaction)) {
-          //fuck, not lucky, -1 makes varint-counter size smaller, in that case we continue to grow with cumulative_size
-          logger(TRACE, BRIGHT_RED) <<
-            "Miner tx creation have no luck with delta_extra size = " << delta << " and " << delta - 1;
-          cumulative_size += delta - 1;
-          continue;
-        }
-        logger(DEBUGGING, BRIGHT_GREEN) <<
-          "Setting extra for block: " << b.baseTransaction.extra.size() << ", try_count=" << try_count;
+    /*
+       two-phase miner transaction generation: we don't know exact block size until we prepare block, but we don't know reward until we know
+       block size, so first miner transaction generated with fake amount of money, and with phase we know think we know expected block size
+       */
+    //make blocks coin-base tx looks close to real coinbase tx to get truthful blob size
+    bool r = m_currency.constructMinerTx1(blockchainHeight, median_size, already_generated_coins, txs_size, fee, adr, b.baseTransaction, ex_nonce, 11);
+    if (!r) { 
+      logger(ERROR, BRIGHT_RED) << "Failed to construct miner tx, first chance"; 
+      return false; 
+    }
+
+    size_t cumulative_size = txs_size + getObjectBinarySize(b.baseTransaction);
+    for (size_t try_count = 0; try_count != 10; ++try_count) {
+      r = m_currency.constructMinerTx1(blockchainHeight, median_size, already_generated_coins, cumulative_size, fee, adr, b.baseTransaction, ex_nonce, 11);
+
+      if (!(r)) { logger(ERROR, BRIGHT_RED) << "Failed to construct miner tx, second chance"; return false; }
+      size_t coinbase_blob_size = getObjectBinarySize(b.baseTransaction);
+      if (coinbase_blob_size > cumulative_size - txs_size) {
+        cumulative_size = txs_size + coinbase_blob_size;
+        continue;
       }
+
+      if (coinbase_blob_size < cumulative_size - txs_size) {
+        size_t delta = cumulative_size - txs_size - coinbase_blob_size;
+        b.baseTransaction.extra.insert(b.baseTransaction.extra.end(), delta, 0);
+        //here  could be 1 byte difference, because of extra field counter is varint, and it can become from 1-byte len to 2-bytes len.
+        if (cumulative_size != txs_size + getObjectBinarySize(b.baseTransaction)) {
+          if (!(cumulative_size + 1 == txs_size + getObjectBinarySize(b.baseTransaction))) { logger(ERROR, BRIGHT_RED) << "unexpected case: cumulative_size=" << cumulative_size << " + 1 is not equal txs_cumulative_size=" << txs_size << " + get_object_blobsize(b.baseTransaction)=" << getObjectBinarySize(b.baseTransaction); return false; }
+          b.baseTransaction.extra.resize(b.baseTransaction.extra.size() - 1);
+          if (cumulative_size != txs_size + getObjectBinarySize(b.baseTransaction)) {
+            //fuck, not lucky, -1 makes varint-counter size smaller, in that case we continue to grow with cumulative_size
+            logger(TRACE, BRIGHT_RED) <<
+              "Miner tx creation have no luck with delta_extra size = " << delta << " and " << delta - 1;
+            cumulative_size += delta - 1;
+            continue;
+          }
+          logger(DEBUGGING, BRIGHT_GREEN) <<
+            "Setting extra for block: " << b.baseTransaction.extra.size() << ", try_count=" << try_count;
+        }
+      }
+      if (!(cumulative_size == txs_size + getObjectBinarySize(b.baseTransaction))) { logger(ERROR, BRIGHT_RED) << "unexpected case: cumulative_size=" << cumulative_size << " is not equal txs_cumulative_size=" << txs_size << " + get_object_blobsize(b.baseTransaction)=" << getObjectBinarySize(b.baseTransaction); return false; }
+      
+      b.merkleRoot = get_tx_tree_hash(b);
+
+      return true;
     }
-    if (!(cumulative_size == txs_size + getObjectBinarySize(b.baseTransaction))) { logger(ERROR, BRIGHT_RED) << "unexpected case: cumulative_size=" << cumulative_size << " is not equal txs_cumulative_size=" << txs_size << " + get_object_blobsize(b.baseTransaction)=" << getObjectBinarySize(b.baseTransaction); return false; }
-    
+
+    logger(ERROR, BRIGHT_RED) <<
+      "Failed to create_block_template with " << 10 << " tries";
+    return false;
+
+  }
+  else
+  {
+    size_t txs_size;
+    uint64_t fee;
+    if (!m_mempool.fill_block_template2(b, m_currency.maxBlockCumulativeSize(blockchainHeight), already_generated_coins, 
+      txs_size, fee)) {
+      return false;
+    }
+
+    bool r = m_currency.constructMinerTx2(blockchainHeight, already_generated_coins, txs_size, fee, adr, b.baseTransaction, ex_nonce, 11);
+    if (!r) { 
+      logger(ERROR, BRIGHT_RED) << "Failed to construct miner tx"; 
+      return false; 
+    }
+
     b.merkleRoot = get_tx_tree_hash(b);
 
     return true;
   }
-
-  logger(ERROR, BRIGHT_RED) <<
-    "Failed to create_block_template with " << 10 << " tries";
-  return false;
 }
 
 std::vector<Crypto::Hash> core::findBlockchainSupplement(const std::vector<Crypto::Hash>& remoteBlockIds, size_t maxCount,
@@ -876,9 +903,14 @@ bool core::getAlreadyGeneratedCoins(const Crypto::Hash& hash, uint64_t& generate
   return m_blockchain.getAlreadyGeneratedCoins(hash, generatedCoins);
 }
 
-bool core::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee,
+bool core::getBlockReward1(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee,
                           uint64_t& reward, int64_t& emissionChange) {
-  return m_currency.getBlockReward(medianSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange);
+  return m_currency.getBlockReward1(medianSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange);
+}
+
+bool core::getBlockReward2(uint32_t blockHeight, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee,
+                          uint64_t& reward, int64_t& emissionChange) {
+  return m_currency.getBlockReward2(blockHeight, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange);
 }
 
 bool core::scanOutputkeysForIndexes(const KeyInput& txInToKey, std::list<std::pair<Crypto::Hash, size_t>>& outputReferences) {

@@ -59,9 +59,9 @@ public
   isTestnet()
   genesisBlock()
   genesisBlockHash()
-  getBlockReward()
+  getBlockReward1()
   maxBlockCumulativeSize()
-  constructMinerTx()
+  constructMinerTx1()
   accountAddressAsString()
   accountAddressAsString()
   parseAccountAddressString()
@@ -757,7 +757,7 @@ TEST(Currency, 40)
   // just use gdb to see the value of genesisBlockHash
 }
 
-// getBlockReward() 1
+// getBlockReward1() 1
 TEST(Currency, 41)
 {
   size_t medianBlockSize = 1000000;
@@ -773,14 +773,14 @@ TEST(Currency, 41)
 
   Currency currency = currencyBuilder.currency();
 
-  ASSERT_TRUE(currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
+  ASSERT_TRUE(currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
 
   // baseReward is 0.894069671 plus 0.00000100 fee gives total reward of 0.894069771
   ASSERT_EQ(894069771, reward);
   ASSERT_EQ(894069671, emissionChange);
 }
 
-// getBlockReward() 2
+// getBlockReward1() 2
 TEST(Currency, 42)
 {
   size_t medianBlockSize = 100000;
@@ -795,7 +795,7 @@ TEST(Currency, 42)
   Logging::LoggerGroup logger;
   CurrencyBuilder currencyBuilder(logger);
 
-  ASSERT_TRUE(currencyBuilder.currency().getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
+  ASSERT_TRUE(currencyBuilder.currency().getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
 
   // baseReward is 0.894069671 plus 0.00000100 fee gives total reward of 0.894069771
   ASSERT_EQ(894069771, reward);
@@ -816,7 +816,7 @@ TEST(Currency, 43)
   ASSERT_EQ(maxBlockCumulativeSize, parameters::MAX_BLOCK_SIZE_INITIAL + (parameters::MAX_BLOCK_SIZE_GROWTH_SPEED_NUMERATOR / parameters::MAX_BLOCK_SIZE_GROWTH_SPEED_DENOMINATOR));
 }
 
-// constructMinerTx()
+// constructMinerTx1()
 TEST(Currency, 44)
 {
   for (uint32_t i = 0; i < loopCount; i++)
@@ -846,7 +846,7 @@ TEST(Currency, 44)
 
     size_t maxOuts = 1;
 
-    ASSERT_TRUE(currency.constructMinerTx(height, medianSize, alreadyGeneratedCoins, currentBlockSize, fee, minerAddress, transaction, extraNonce, maxOuts));
+    ASSERT_TRUE(currency.constructMinerTx1(height, medianSize, alreadyGeneratedCoins, currentBlockSize, fee, minerAddress, transaction, extraNonce, maxOuts));
   }
 }
 

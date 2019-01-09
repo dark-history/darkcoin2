@@ -444,7 +444,12 @@ bool Blockchain::init(const std::string& config_folder, bool load_existing) {
     }
   }
 
-  update_next_comulative_size_limit();
+  uint32_t blockchainHeight = static_cast<uint32_t>(m_blocks.size());
+
+  if (blockchainHeight < parameters::HARD_FORK_HEIGHT_1)
+  {
+    update_next_comulative_size_limit();
+  }
 
   uint64_t timestamp_diff = time(NULL) - m_blocks.back().bl.timestamp;
   if (!m_blocks.back().bl.timestamp) {
@@ -846,13 +851,24 @@ bool Blockchain::validate_miner_transaction(const Block& b, uint32_t height, siz
     minerReward += o.amount;
   }
 
-  std::vector<size_t> lastBlocksSizes;
-  get_last_n_blocks_sizes(lastBlocksSizes, m_currency.rewardBlocksWindow());
-  size_t blocksSizeMedian = Common::medianValue(lastBlocksSizes);
+  if (height < parameters::HARD_FORK_HEIGHT_1)
+  {
+    std::vector<size_t> lastBlocksSizes;
+    get_last_n_blocks_sizes(lastBlocksSizes, m_currency.rewardBlocksWindow());
+    size_t blocksSizeMedian = Common::medianValue(lastBlocksSizes);
 
-  if (!m_currency.getBlockReward(blocksSizeMedian, cumulativeBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange)) {
-    logger(INFO, BRIGHT_WHITE) << "block size " << cumulativeBlockSize << " is bigger than allowed for this blockchain";
-    return false;
+    if (!m_currency.getBlockReward1(blocksSizeMedian, cumulativeBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange)) {
+      logger(INFO, BRIGHT_WHITE) << "block size " << cumulativeBlockSize << " is bigger than allowed for this blockchain";
+      return false;
+    }
+  }
+  else
+  {
+    if (!m_currency.getBlockReward2(height, cumulativeBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange))
+    {
+      logger(INFO, BRIGHT_WHITE) << "block size " << cumulativeBlockSize << " is bigger than allowed for this blockchain";
+      return false;
+    }
   }
 
   if (minerReward > reward) {
@@ -1707,7 +1723,6 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
     return false;
   }
 
-
   auto longhashTimeStart = std::chrono::steady_clock::now();
   Crypto::Hash proof_of_work = NULL_HASH;
   if (m_checkpoints.is_in_checkpoint_zone(getCurrentBlockchainHeight())) {
@@ -1781,7 +1796,8 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
   int64_t emissionChange = 0;
   uint64_t reward = 0;
   uint64_t already_generated_coins = m_blocks.empty() ? 0 : m_blocks.back().already_generated_coins;
-  if (!validate_miner_transaction(blockData, static_cast<uint32_t>(m_blocks.size()), cumulative_block_size, already_generated_coins, fee_summary, reward, emissionChange)) {
+  uint32_t blockchainHeight = static_cast<uint32_t>(m_blocks.size());
+  if (!validate_miner_transaction(blockData, blockchainHeight, cumulative_block_size, already_generated_coins, fee_summary, reward, emissionChange)) {
     logger(INFO, BRIGHT_WHITE) << "Block " << blockHash << " has invalid miner transaction";
     bvc.m_verification_failed = true;
     popTransactions(block, minerTransactionHash);
@@ -1810,7 +1826,10 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
 
   bvc.m_added_to_main_chain = true;
 
-  update_next_comulative_size_limit();
+  if (blockchainHeight < parameters::HARD_FORK_HEIGHT_1)
+  {
+    update_next_comulative_size_limit();
+  }
 
   return true;
 }

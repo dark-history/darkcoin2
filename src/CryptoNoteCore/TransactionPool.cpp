@@ -364,7 +364,7 @@ namespace CryptoNote {
     return ss.str();
   }
   //---------------------------------------------------------------------------------
-  bool tx_memory_pool::fill_block_template(Block& bl, size_t median_size, size_t maxCumulativeSize,
+  bool tx_memory_pool::fill_block_template1(Block& bl, size_t median_size, size_t maxCumulativeSize,
                                            uint64_t already_generated_coins, size_t& total_size, uint64_t& fee) {
     std::lock_guard<std::recursive_mutex> lock(m_transactions_lock);
 
@@ -394,6 +394,53 @@ namespace CryptoNote {
 
       size_t blockSizeLimit = (txd.fee == 0) ? median_size : max_total_size;
       if (blockSizeLimit < total_size + txd.blobSize) {
+        continue;
+      }
+
+      TransactionCheckInfo checkInfo(txd);
+      bool ready = is_transaction_ready_to_go(txd.tx, checkInfo);
+
+      // update item state
+      m_fee_index.modify(i, [&checkInfo](TransactionCheckInfo& item) {
+        item = checkInfo;
+      });
+
+      if (ready && blockTemplate.addTransaction(txd.id, txd.tx)) {
+        total_size += txd.blobSize;
+        fee += txd.fee;
+      }
+    }
+
+    bl.transactionHashes = blockTemplate.getTransactions();
+    return true;
+  }
+  //---------------------------------------------------------------------------------
+  bool tx_memory_pool::fill_block_template2(Block& bl, size_t maxBlockCumulativeSize,
+                                           uint64_t already_generated_coins, size_t& total_size, uint64_t& fee) {
+    std::lock_guard<std::recursive_mutex> lock(m_transactions_lock);
+
+    total_size = 0;
+    fee = 0;
+
+    BlockTemplate blockTemplate;
+
+    for (auto it = m_fee_index.rbegin(); it != m_fee_index.rend() && it->fee == 0; ++it) {
+      const auto& txd = *it;
+
+      if (m_currency.fusionTxMaxSize() < total_size + txd.blobSize) {
+        continue;
+      }
+
+      TransactionCheckInfo checkInfo(txd);
+      if (is_transaction_ready_to_go(txd.tx, checkInfo) && blockTemplate.addTransaction(txd.id, txd.tx)) {
+        total_size += txd.blobSize;
+      }
+    }
+
+    for (auto i = m_fee_index.begin(); i != m_fee_index.end(); ++i) {
+      const auto& txd = *i;
+
+      if (maxBlockCumulativeSize < total_size + txd.blobSize) {
         continue;
       }
 

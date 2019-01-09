@@ -76,13 +76,15 @@ public:
   const Block& genesisBlock() const { return m_genesisBlock; }
   const Crypto::Hash& genesisBlockHash() const { return m_genesisBlockHash; }
 
-  bool getBlockReward(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee,
-    uint64_t& reward, int64_t& emissionChange) const;
+  bool getBlockReward1(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee, uint64_t& reward, int64_t& emissionChange) const;
+  bool getBlockReward2(uint32_t blockHeight, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee, uint64_t& reward, int64_t& emissionChange) const;
   size_t maxBlockCumulativeSize(uint64_t height) const;
 
-  bool constructMinerTx(uint32_t height, size_t medianSize, uint64_t alreadyGeneratedCoins, size_t currentBlockSize,
+  bool constructMinerTx1(uint32_t height, size_t medianSize, uint64_t alreadyGeneratedCoins, size_t currentBlockSize,
     uint64_t fee, const AccountPublicAddress& minerAddress, Transaction& tx,
     const BinaryArray& extraNonce = BinaryArray(), size_t maxOuts = 1) const;
+
+  bool constructMinerTx2(uint32_t height, uint64_t alreadyGeneratedCoins, size_t currentBlockSize, uint64_t fee, const AccountPublicAddress& minerAddress, Transaction& tx, const BinaryArray& extraNonce, size_t maxOuts) const;
 
   bool isFusionTransaction(const Transaction& transaction) const;
   bool isFusionTransaction(const Transaction& transaction, size_t size) const;
@@ -161,6 +163,8 @@ private:
   std::string m_txPoolFileName;
   std::string m_blockchainIndexesFileName;
 
+  uint64_t m_hardForkHeight1;
+
   static const std::vector<uint64_t> PRETTY_AMOUNTS;
 
   bool m_testnet;
@@ -234,6 +238,8 @@ public:
   CurrencyBuilder& txPoolFileName(const std::string& val) { m_currency.m_txPoolFileName = val; return *this; }
   CurrencyBuilder& blockchainIndexesFileName(const std::string& val) { m_currency.m_blockchainIndexesFileName = val; return *this; }
   
+  CurrencyBuilder& hardForkHeight1(uint64_t val) { m_currency.m_hardForkHeight1 = val; return *this; }
+
   CurrencyBuilder& testnet(bool val) { m_currency.m_testnet = val; return *this; }
 
 private:

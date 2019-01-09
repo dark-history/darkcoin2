@@ -56,7 +56,7 @@ public
   *getBackwardBlocksSizes()
   *getBlockSize()
   *getAlreadyGeneratedCoins()
-  *getBlockReward()
+  *getBlockReward1()
   scanOutputkeysForIndexes()
   *getBlockDifficulty()
   *getBlockContainingTx()
@@ -593,7 +593,7 @@ bool addOrphanBlock(core& core, Crypto::Hash& blockHash, const Crypto::Hash& pre
 
   while (true)
   {
-    currency.constructMinerTx(blockHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
+    currency.constructMinerTx1(blockHeight, medianBlockSize, alreadyGeneratedCoins, currentBlockSize,
     fee, AccountPublicAddress(), block.baseTransaction, BinaryArray(), maxOuts);
 
     size_t actualBlockSize = getBlockSize(block.baseTransaction, transactions);
@@ -1358,7 +1358,7 @@ TEST(Core, 18)
   ASSERT_EQ(894069671+ 894069618, alreadyGeneratedCoins);
 }
 
-// getBlockReward()
+// getBlockReward1()
 TEST(Core, 19)
 {
   Logging::ConsoleLogger logger;
@@ -1384,7 +1384,7 @@ TEST(Core, 19)
   int64_t emissionChange;
   size_t currentBlockSize = parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
 
-  ASSERT_TRUE(core.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
+  ASSERT_TRUE(core.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
   ASSERT_EQ(894069618, reward);
 
   // add a block
@@ -1394,7 +1394,7 @@ TEST(Core, 19)
   lastBlockHash = core.get_tail_id();
   core.getAlreadyGeneratedCoins(lastBlockHash, alreadyGeneratedCoins);
 
-  ASSERT_TRUE(core.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
+  ASSERT_TRUE(core.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange));
   ASSERT_EQ(894069565, reward);
 }
 

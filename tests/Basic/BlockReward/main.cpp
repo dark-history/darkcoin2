@@ -51,7 +51,7 @@ TEST_F(TestCurrency1, 1)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -69,7 +69,7 @@ TEST_F(TestCurrency1, 2)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -87,7 +87,7 @@ TEST_F(TestCurrency1, 3)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -105,7 +105,7 @@ TEST_F(TestCurrency1, 4)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -123,7 +123,7 @@ TEST_F(TestCurrency1, 5)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -141,7 +141,7 @@ TEST_F(TestCurrency1, 6)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -159,7 +159,7 @@ TEST_F(TestCurrency1, 7)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -177,7 +177,7 @@ TEST_F(TestCurrency1, 8)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -195,7 +195,7 @@ TEST_F(TestCurrency1, 9)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -213,7 +213,7 @@ TEST_F(TestCurrency1, 10)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -238,7 +238,7 @@ TEST_F(TestCurrency1, 11)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -263,7 +263,7 @@ TEST_F(TestCurrency1, 12)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -288,7 +288,7 @@ TEST_F(TestCurrency1, 13)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -313,7 +313,7 @@ TEST_F(TestCurrency1, 14)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -338,7 +338,7 @@ TEST_F(TestCurrency1, 15)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -363,7 +363,7 @@ TEST_F(TestCurrency1, 16)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -381,7 +381,7 @@ TEST_F(TestCurrency1, 17)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -399,7 +399,7 @@ TEST_F(TestCurrency1, 18)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedBlockReward, blockReward);
@@ -439,7 +439,7 @@ TEST_F(TestCurrency2, 1)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(blockReward, expectedFirstBlockReward);
@@ -459,7 +459,7 @@ TEST_F(TestCurrency2, 2)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
   
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(blockReward, expectedFirstBlockReward);
@@ -477,7 +477,7 @@ TEST_F(TestCurrency2, 3)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
   
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(blockReward, expectedFirstBlockReward);
@@ -496,7 +496,7 @@ TEST_F(TestCurrency2, 4)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
   
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(blockReward, expectedFirstBlockReward);
@@ -514,7 +514,7 @@ TEST_F(TestCurrency2, 5)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
   
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(blockReward, expectedFirstBlockReward);
@@ -534,7 +534,7 @@ TEST_F(TestCurrency2, 6)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
   
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_TRUE(blockTooBig);
   ASSERT_EQ(blockReward, 0);
@@ -553,7 +553,7 @@ TEST_F(TestCurrency2, 7)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
   
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedFirstBlockReward - 1, blockReward);
@@ -593,7 +593,7 @@ TEST_F(TestCurrency3, 1)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(blockReward, expectedFirstBlockReward);
@@ -612,7 +612,7 @@ TEST_F(TestCurrency3, 2)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(blockReward, expectedFirstBlockReward);
@@ -631,7 +631,7 @@ TEST_F(TestCurrency3, 3)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(blockReward, expectedFirstBlockReward);
@@ -650,7 +650,7 @@ TEST_F(TestCurrency3, 4)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                             transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(expectedFirstBlockReward - 1, blockReward);
@@ -669,7 +669,7 @@ TEST_F(TestCurrency3, 5)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(2554, blockReward);
@@ -688,7 +688,7 @@ TEST_F(TestCurrency3, 6)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_FALSE(blockTooBig);
   ASSERT_EQ(0, blockReward);
@@ -707,7 +707,7 @@ TEST_F(TestCurrency3, 7)
   int64_t emissionChange = 0;
   uint64_t blockReward = 0;
 
-  bool blockTooBig = !m_currency.getBlockReward(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
+  bool blockTooBig = !m_currency.getBlockReward1(medianBlockSize, currentBlockSize, alreadyGeneratedCoins,
                                                 transactionFees, blockReward, emissionChange);
   ASSERT_TRUE(blockTooBig);
   ASSERT_EQ(blockReward, 0);

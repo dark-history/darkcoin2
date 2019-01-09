@@ -49,7 +49,7 @@ public
   lock()
   unlock()
   obtainGuard()
-  fill_block_template()
+  fill_block_template1()
   get_transactions()
   get_difference()
   get_transactions_count()
@@ -378,7 +378,7 @@ TEST(TransactionPool, 14)
   ASSERT_NO_THROW(tx_memory_pool.obtainGuard());
 }
 
-// fill_block_template()
+// fill_block_template1()
 TEST(TransactionPool, 15)
 {
   Logging::ConsoleLogger logger;
@@ -396,7 +396,7 @@ TEST(TransactionPool, 15)
   size_t maxCumulativeSize = 50000;
   uint64_t already_generated_coins = 10;
 
-  ASSERT_TRUE(tx_memory_pool.fill_block_template(block, median_size, maxCumulativeSize, already_generated_coins, total_size, fee));
+  ASSERT_TRUE(tx_memory_pool.fill_block_template1(block, median_size, maxCumulativeSize, already_generated_coins, total_size, fee));
 }
 
 // get_transactions()
