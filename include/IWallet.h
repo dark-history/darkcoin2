@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2018, Karbo developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -8,6 +9,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <boost/optional.hpp>                             
 #include "CryptoNote.h"
 
 namespace CryptoNote {
@@ -59,6 +61,7 @@ struct WalletTransaction {
   uint64_t timestamp;
   uint32_t blockHeight;
   Crypto::Hash hash;
+  boost::optional<Crypto::SecretKey> secretKey;                                               
   int64_t totalAmount;
   uint64_t fee;
   uint64_t creationTime;
@@ -139,6 +142,7 @@ public:
 
   virtual size_t getTransactionCount() const = 0;
   virtual WalletTransaction getTransaction(size_t transactionIndex) const = 0;
+  virtual Crypto::SecretKey getTransactionSecretKey(size_t transactionIndex) const = 0;                                                                                     
   virtual size_t getTransactionTransferCount(size_t transactionIndex) const = 0;
   virtual WalletTransfer getTransactionTransfer(size_t transactionIndex, size_t transferIndex) const = 0;
 
@@ -148,9 +152,8 @@ public:
   virtual std::vector<Crypto::Hash> getBlockHashes(uint32_t blockIndex, size_t count) const = 0;
   virtual uint32_t getBlockCount() const  = 0;
   virtual std::vector<WalletTransactionWithTransfers> getUnconfirmedTransactions() const = 0;
-  virtual std::vector<size_t> getDelayedTransactionIds() const = 0;
-
-  virtual size_t transfer(const TransactionParameters& sendingTransaction) = 0;
+  virtual std::vector<size_t> getDelayedTransactionIds() const = 0;                                                                                                         
+  virtual size_t transfer(const TransactionParameters& sendingTransaction, Crypto::SecretKey &txSecretKey) = 0;
 
   virtual size_t makeTransaction(const TransactionParameters& sendingTransaction) = 0;
   virtual void commitTransaction(size_t transactionId) = 0;

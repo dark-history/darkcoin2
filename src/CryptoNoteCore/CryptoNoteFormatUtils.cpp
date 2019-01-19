@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2018, Karbo developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -111,6 +112,7 @@ bool constructTransaction(
   std::vector<uint8_t> extra,
   Transaction& tx,
   uint64_t unlock_time,
+  Crypto::SecretKey &tx_key,                          
   Logging::ILogger& log) {
   LoggerRef logger(log, "construct_tx");
 
@@ -124,6 +126,8 @@ bool constructTransaction(
   tx.extra = extra;
   KeyPair txkey = generateKeyPair();
   addTransactionPublicKeyToExtra(tx.extra, txkey.publicKey);
+
+  tx_key = txkey.secretKey;
 
   struct input_generation_context_data {
     KeyPair in_ephemeral;

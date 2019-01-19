@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
-// Copyright (c) 2016-2018, The Karbowanec developers
+// Copyright (c) 2016-2018, The Karbo developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -11,6 +11,7 @@
 #include "Common/CommandLine.h"
 #include "Common/StringTools.h"
 #include "CryptoNoteCore/CryptoNoteFormatUtils.h"
+#include "CryptoNoteCore/CryptoNoteBasicImpl.h"
 #include "CryptoNoteCore/Account.h"
 #include "crypto/hash.h"
 #include "WalletLegacy/WalletHelper.h"
@@ -97,6 +98,7 @@ void wallet_rpc_server::processRequest(const CryptoNote::HttpRequest& request, C
       { "get_payments", makeMemberMethod(&wallet_rpc_server::on_get_payments) },
       { "get_transfers", makeMemberMethod(&wallet_rpc_server::on_get_transfers) },
       { "get_height", makeMemberMethod(&wallet_rpc_server::on_get_height) },
+      { "get_tx_key", makeMemberMethod(&wallet_rpc_server::on_get_tx_key)        },
       { "reset", makeMemberMethod(&wallet_rpc_server::on_reset) }
     };
 
@@ -177,6 +179,7 @@ bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::requ
     CryptoNote::WalletLegacyTransaction txInfo;
     m_wallet.getTransaction(tx, txInfo);
     res.tx_hash = Common::podToHex(txInfo.hash);
+    res.tx_key = Common::podToHex(txInfo.secretKey);
 
   } catch (const std::exception& e) {
     throw JsonRpc::JsonRpcError(WALLET_RPC_ERROR_CODE_GENERIC_TRANSFER_ERROR, e.what());
@@ -270,16 +273,33 @@ bool wallet_rpc_server::on_get_transfers(const wallet_rpc::COMMAND_RPC_GET_TRANS
 
     Crypto::Hash paymentId;
     transfer.paymentId = (getPaymentIdFromTxExtra(extraVec, paymentId) && paymentId != NULL_HASH ? Common::podToHex(paymentId) : "");
+    transfer.txKey = (txInfo.secretKey != NULL_SECRET_KEY ? Common::podToHex(txInfo.secretKey) : "");
 
     res.transfers.push_back(transfer);
   }
-
   return true;
 }
 
 bool wallet_rpc_server::on_get_height(const wallet_rpc::COMMAND_RPC_GET_HEIGHT::request& req, wallet_rpc::COMMAND_RPC_GET_HEIGHT::response& res) {
   res.height = m_node.getLastLocalBlockHeight();
   return true;
+}
+
+bool wallet_rpc_server::on_get_tx_key(const wallet_rpc::COMMAND_RPC_GET_TX_KEY::request& req,
+	wallet_rpc::COMMAND_RPC_GET_TX_KEY::response& res) {
+	Crypto::Hash txid;
+	if (!parse_hash256(req.tx_hash, txid)) {
+		throw JsonRpc::JsonRpcError(WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR, std::string("Failed to parse transaction id"));
+	}
+
+	Crypto::SecretKey tx_key = m_wallet.getTxKey(txid);
+	if (tx_key != NULL_SECRET_KEY) {
+		res.tx_key = Common::podToHex(tx_key);
+	}
+	else {
+		throw JsonRpc::JsonRpcError(WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR, std::string("No transaction secret key found for this transaction id"));
+	}
+	return true;
 }
 
 bool wallet_rpc_server::on_reset(const wallet_rpc::COMMAND_RPC_RESET::request& req, wallet_rpc::COMMAND_RPC_RESET::response& res) {

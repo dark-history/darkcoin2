@@ -1073,7 +1073,8 @@ TEST(cryptoNoteFormatUtils, 32)
   // logger
   Logging::LoggerGroup logger;
 
-  ASSERT_TRUE(constructTransaction(senderAccountKeys, sources, destinations, extra, transaction, unlockTime, logger));
+  Crypto::SecretKey transactionSecretKeyIgnore;
+  ASSERT_TRUE(constructTransaction(senderAccountKeys, sources, destinations, extra, transaction, unlockTime, transactionSecretKeyIgnore, logger));
 
   ASSERT_EQ(transaction.version, CURRENT_TRANSACTION_VERSION);
   ASSERT_EQ(transaction.unlockTime, unlockTime);
@@ -1154,7 +1155,9 @@ TEST(cryptoNoteFormatUtils, 33)
   // logger
   Logging::LoggerGroup logger;
 
-  ASSERT_TRUE(constructTransaction(senderAccountKeys, sources, destinations, extra, transaction, unlockTime, logger));
+  Crypto::SecretKey transactionSecretKeyIgnore;
+
+  ASSERT_TRUE(constructTransaction(senderAccountKeys, sources, destinations, extra, transaction, unlockTime, transactionSecretKeyIgnore, logger));
 
   ASSERT_EQ(transaction.version, CURRENT_TRANSACTION_VERSION);
   ASSERT_EQ(transaction.unlockTime, unlockTime);

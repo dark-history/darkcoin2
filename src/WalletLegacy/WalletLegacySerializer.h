@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2018, Karbo developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -40,4 +41,6 @@ private:
   const uint32_t walletSerializationVersion;
 };
 
+extern uint32_t WALLET_LEGACY_SERIALIZATION_VERSION;
+                                                   
 } //namespace CryptoNote

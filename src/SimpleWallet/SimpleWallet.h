@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2016-2018, The Karbo developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -72,10 +73,11 @@ namespace CryptoNote
     bool start_mining(const std::vector<std::string> &args);
     bool stop_mining(const std::vector<std::string> &args);
     bool show_balance(const std::vector<std::string> &args = std::vector<std::string>());
-    bool show_incoming_transfers(const std::vector<std::string> &args);
+    bool show_incoming_transactions(const std::vector<std::string> &args);
+    bool show_outgoing_transactions(const std::vector<std::string> &args);
     bool show_payments(const std::vector<std::string> &args);
     bool show_blockchain_height(const std::vector<std::string> &args);
-    bool listTransfers(const std::vector<std::string> &args);
+    bool list_transactions(const std::vector<std::string> &args);
     bool transfer(const std::vector<std::string> &args);
     bool print_address(const std::vector<std::string> &args = std::vector<std::string>());
     bool print_view_secret_key(const std::vector<std::string> &args);
@@ -83,6 +85,7 @@ namespace CryptoNote
     bool save(const std::vector<std::string> &args);
     bool reset(const std::vector<std::string> &args);
     bool set_log(const std::vector<std::string> &args);
+    bool get_tx_key(const std::vector<std::string> &args);
 
     bool ask_wallet_create_if_needed();
 

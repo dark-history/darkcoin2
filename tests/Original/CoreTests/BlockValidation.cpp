@@ -339,7 +339,8 @@ bool gen_block_miner_tx_has_2_in::generate(std::vector<test_event_entry>& events
   destinations.push_back(de);
 
   Transaction tmp_tx;
-  if (!constructTransaction(miner_account.getAccountKeys(), sources, destinations, std::vector<uint8_t>(), tmp_tx, 0, m_logger))
+  Crypto::SecretKey transactionSecretKeyIgnore;
+  if (!constructTransaction(miner_account.getAccountKeys(), sources, destinations, std::vector<uint8_t>(), tmp_tx, 0, transactionSecretKeyIgnore, m_logger))
     return false;
 
   MAKE_MINER_TX_MANUALLY(miner_tx, blk_0);
@@ -382,7 +383,8 @@ bool gen_block_miner_tx_with_txin_to_key::generate(std::vector<test_event_entry>
   destinations.push_back(de);
 
   Transaction tmp_tx;
-  if (!constructTransaction(miner_account.getAccountKeys(), sources, destinations, std::vector<uint8_t>(), tmp_tx, 0, m_logger))
+  Crypto::SecretKey transactionSecretKeyIgnore;
+  if (!constructTransaction(miner_account.getAccountKeys(), sources, destinations, std::vector<uint8_t>(), tmp_tx, 0, transactionSecretKeyIgnore, m_logger))
     return false;
 
   MAKE_MINER_TX_MANUALLY(miner_tx, blk_1);

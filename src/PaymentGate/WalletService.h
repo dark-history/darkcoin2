@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2018, Karbo developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -61,7 +62,7 @@ public:
     uint32_t blockCount, const std::string& paymentId, std::vector<TransactionsInBlockRpcInfo>& transactionHashes);
   std::error_code getTransaction(const std::string& transactionHash, TransactionRpcInfo& transaction);
   std::error_code getAddresses(std::vector<std::string>& addresses);
-  std::error_code sendTransaction(const SendTransaction::Request& request, std::string& transactionHash);
+  std::error_code sendTransaction(const SendTransaction::Request& request, std::string& transactionHash, std::string& transactionSecretKey);
   std::error_code createDelayedTransaction(const CreateDelayedTransaction::Request& request, std::string& transactionHash);
   std::error_code getDelayedTransactionHashes(std::vector<std::string>& transactionHashes);
   std::error_code deleteDelayedTransaction(const std::string& transactionHash);

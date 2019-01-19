@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2017-2018, The Karbo developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -688,6 +689,32 @@ struct COMMAND_RPC_GET_MEMPOOL {
       KV_MEMBER(status)
     }
   };
+};
+
+struct K_COMMAND_RPC_CHECK_TX_KEY {
+	struct request {
+		std::string txid;
+		std::string txkey;
+		std::string address;
+
+		void serialize(ISerializer &s) {
+			KV_MEMBER(txid)
+			KV_MEMBER(txkey)
+			KV_MEMBER(address)
+		}
+	};
+
+	struct response {
+		uint64_t amount;
+		std::vector<TransactionOutput> outputs;
+		std::string status;
+
+		void serialize(ISerializer &s) {
+			KV_MEMBER(amount)
+			KV_MEMBER(outputs)
+			KV_MEMBER(status)
+		}
+	};
 };
 
 } // end namespace CryptoNote
