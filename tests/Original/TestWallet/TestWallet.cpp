@@ -420,7 +420,10 @@ size_t WalletApi::sendMoneyToRandomAddressFrom(const std::string& address, uint6
   params.destinations = {order};
   params.fee = fee;
   params.changeDestination = changeDestination;
-  return alice.transfer(params);
+
+  Crypto::SecretKey txSecretKeyIgnore;
+
+  return alice.transfer(params, txSecretKeyIgnore);
 }
 
 size_t WalletApi::sendMoneyToRandomAddressFrom(const std::string& address, const std::string& changeDestination) {
@@ -457,7 +460,9 @@ size_t WalletApi::sendMoney(CryptoNote::WalletGreen& wallet, const std::string& 
   params.unlockTimestamp = unlockTimestamp;
   params.changeDestination = wallet.getAddress(0);
 
-  return wallet.transfer(params);
+  Crypto::SecretKey txSecretKeyIgnore;
+
+  return wallet.transfer(params, txSecretKeyIgnore);
 }
 
 size_t WalletApi::sendMoney(const std::string& to, uint64_t amount, uint64_t fee, uint64_t mixIn, const std::string& extra, uint64_t unlockTimestamp) {
@@ -476,7 +481,9 @@ size_t WalletApi::sendMoneyWithDonation(const std::string& to, uint64_t amount, 
   params.extra = extra;
   params.unlockTimestamp = unlockTimestamp;
 
-  return alice.transfer(params);
+  Crypto::SecretKey txSecretKeyIgnore;
+
+  return alice.transfer(params, txSecretKeyIgnore);
 }
 
 size_t WalletApi::makeTransaction(

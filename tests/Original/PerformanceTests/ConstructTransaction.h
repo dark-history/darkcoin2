@@ -43,7 +43,8 @@ public:
 
   bool test()
   {
-    return CryptoNote::constructTransaction(this->m_miners[this->real_source_idx].getAccountKeys(), this->m_sources, m_destinations, std::vector<uint8_t>(), m_tx, 0, this->m_logger);
+    Crypto::SecretKey transactionSecretKeyIgnore;
+    return CryptoNote::constructTransaction(this->m_miners[this->real_source_idx].getAccountKeys(), this->m_sources, m_destinations, std::vector<uint8_t>(), m_tx, 0, transactionSecretKeyIgnore, this->m_logger);
   }
 
 private:

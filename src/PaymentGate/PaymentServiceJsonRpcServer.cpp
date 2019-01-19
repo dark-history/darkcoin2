@@ -1,6 +1,20 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2018, Karbo developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
+                                 
+  
+                                                                   
+                                                                              
+                                                                    
+                                      
+  
+                                                              
+                                                                 
+                                                                
+                                                      
+  
+                                                                           
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "PaymentServiceJsonRpcServer.h"
@@ -20,6 +34,7 @@ PaymentServiceJsonRpcServer::PaymentServiceJsonRpcServer(System::Dispatcher& sys
   , service(service)
   , logger(loggerGroup, "PaymentServiceJsonRpcServer")
 {
+                                                                                                                                                                                
   handlers.emplace("reset", jsonHandler<Reset::Request, Reset::Response>(std::bind(&PaymentServiceJsonRpcServer::handleReset, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("createAddress", jsonHandler<CreateAddress::Request, CreateAddress::Response>(std::bind(&PaymentServiceJsonRpcServer::handleCreateAddress, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("deleteAddress", jsonHandler<DeleteAddress::Request, DeleteAddress::Response>(std::bind(&PaymentServiceJsonRpcServer::handleDeleteAddress, this, std::placeholders::_1, std::placeholders::_2)));
@@ -38,6 +53,9 @@ PaymentServiceJsonRpcServer::PaymentServiceJsonRpcServer(System::Dispatcher& sys
   handlers.emplace("getViewKey", jsonHandler<GetViewKey::Request, GetViewKey::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetViewKey, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getStatus", jsonHandler<GetStatus::Request, GetStatus::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetStatus, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getAddresses", jsonHandler<GetAddresses::Request, GetAddresses::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetAddresses, this, std::placeholders::_1, std::placeholders::_2)));
+                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                        
+                                                                                                                                                                                                                            
 }
 
 void PaymentServiceJsonRpcServer::processJsonRpcRequest(const Common::JsonValue& req, Common::JsonValue& resp) {
@@ -78,6 +96,10 @@ void PaymentServiceJsonRpcServer::processJsonRpcRequest(const Common::JsonValue&
     makeGenericErrorReponse(resp, e.what());
   }
 }
+
+                                                                                                                         
+                                     
+ 
 
 std::error_code PaymentServiceJsonRpcServer::handleReset(const Reset::Request& request, Reset::Response& response) {
   if (request.viewSecretKey.empty()) {
@@ -142,7 +164,7 @@ std::error_code PaymentServiceJsonRpcServer::handleGetTransaction(const GetTrans
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleSendTransaction(const SendTransaction::Request& request, SendTransaction::Response& response) {
-  return service.sendTransaction(request, response.transactionHash);
+  return service.sendTransaction(request, response.transactionHash, response.transactionSecretKey);
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleCreateDelayedTransaction(const CreateDelayedTransaction::Request& request, CreateDelayedTransaction::Response& response) {
@@ -169,8 +191,20 @@ std::error_code PaymentServiceJsonRpcServer::handleGetStatus(const GetStatus::Re
   return service.getStatus(response.blockCount, response.knownBlockCount, response.lastBlockHash, response.peerCount);
 }
 
+                                                                                                                                                  
+                                                                                                                                       
+ 
+
 std::error_code PaymentServiceJsonRpcServer::handleGetAddresses(const GetAddresses::Request& request, GetAddresses::Response& response) {
   return service.getAddresses(response.addresses);
 }
 
+                                                                                                                                                                    
+                                                                                                                                                      
 }
+
+                                                                                                                                               
+                                                                                                                            
+ 
+
+ 

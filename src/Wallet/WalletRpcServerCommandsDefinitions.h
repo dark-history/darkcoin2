@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2016-2018, Karbo developers
 // Copyright (c) 2018 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -69,9 +70,11 @@ using CryptoNote::ISerializer;
     struct response
     {
       std::string tx_hash;
+      std::string tx_key;                
 
       void serialize(ISerializer& s) {
         KV_MEMBER(tx_hash)
+        KV_MEMBER(tx_key)             
       }
     };
   };
@@ -128,6 +131,7 @@ using CryptoNote::ISerializer;
     std::string address;
     uint64_t blockIndex;
     uint64_t unlockTime;
+    std::string txKey;                     
 
     void serialize(ISerializer& s) {
       KV_MEMBER(time)
@@ -139,6 +143,7 @@ using CryptoNote::ISerializer;
       KV_MEMBER(address)
       KV_MEMBER(blockIndex)
       KV_MEMBER(unlockTime)
+      KV_MEMBER(txKey)
     }
   };
 
@@ -165,6 +170,28 @@ using CryptoNote::ISerializer;
       }
     };
   };
+
+	struct COMMAND_RPC_GET_TX_KEY
+	{
+		struct request
+		{
+			std::string tx_hash;
+
+			void serialize(ISerializer& s)
+			{
+				KV_MEMBER(tx_hash)
+			}
+		};
+		struct response
+		{
+			std::string tx_key;
+
+			void serialize(ISerializer& s)
+			{
+				KV_MEMBER(tx_key)
+			}
+		};
+	};
 
   struct COMMAND_RPC_RESET {
     typedef CryptoNote::EMPTY_STRUCT request;
