@@ -651,7 +651,20 @@ difficulty_type Blockchain::getDifficultyForNextBlock() {
     cummulative_difficulties.push_back(m_blocks[offset].cumulative_difficulty);
   }
 
-  return m_currency.nextDifficulty(timestamps, cummulative_difficulties);
+  if (m_blocks.size() < parameters::HARD_FORK_HEIGHT_2)
+  {
+    return m_currency.nextDifficulty1(timestamps, cummulative_difficulties);
+  }
+  else if (m_blocks.size() < parameters::HARD_FORK_HEIGHT_2 + 4000)
+  {
+    // loading the cummualtive_difficulties values in each block with 500 for 4000 blocks
+    // so that afterwards the block difficulties can be calculated using cumulative difficulties
+    return 500;
+  }
+  else
+  {
+    return m_currency.nextDifficulty2(timestamps, cummulative_difficulties);
+  }
 }
 
 uint64_t Blockchain::getCoinsInCirculation() {
@@ -804,7 +817,20 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
     }
   }
 
-  return m_currency.nextDifficulty(timestamps, cummulative_difficulties);
+  if (bei.height < parameters::HARD_FORK_HEIGHT_2)
+  {
+    return m_currency.nextDifficulty1(timestamps, cummulative_difficulties);
+  }
+  else if (bei.height < parameters::HARD_FORK_HEIGHT_2 + 4000)
+  {
+    // loading the cummualtive_difficulties values in each block with 500 for 4000 blocks
+    // so that afterwards the block difficulties can be calculated using cumulative difficulties
+    return 500;
+  }
+  else
+  {
+    return m_currency.nextDifficulty2(timestamps, cummulative_difficulties);
+  }
 }
 
 bool Blockchain::prevalidate_miner_transaction(const Block& b, uint32_t height) {
@@ -1027,7 +1053,18 @@ bool Blockchain::handle_alternative_block(const Block& b, const Crypto::Hash& id
     difficulty_type current_diff = get_next_difficulty_for_alternative_chain(alt_chain, bei);
     if (!(current_diff)) { logger(ERROR, BRIGHT_RED) << "!!!!!!! DIFFICULTY OVERHEAD !!!!!!!"; return false; }
     Crypto::Hash proof_of_work = NULL_HASH;
-    if (!m_currency.checkProofOfWork(m_cn_context, bei.bl, current_diff, proof_of_work)) {
+    bool proofOfWorkSuccess = false;
+
+    if (bei.height < parameters::HARD_FORK_HEIGHT_2)
+    {
+      proofOfWorkSuccess = m_currency.checkProofOfWork1(m_cn_context, bei.bl, current_diff, proof_of_work);
+    }
+    else
+    {
+      proofOfWorkSuccess = m_currency.checkProofOfWork2(m_cn_context, bei.bl, current_diff, proof_of_work);
+    }
+
+    if (!proofOfWorkSuccess) {
       logger(INFO, BRIGHT_RED) <<
         "Block with id: " << id
         << ENDL << " for alternative chain, have not enough proof of work: " << proof_of_work
@@ -1044,7 +1081,17 @@ bool Blockchain::handle_alternative_block(const Block& b, const Crypto::Hash& id
     }
 
     bei.cumulative_difficulty = alt_chain.size() ? it_prev->second.cumulative_difficulty : m_blocks[mainPrevHeight].cumulative_difficulty;
-    bei.cumulative_difficulty += current_diff;
+    
+    if (bei.height == parameters::HARD_FORK_HEIGHT_2)
+    {
+      // Reset cummulative_difficulty at hard fork height 2 because previous total cummulative difficulies overflows uint64_t
+      // Do not continue to add on currentDifficulty to previous cumulative_difficulty like in the else statement below
+      bei.cumulative_difficulty = current_diff;
+    }
+    else
+    {
+      bei.cumulative_difficulty += current_diff;
+    }   
 
 #ifdef _DEBUG
     auto i_dres = m_alternative_chains.find(id);
@@ -1733,7 +1780,19 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
       return false;
     }
   } else {
-    if (!m_currency.checkProofOfWork(m_cn_context, blockData, currentDifficulty, proof_of_work)) {
+    bool proofOfWorkSuccess = false;
+    uint32_t blockchainHeight = static_cast<uint32_t>(m_blocks.size());
+
+    if (blockchainHeight < parameters::HARD_FORK_HEIGHT_2)
+    {
+      proofOfWorkSuccess = m_currency.checkProofOfWork1(m_cn_context, blockData, currentDifficulty, proof_of_work);
+    }
+    else
+    {
+      proofOfWorkSuccess = m_currency.checkProofOfWork2(m_cn_context, blockData, currentDifficulty, proof_of_work);
+    }
+
+    if (!proofOfWorkSuccess) {
       logger(INFO, BRIGHT_WHITE) <<
         "Block " << blockHash << ", has too weak proof of work: " << proof_of_work << ", expected difficulty: " << currentDifficulty;
       bvc.m_verification_failed = true;
@@ -1809,7 +1868,17 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
   block.cumulative_difficulty = currentDifficulty;
   block.already_generated_coins = already_generated_coins + emissionChange;
   if (m_blocks.size() > 0) {
-    block.cumulative_difficulty += m_blocks.back().cumulative_difficulty;
+    if (blockchainHeight == parameters::HARD_FORK_HEIGHT_2)
+    {
+      // Reset cummulative_difficulty at hard fork height 2 because previous total cummulative difficulies overflows uint64_t
+      // Do not continue to add on currentDifficulty to previous cumulative_difficulty like in the else statement below
+      // This line is a duplicate of a line above but is done this way to reduce confusion
+      block.cumulative_difficulty = currentDifficulty;
+    }
+    else
+    {
+      block.cumulative_difficulty += m_blocks.back().cumulative_difficulty;
+    }
   }
 
   pushBlock(block);

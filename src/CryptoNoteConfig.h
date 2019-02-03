@@ -58,6 +58,7 @@ const char     CRYPTONOTE_BLOCKCHAIN_INDEXES_FILENAME[]      = "blockchainindexe
 const char     MINER_CONFIG_FILE_NAME[]                      = "miner_conf.json";
 
 const uint64_t HARD_FORK_HEIGHT_1                            = 230500;
+const uint64_t HARD_FORK_HEIGHT_2                            = 420016;
 
 } // end namespace parameters
 

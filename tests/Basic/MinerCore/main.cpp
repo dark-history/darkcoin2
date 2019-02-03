@@ -32,7 +32,7 @@ public
   is_mining()
   on_idle()
   on_synchronized()
-  find_nonce_for_given_block()
+  find_nonce_for_given_block1()
   pause()
   resume()
   do_print_hashrate()
@@ -469,7 +469,7 @@ TEST(Miner, 17)
   ASSERT_FALSE(miner.is_mining());
 }
 
-// find_nonce_for_given_block()
+// find_nonce_for_given_block1()
 // difficulty < 5
 TEST(Miner, 18)
 {
@@ -491,10 +491,10 @@ TEST(Miner, 18)
   difficulty_type difficulty = 2;
 
   Crypto::cn_context context;
-  ASSERT_TRUE(miner.find_nonce_for_given_block(context, block, difficulty));
+  ASSERT_TRUE(miner.find_nonce_for_given_block1(context, block, difficulty));
 }
 
-// find_nonce_for_given_block()
+// find_nonce_for_given_block1()
 // difficulty > 5
 TEST(Miner, 19)
 {
@@ -516,7 +516,7 @@ TEST(Miner, 19)
   difficulty_type difficulty = 8;
 
   Crypto::cn_context context;
-  ASSERT_TRUE(miner.find_nonce_for_given_block(context, block, difficulty));
+  ASSERT_TRUE(miner.find_nonce_for_given_block1(context, block, difficulty));
 }
 
 // on_synchronized()

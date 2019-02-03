@@ -348,7 +348,7 @@ bool addBlock1(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -439,7 +439,7 @@ bool addBlock2(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // find nonce appropriate for difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -529,7 +529,7 @@ bool addBlock3(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -663,7 +663,7 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block1, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block1, difficulty, proofOfWorkIgnore))
   {
     block1.nonce++;
   }
@@ -842,7 +842,7 @@ bool addBlock4(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   difficulty = blockchain.getDifficultyForNextBlock();
 
   // find nonce appropriate for current difficulty
-  while(!currency.checkProofOfWork(context, block2, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block2, difficulty, proofOfWorkIgnore))
   {
     block2.nonce++;
   }
@@ -970,7 +970,7 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block1, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block1, difficulty, proofOfWorkIgnore))
   {
     block1.nonce++;
   }
@@ -1145,7 +1145,7 @@ bool addBlock5(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   difficulty = blockchain.getDifficultyForNextBlock();
 
   // find nonce appropriate for current difficulty
-  while(!currency.checkProofOfWork(context, block2, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block2, difficulty, proofOfWorkIgnore))
   {
     block2.nonce++;
   }
@@ -1234,7 +1234,7 @@ bool addBlock7(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -1331,7 +1331,7 @@ bool addBlock8(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -1443,7 +1443,7 @@ bool addBlock9(Blockchain& blockchain, Currency& currency, tx_memory_pool& tx_me
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -1535,7 +1535,7 @@ bool addAlternativeBlock(Blockchain& blockchain, Currency& currency, tx_memory_p
   // find nonce appropriate for difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -2160,7 +2160,7 @@ TEST(Blockchain, 19)
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block1, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block1, difficulty, proofOfWorkIgnore))
   {
     block1.nonce++;
   }
@@ -2627,7 +2627,7 @@ TEST(Blockchain, 26)
   difficulty_type difficulty = blockchain.getDifficultyForNextBlock();
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block1, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block1, difficulty, proofOfWorkIgnore))
   {
     block1.nonce++;
   }
@@ -2829,7 +2829,7 @@ TEST(Blockchain, 26)
 
   // find nonce appropriate for current difficulty
   difficulty = blockchain.getDifficultyForNextBlock();
-  while(!currency.checkProofOfWork(context, block2, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block2, difficulty, proofOfWorkIgnore))
   {
     block2.nonce++;
   }

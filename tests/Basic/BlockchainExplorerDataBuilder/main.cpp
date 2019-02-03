@@ -53,7 +53,7 @@ bool addBlock1(core& core)
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!core.currency().checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -82,7 +82,7 @@ bool addBlock5(core& core, const AccountPublicAddress& minerPublicAddress, Crypt
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore;
   Crypto::cn_context context;
-  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!core.currency().checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -117,7 +117,7 @@ bool addBlock8(core& core, Block& block)
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore;
   Crypto::cn_context context;
-  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!core.currency().checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }

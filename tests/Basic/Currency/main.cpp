@@ -68,8 +68,8 @@ public
   formatAmount()
   formatAmount()
   parseAmount()
-  *nextDifficulty()
-  *checkProofOfWork()
+  *nextDifficulty1()
+  *checkProofOfWork1()
   getApproximateMaximumInputCount()
 
 private
@@ -1052,7 +1052,7 @@ TEST(Currency, 52)
   ASSERT_EQ(amount, 1);
 }
 
-// nextDifficulty()
+// nextDifficulty1()
 TEST(Currency, 53)
 {
   Logging::LoggerGroup logger;
@@ -1063,18 +1063,18 @@ TEST(Currency, 53)
 
   std::vector<uint64_t> timestamps = {1};
   std::vector<difficulty_type> cumulativeDifficulties = {1};
-  ASSERT_EQ(currency.nextDifficulty(timestamps, cumulativeDifficulties), 100000);
+  ASSERT_EQ(currency.nextDifficulty1(timestamps, cumulativeDifficulties), 100000);
 
   timestamps = {1, 2};
   cumulativeDifficulties = {1, 2};
-  ASSERT_EQ(currency.nextDifficulty(timestamps, cumulativeDifficulties), 100000);
+  ASSERT_EQ(currency.nextDifficulty1(timestamps, cumulativeDifficulties), 100000);
 
   // the numbers used in ASSERT_EQ are gotten using gdb
   // formula is too complicated to calculate next difficulty
   // will likely change the formula so will skip this function for now
 }
 
-// checkProofOfWork()
+// checkProofOfWork1()
 TEST(Currency, 54)
 {
   Logging::LoggerGroup logger;
@@ -1085,15 +1085,15 @@ TEST(Currency, 54)
 
   Block block = getBasicBlock();
 
-  // I have no idea how this function works, especially check_hash() in Difficulty.cpp
-  // checkProofOfWork() returns false if currentDifficulty is above 1 and I don't know why that is
+  // I have no idea how this function works, especially check_hash1() in Difficulty.cpp
+  // checkProofOfWork1() returns false if currentDifficulty is above 1 and I don't know why that is
   for (uint32_t i = 0; i < loopCount; i++)
   {
     for (difficulty_type currentDifficulty = 0; currentDifficulty < 2; currentDifficulty++)
     {
       Crypto::Hash proofOfWork;
       Crypto::cn_context context;
-      ASSERT_TRUE(currency.checkProofOfWork(context, block, currentDifficulty, proofOfWork));
+      ASSERT_TRUE(currency.checkProofOfWork1(context, block, currentDifficulty, proofOfWork));
     }
   }
 }

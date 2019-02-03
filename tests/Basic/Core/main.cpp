@@ -320,7 +320,7 @@ bool addBlock1(core& core)
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!core.currency().checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -353,7 +353,7 @@ bool addBlock3(core& core, Crypto::Hash& blockHash)
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!core.currency().checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -413,7 +413,7 @@ bool addBlock5(core& core, const AccountPublicAddress& minerPublicAddress, Crypt
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore;
   Crypto::cn_context context;
-  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!core.currency().checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -443,7 +443,7 @@ bool addBlock6(core& core, const AccountPublicAddress& minerPublicAddress,
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore;
   Crypto::cn_context context;
-  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!core.currency().checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -482,7 +482,7 @@ bool addBlock6(core& core, Crypto::Hash& transactionHash)
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore;
   Crypto::cn_context context;
-  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!core.currency().checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -550,7 +550,7 @@ bool addBlock8(core& core, const uint64_t timestamp, Crypto::Hash& transactionHa
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Currency currency = core.currency();
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
@@ -613,7 +613,7 @@ bool addOrphanBlock(core& core, Crypto::Hash& blockHash, const Crypto::Hash& pre
   difficulty_type difficulty = core.getNextBlockDifficulty();
   Crypto::Hash proofOfWorkIgnore;
   Crypto::cn_context context;
-  while(!core.currency().checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!core.currency().checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
