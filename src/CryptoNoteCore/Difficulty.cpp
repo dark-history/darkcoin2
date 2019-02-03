@@ -44,7 +44,7 @@ namespace CryptoNote {
     return a + b < a || (c && a + b == (uint64_t) -1);
   }
 
-  bool check_hash(const Crypto::Hash &hash, difficulty_type difficulty) {
+  bool check_hash1(const Crypto::Hash &hash, difficulty_type difficulty) {
     uint64_t low, high, top, cur;
     // First check the highest word, this will most likely fail for a random hash.
     mul(swap64be(((const uint64_t *) &hash)[0]), difficulty, top, high);
@@ -56,6 +56,52 @@ namespace CryptoNote {
     bool carry = cadd(cur, low);
     cur = high;
     mul(swap64be(((const uint64_t *) &hash)[1]), difficulty, low, high);
+    carry = cadc(cur, low, carry);
+    carry = cadc(high, top, carry);
+    return !carry;
+  }
+
+  bool check_hash2(const Crypto::Hash &hash, difficulty_type difficulty) {
+
+    // GOAL : remove the first 10 zero characters from the hash
+    
+    // STEP 1 : make sure the first 10 characters of the hash are zeros 
+    for (uint8_t i = 0; i < 5; i++)
+    {
+      if (hash.data[i] != 0)
+      {
+        return false;
+      }
+    }  
+
+    // remove the first 10 zeros of hash to make hashTruncated
+
+    Crypto::Hash hashTruncated = 
+    {
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00
+    };
+
+    uint8_t j = 0;
+    for (uint8_t i = 5; i < 32; i++)
+    {
+      hashTruncated.data[j] = hash.data[i];
+      j++;
+    }
+
+    uint64_t low, high, top, cur;
+    // First check the highest word, this will most likely fail for a random hash.
+    mul(swap64be(((const uint64_t *) &hashTruncated)[0]), difficulty, top, high);
+    if (high != 0) {
+      return false;
+    }
+    mul(swap64be(((const uint64_t *) &hashTruncated)[3]), difficulty, low, cur);
+    mul(swap64be(((const uint64_t *) &hashTruncated)[2]), difficulty, low, high);
+    bool carry = cadd(cur, low);
+    cur = high;
+    mul(swap64be(((const uint64_t *) &hashTruncated)[1]), difficulty, low, high);
     carry = cadc(cur, low, carry);
     carry = cadc(high, top, carry);
     return !carry;

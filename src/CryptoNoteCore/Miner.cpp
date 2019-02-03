@@ -24,6 +24,7 @@
 
 #include "CryptoNoteFormatUtils.h"
 #include "TransactionExtra.h"
+#include "CryptoNoteConfig.h"
 
 using namespace Logging;
 
@@ -250,7 +251,7 @@ namespace CryptoNote
     return true;
   }
   //-----------------------------------------------------------------------------------------------------
-  bool miner::find_nonce_for_given_block(Crypto::cn_context &context, Block& bl, const difficulty_type& diffic) {
+  bool miner::find_nonce_for_given_block1(Crypto::cn_context &context, Block& bl, const difficulty_type& diffic) {
 
     unsigned nthreads = std::thread::hardware_concurrency();
 
@@ -274,7 +275,7 @@ namespace CryptoNote
               return;
             }
 
-            if (check_hash(h, diffic)) {
+            if (check_hash1(h, diffic)) {
               foundNonce = nonce;
               found = true;
               return;
@@ -299,7 +300,65 @@ namespace CryptoNote
           return false;
         }
 
-        if (check_hash(h, diffic)) {
+        if (check_hash1(h, diffic)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+  //-----------------------------------------------------------------------------------------------------
+  bool miner::find_nonce_for_given_block2(Crypto::cn_context &context, Block& bl, const difficulty_type& diffic) {
+
+    unsigned nthreads = std::thread::hardware_concurrency();
+
+    if (nthreads > 0 && diffic > 5) {
+      std::vector<std::future<void>> threads(nthreads);
+      std::atomic<uint64_t> foundNonce;
+      std::atomic<bool> found(false);
+      uint64_t startNonce = Crypto::rand<uint64_t>();
+
+      for (unsigned i = 0; i < nthreads; ++i) {
+        threads[i] = std::async(std::launch::async, [&, i]() {
+          Crypto::cn_context localctx;
+          Crypto::Hash h;
+
+          Block lb(bl); // copy to local block
+
+          for (uint64_t nonce = startNonce + i; !found; nonce += nthreads) {
+            lb.nonce = nonce;
+
+            if (!get_block_longhash(localctx, lb, h)) {
+              return;
+            }
+
+            if (check_hash2(h, diffic)) {
+              foundNonce = nonce;
+              found = true;
+              return;
+            }
+          }
+        });
+      }
+
+      for (auto& t : threads) {
+        t.wait();
+      }
+
+      if (found) {
+        bl.nonce = foundNonce.load();
+      }
+
+      return found;
+    } else {
+      for (; bl.nonce != std::numeric_limits<uint64_t>::max(); bl.nonce++) {
+        Crypto::Hash h;
+        if (!get_block_longhash(context, bl, h)) {
+          return false;
+        }
+
+        if (check_hash2(h, diffic)) {
           return true;
         }
       }
@@ -377,7 +436,20 @@ namespace CryptoNote
         m_stop = true;
       }
 
-      if (!m_stop && check_hash(h, local_diff))
+      uint32_t blockHeight = boost::get<BaseInput>(b.baseTransaction.inputs[0]).blockIndex;
+
+      bool checkHashSuccess = false;
+
+      if (blockHeight < parameters::HARD_FORK_HEIGHT_2)
+      {
+        checkHashSuccess = check_hash1(h, local_diff);
+      }
+      else
+      {
+        checkHashSuccess = check_hash2(h, local_diff);
+      }
+
+      if (!m_stop && checkHashSuccess)
       {
         //we lucky!
         ++m_config.current_extra_message_index;

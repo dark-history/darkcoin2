@@ -119,7 +119,7 @@ bool addBlock1(core& core, Currency& currency)
   // find nonce appropriate for current difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Crypto::cn_context context;
-  while(!currency.checkProofOfWork(context, block, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(context, block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }

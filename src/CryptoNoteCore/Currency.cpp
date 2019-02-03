@@ -116,7 +116,7 @@ bool Currency::generateGenesisBlock() {
   if (m_testnet) {
     ++m_genesisBlock.nonce;
   }
-  //miner::find_nonce_for_given_block(bl, 1, 0);
+  //miner::find_nonce_for_given_block1(bl, 1, 0);
 
   return true;
 }
@@ -478,8 +478,7 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
   return Common::fromString(strAmount, amount);
 }
 
-difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
-  std::vector<difficulty_type> cumulativeDifficulties) const {
+difficulty_type Currency::nextDifficulty1(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties) const {
   assert(m_difficultyWindow >= 2);
 
   if (timestamps.size() > m_difficultyWindow) {
@@ -535,14 +534,76 @@ difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
   return difficulty;
 }
 
-bool Currency::checkProofOfWork(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic,
+difficulty_type Currency::nextDifficulty2(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties) const {
+  assert(m_difficultyWindow >= 2);
+
+  if (timestamps.size() > m_difficultyWindow) {
+    timestamps.resize(m_difficultyWindow);
+    cumulativeDifficulties.resize(m_difficultyWindow);
+  }
+
+  size_t length = timestamps.size();
+  assert(length == cumulativeDifficulties.size());
+  assert(length <= m_difficultyWindow);
+
+  if (length < 10) {
+    return 1;
+  }
+
+  sort(timestamps.begin(), timestamps.end());
+
+  size_t cutBegin, cutEnd;
+  assert(2 * m_difficultyCut <= m_difficultyWindow - 2);
+  if (length <= m_difficultyWindow - 2 * m_difficultyCut) {
+    cutBegin = 0;
+    cutEnd = length;
+  } else {
+    cutBegin = (length - (m_difficultyWindow - 2 * m_difficultyCut) + 1) / 2;
+    cutEnd = cutBegin + (m_difficultyWindow - 2 * m_difficultyCut);
+  }
+  assert(/*cut_begin >= 0 &&*/ cutBegin + 2 <= cutEnd && cutEnd <= length);
+  uint64_t timeSpan = timestamps[cutEnd - 1] - timestamps[cutBegin];
+  if (timeSpan == 0) {
+    timeSpan = 1;
+  }
+
+  difficulty_type totalWork = cumulativeDifficulties[cutEnd - 1] - cumulativeDifficulties[cutBegin];
+  assert(totalWork > 0);
+
+  uint64_t low, high;
+  low = mul128(totalWork, m_difficultyTarget, &high);
+  if (high != 0 || low + timeSpan - 1 < low) {
+    return 0;
+  }
+
+  difficulty_type difficulty = (low + timeSpan - 1) / timeSpan;
+
+  if (difficulty < 100)
+  {
+    return 100;
+  }
+
+  return difficulty;
+}
+
+bool Currency::checkProofOfWork1(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic,
   Crypto::Hash& proofOfWork) const {
 
   if (!get_block_longhash(context, block, proofOfWork)) {
     return false;
   }
 
-  return check_hash(proofOfWork, currentDiffic);
+  return check_hash1(proofOfWork, currentDiffic);
+}
+
+bool Currency::checkProofOfWork2(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic,
+  Crypto::Hash& proofOfWork) const {
+
+  if (!get_block_longhash(context, block, proofOfWork)) {
+    return false;
+  }
+
+  return check_hash2(proofOfWork, currentDiffic);
 }
 
 size_t Currency::getApproximateMaximumInputCount(size_t transactionSize, size_t outputCount, size_t mixinCount) const {

@@ -10,6 +10,8 @@
 #include "crypto/crypto.h"
 #include "CryptoNoteCore/CryptoNoteFormatUtils.h"
 
+#include "CryptoNoteConfig.h"
+
 #include <System/InterruptedException.h>
 
 namespace CryptoNote {
@@ -98,7 +100,20 @@ void Miner::workerFunc(const Block& blockTemplate, difficulty_type difficulty, u
         return;
       }
 
-      if (check_hash(hash, difficulty)) {
+      uint32_t blockHeight = boost::get<BaseInput>(block.baseTransaction.inputs[0]).blockIndex;
+
+      bool checkHashSuccess = false;
+
+      if (blockHeight < parameters::HARD_FORK_HEIGHT_2)
+      {
+        checkHashSuccess = check_hash1(hash, difficulty);
+      }
+      else
+      {
+        checkHashSuccess = check_hash2(hash, difficulty);
+      }
+
+      if (checkHashSuccess) {
         m_logger(Logging::INFO) << "Found block for difficulty " << difficulty;
 
         if (!setStateBlockFound()) {

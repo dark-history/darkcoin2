@@ -11,20 +11,20 @@
 #include "CryptoNoteCore/Difficulty.h"
 
 using namespace std;
-using CryptoNote::check_hash;
+using CryptoNote::check_hash1;
 
 int main(int argc, char *argv[]) {
   Crypto::Hash h;
   for (uint64_t diff = 1;; diff += 1 + (diff >> 8)) {
     for (int b = 0; b < 256; b++) {
       memset(&h, b, sizeof(Crypto::Hash));
-      if (check_hash(h, diff) != (b == 0 || diff <= 255 / b)) {
+      if (check_hash1(h, diff) != (b == 0 || diff <= 255 / b)) {
         return 1;
       }
       if (b > 0) {
         memset(&h, 0, sizeof(Crypto::Hash));
         ((char *) &h)[0] = b;
-        if (check_hash(h, diff) != (diff <= 255 / b)) {
+        if (check_hash1(h, diff) != (diff <= 255 / b)) {
           return 1;
         }
       }
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
         ((char *) &h)[i] = static_cast<char>(val / diff);
         val %= diff;
       }
-      if (check_hash(h, diff) != true) {
+      if (check_hash1(h, diff) != true) {
         return 1;
       }
       if (diff > 1) {
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
             break;
           }
         }
-        if (check_hash(h, diff) != false) {
+        if (check_hash1(h, diff) != false) {
           return 1;
         }
       }

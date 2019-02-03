@@ -150,7 +150,7 @@ bool addBlock2(core& core, const uint64_t timestamp)
   // find nonce appropriate for difficulty
   Crypto::Hash proofOfWorkIgnore = NULL_HASH;
   Currency currency = core.currency();
-  while(!currency.checkProofOfWork(block, difficulty, proofOfWorkIgnore))
+  while(!currency.checkProofOfWork1(block, difficulty, proofOfWorkIgnore))
   {
     block.nonce++;
   }
