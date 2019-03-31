@@ -165,8 +165,6 @@ private:
   std::string m_txPoolFileName;
   std::string m_blockchainIndexesFileName;
 
-  uint64_t m_hardForkHeight1;
-
   static const std::vector<uint64_t> PRETTY_AMOUNTS;
 
   bool m_testnet;
@@ -240,8 +238,6 @@ public:
   CurrencyBuilder& txPoolFileName(const std::string& val) { m_currency.m_txPoolFileName = val; return *this; }
   CurrencyBuilder& blockchainIndexesFileName(const std::string& val) { m_currency.m_blockchainIndexesFileName = val; return *this; }
   
-  CurrencyBuilder& hardForkHeight1(uint64_t val) { m_currency.m_hardForkHeight1 = val; return *this; }
-
   CurrencyBuilder& testnet(bool val) { m_currency.m_testnet = val; return *this; }
 
 private:

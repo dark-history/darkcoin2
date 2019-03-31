@@ -444,12 +444,7 @@ bool Blockchain::init(const std::string& config_folder, bool load_existing) {
     }
   }
 
-  uint32_t blockchainHeight = static_cast<uint32_t>(m_blocks.size());
-
-  if (blockchainHeight < parameters::HARD_FORK_HEIGHT_1)
-  {
-    update_next_comulative_size_limit();
-  }
+  // removed hard fork 1 if clause here
 
   uint64_t timestamp_diff = time(NULL) - m_blocks.back().bl.timestamp;
   if (!m_blocks.back().bl.timestamp) {
@@ -877,24 +872,12 @@ bool Blockchain::validate_miner_transaction(const Block& b, uint32_t height, siz
     minerReward += o.amount;
   }
 
-  if (height < parameters::HARD_FORK_HEIGHT_1)
-  {
-    std::vector<size_t> lastBlocksSizes;
-    get_last_n_blocks_sizes(lastBlocksSizes, m_currency.rewardBlocksWindow());
-    size_t blocksSizeMedian = Common::medianValue(lastBlocksSizes);
+  // removed hard fork 1 if clause here
 
-    if (!m_currency.getBlockReward1(blocksSizeMedian, cumulativeBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange)) {
-      logger(INFO, BRIGHT_WHITE) << "block size " << cumulativeBlockSize << " is bigger than allowed for this blockchain";
-      return false;
-    }
-  }
-  else
+  if (!m_currency.getBlockReward2(height, cumulativeBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange))
   {
-    if (!m_currency.getBlockReward2(height, cumulativeBlockSize, alreadyGeneratedCoins, fee, reward, emissionChange))
-    {
-      logger(INFO, BRIGHT_WHITE) << "block size " << cumulativeBlockSize << " is bigger than allowed for this blockchain";
-      return false;
-    }
+    logger(INFO, BRIGHT_WHITE) << "block size " << cumulativeBlockSize << " is bigger than allowed for this blockchain";
+    return false;
   }
 
   if (minerReward > reward) {
@@ -1895,10 +1878,7 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
 
   bvc.m_added_to_main_chain = true;
 
-  if (blockchainHeight < parameters::HARD_FORK_HEIGHT_1)
-  {
-    update_next_comulative_size_limit();
-  }
+  // removed hard fork 1 if clause here
 
   return true;
 }

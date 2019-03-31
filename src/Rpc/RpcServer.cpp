@@ -839,31 +839,13 @@ bool RpcServer::f_on_block_json(const F_COMMAND_RPC_GET_BLOCK_DETAILS::request& 
   int64_t emissionChange = 0;
   size_t blockGrantedFullRewardZone =  CryptoNote::parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE; 
 
-  if (blockHeight < parameters::HARD_FORK_HEIGHT_1)
-  {
-    std::vector<size_t> blocksSizes;
-    if (!m_core.getBackwardBlocksSizes(res.block.height, blocksSizes, parameters::CRYPTONOTE_REWARD_BLOCKS_WINDOW)) {
-      return false;
-    }
-    res.block.sizeMedian = Common::medianValue(blocksSizes);
+  // removed hard fork 1 if clause here
 
-    res.block.effectiveSizeMedian = std::max(res.block.sizeMedian, blockGrantedFullRewardZone);
-
-    if (!m_core.getBlockReward1(res.block.sizeMedian, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
-      return false;
-    }
-    if (!m_core.getBlockReward1(res.block.sizeMedian, res.block.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
-      return false;
-    }
+  if (!m_core.getBlockReward2(blockHeight, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
+    return false;
   }
-  else
-  {
-    if (!m_core.getBlockReward2(blockHeight, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
-      return false;
-    }
-    if (!m_core.getBlockReward2(blockHeight, res.block.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
-      return false;
-    }
+  if (!m_core.getBlockReward2(blockHeight, res.block.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
+    return false;
   }
 
   res.block.baseReward = maxReward;

@@ -135,35 +135,18 @@ bool BlockchainExplorerDataBuilder::fillBlockDetails(const Block &block, BlockDe
   int64_t emissionChange = 0;
 
   // get current blockchain height
-  
-  if (blockDetails.height < parameters::HARD_FORK_HEIGHT_1)
-  {
-    std::vector<size_t> blocksSizes;
-    if (!core.getBackwardBlocksSizes(blockDetails.height, blocksSizes, parameters::CRYPTONOTE_REWARD_BLOCKS_WINDOW)) {
-      return false;
-    }
+  // getBlockReward1 calculates the block reward based on the median block size
+  // getBlockReward2 does not calculate the block reward based on the median block size
+  // removed hard fork 1 if clause here
+  blockDetails.sizeMedian = 0;
 
-    blockDetails.sizeMedian = median(blocksSizes);
-
-    if (!core.getBlockReward1(blockDetails.sizeMedian, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
-      return false;
-    }
-    if (!core.getBlockReward1(blockDetails.sizeMedian, blockDetails.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
-      return false;
-    }
+  if (!core.getBlockReward2(blockDetails.height, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
+    return false;
   }
-  else
-  {
-    // hard fork 1 no longer calculates the block reward based on the median block size
-    blockDetails.sizeMedian = 0;
-
-    if (!core.getBlockReward2(blockDetails.height, 0, prevBlockGeneratedCoins, 0, maxReward, emissionChange)) {
-      return false;
-    }
-    if (!core.getBlockReward2(blockDetails.height, blockDetails.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
-      return false;
-    }
+  if (!core.getBlockReward2(blockDetails.height, blockDetails.transactionsCumulativeSize, prevBlockGeneratedCoins, 0, currentReward, emissionChange)) {
+    return false;
   }
+
 
   blockDetails.baseReward = maxReward;
   if (maxReward == 0 && currentReward == 0) {
