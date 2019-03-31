@@ -62,7 +62,6 @@ bool Currency::init() {
   }
 
   if (isTestnet()) {
-    m_hardForkHeight1 = 0;
     m_blocksFileName = "testnet_" + m_blocksFileName;
     m_blocksCacheFileName = "testnet_" + m_blocksCacheFileName;
     m_blockIndexesFileName = "testnet_" + m_blockIndexesFileName;
@@ -677,8 +676,6 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
   blockIndexesFileName(parameters::CRYPTONOTE_BLOCKINDEXES_FILENAME);
   txPoolFileName(parameters::CRYPTONOTE_POOLDATA_FILENAME);
   blockchainIndexesFileName(parameters::CRYPTONOTE_BLOCKCHAIN_INDEXES_FILENAME);
-
-  hardForkHeight1(parameters::HARD_FORK_HEIGHT_1);
 
   testnet(false);
 }

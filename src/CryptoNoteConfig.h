@@ -57,7 +57,10 @@ const char     P2P_NET_DATA_FILENAME[]                       = "p2pstate.bin";
 const char     CRYPTONOTE_BLOCKCHAIN_INDEXES_FILENAME[]      = "blockchainindexes.dat";
 const char     MINER_CONFIG_FILE_NAME[]                      = "miner_conf.json";
 
-const uint64_t HARD_FORK_HEIGHT_1                            = 230500;
+// HARD_FORK_HEIGHT_1 was originally set to height 230,500 but was later removed from the code because
+// all blocks prior to height 230,500 followed the new consensus rules implemented
+// Therefore, a hard fork did not really occur at 230,500
+// const uint64_t HARD_FORK_HEIGHT_1                            = 230500;
 const uint64_t HARD_FORK_HEIGHT_2                            = 420016;
 
 } // end namespace parameters
