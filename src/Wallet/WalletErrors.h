@@ -39,7 +39,8 @@ enum WalletErrorCodes {
   OBJECT_NOT_FOUND,
   WALLET_NOT_FOUND,
   CHANGE_ADDRESS_REQUIRED,
-  CHANGE_ADDRESS_NOT_FOUND
+  CHANGE_ADDRESS_NOT_FOUND,
+  EXTRA_TOO_LARGE,
 };
 
 // custom category:
@@ -82,6 +83,7 @@ public:
     case WALLET_NOT_FOUND:         return "Requested wallet not found";
     case CHANGE_ADDRESS_REQUIRED:  return "Change address required";
     case CHANGE_ADDRESS_NOT_FOUND: return "Change address not found";
+    case EXTRA_TOO_LARGE:          return "Transaction extra too large";
     default:                       return "Unknown error";
     }
   }
