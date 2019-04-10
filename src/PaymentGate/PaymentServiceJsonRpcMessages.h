@@ -55,6 +55,7 @@ struct GetStatus {
     uint32_t knownBlockCount;
     std::string lastBlockHash;
     uint32_t peerCount;
+    uint64_t minimalFee;
 
     void serialize(CryptoNote::ISerializer& serializer);
   };

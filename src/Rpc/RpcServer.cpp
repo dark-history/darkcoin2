@@ -360,6 +360,7 @@ bool RpcServer::on_get_info(const COMMAND_RPC_GET_INFO::request& req, COMMAND_RP
   res.last_known_block_index = std::max(static_cast<uint32_t>(1), m_protocolQuery.getObservedHeight()) - 1;
   // that large uint64_t number is unsafe in JavaScript environment and therefore as a JSON value so we display it as a formatted string
   res.circulating_supply = m_core.currency().formatAmount(m_core.getTotalGeneratedAmount());
+  res.min_tx_fee = m_core.getMinimalFee();
 
   res.status = CORE_RPC_STATUS_OK;
   return true;
@@ -749,7 +750,7 @@ bool RpcServer::f_on_blocks_list_json(const F_COMMAND_RPC_GET_BLOCKS_LIST::reque
     block_short.cumul_size = blokBlobSize + tx_cumulative_block_size - minerTxBlobSize;
     block_short.tx_count = blk.transactionHashes.size() + 1;
     block_short.difficulty = blockDiff;
-    block_short.min_tx_fee = 0;
+    block_short.min_tx_fee = m_core.getMinimalFeeForHeight(i);
 
     res.blocks.push_back(block_short);
 

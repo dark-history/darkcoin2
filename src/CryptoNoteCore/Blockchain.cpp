@@ -1,4 +1,6 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
+// Copyright (c) 2018-2019, The TurtleCoin Developers
+// Copyright (c) 2016-2018, The Karbo developers
 // Copyright (c) 2018-2019 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -381,6 +383,23 @@ bool Blockchain::checkTransactionSize(size_t blobSize) {
   return true;
 }
 
+bool Blockchain::checkTransactionExtraSize(size_t txExtraSize)
+{
+
+  uint32_t blockchainHeight = getCurrentBlockchainHeight();
+
+  if (blockchainHeight >= CryptoNote::parameters::SOFT_FORK_HEIGHT_1)
+  {
+    if (txExtraSize > CryptoNote::parameters::MAX_TX_EXTRA_SIZE)
+    {
+      logger(ERROR) << "transaction extra size is too big " << txExtraSize << ", maximum allowed size is " << CryptoNote::parameters::MAX_TX_EXTRA_SIZE;
+      return false;
+    }
+  }
+
+  return true;
+}
+
 bool Blockchain::haveTransaction(const Crypto::Hash &id) {
   std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
   return m_transactionMap.find(id) != m_transactionMap.end();
@@ -662,6 +681,17 @@ difficulty_type Blockchain::getDifficultyForNextBlock() {
   }
 }
 
+uint64_t Blockchain::getMinimalFee(uint32_t height)
+{
+  return m_currency.getMinimalFee(height);
+}
+
+uint64_t Blockchain::getDustThreshold()
+{
+  uint32_t blockchainHeight = getCurrentBlockchainHeight();
+  return m_currency.getDustThreshold(blockchainHeight);
+}
+
 uint64_t Blockchain::getCoinsInCirculation() {
   std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
   if (m_blocks.empty()) {
@@ -834,6 +864,23 @@ bool Blockchain::prevalidate_miner_transaction(const Block& b, uint32_t height) 
     logger(ERROR, BRIGHT_RED)
       << "coinbase transaction in the block has no inputs";
     return false;
+  }
+
+  // check that the base transaction does not contain any signatures
+  if (height >= CryptoNote::parameters::SOFT_FORK_HEIGHT_1)
+  {
+    // b.baseTransaction.signatures is a vector of vectors (please see include/CryptoNote.h)
+    // b.baseTransaction.signautres.size() returns 1 because it contains 1 empty vector
+    // If we use GDB on Ubuntu to print b.baseTransaction.signatures, we get "std::vector of length 1, capacity 1 = {std::vector of length 0, capacity 0}"
+    // Therefore, to check if we don't have any signatures, we must check that the inner vector of signatures is empty
+    for (const auto& innerSignatureVector : b.baseTransaction.signatures)
+    {
+      if (!innerSignatureVector.empty())
+      {
+        logger(ERROR, BRIGHT_RED) << "coinbase transaction shouldn't have signatures.";
+        return false;
+      }
+    }
   }
 
   if (!(b.baseTransaction.inputs[0].type() == typeid(BaseInput))) {
