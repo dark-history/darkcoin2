@@ -213,9 +213,9 @@ bool core::handle_incoming_tx(const BinaryArray& tx_blob, tx_verification_contex
 
   // try to find a block that contains this transaction
   // if a block is found, get its block height
-  bool txFound = getBlockContainingTx(tx_hash, blockIdIgnore, blockHeight);
+  bool blockFound = getBlockContainingTx(tx_hash, blockIdIgnore, blockHeight);
   
-  if (!txFound)
+  if (!blockFound)
   {
     blockHeight = m_blockchain.getCurrentBlockchainHeight();
   }
@@ -493,6 +493,8 @@ bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficu
     return false; 
   }
 
+  // The merkle root must be calculated here after the coinbase transaction and mempool transaction hashes have been added to the block because the coinbase transaction and block transaction hashes are used to calculate the merkle root
+  // The merkle root is added to the block here because if we are mining in simplewallet the merkle root is not calculated from the coinbase transaction and block transaction hashes like it is in the mining pool
   b.merkleRoot = get_tx_tree_hash(b);
 
   return true;
