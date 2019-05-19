@@ -1839,14 +1839,14 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
     return false;
   }
 
-  Crypto::Hash minerTransactionHash = getObjectHash(blockData.baseTransaction);
+  Crypto::Hash coinbaseTransactionHash = getObjectHash(blockData.baseTransaction);
 
   BlockEntry block;
   block.bl = blockData;
   block.transactions.resize(1);
   block.transactions[0].tx = blockData.baseTransaction;
   TransactionIndex transactionIndex = { static_cast<uint32_t>(m_blocks.size()), static_cast<uint16_t>(0) };
-  pushTransaction(block, minerTransactionHash, transactionIndex);
+  pushTransaction(block, coinbaseTransactionHash, transactionIndex);
 
   size_t coinbase_blob_size = getObjectBinarySize(blockData.baseTransaction);
   size_t cumulative_block_size = coinbase_blob_size;
@@ -1866,7 +1866,7 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
       bvc.m_verification_failed = true;
 
       block.transactions.pop_back();
-      popTransactions(block, minerTransactionHash);
+      popTransactions(block, coinbaseTransactionHash);
       return false;
     }
 
@@ -1889,7 +1889,7 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
   if (!validate_miner_transaction(blockData, blockchainHeight, cumulative_block_size, already_generated_coins, fee_summary, reward, emissionChange)) {
     logger(INFO, BRIGHT_WHITE) << "Block " << blockHash << " has invalid miner transaction";
     bvc.m_verification_failed = true;
-    popTransactions(block, minerTransactionHash);
+    popTransactions(block, coinbaseTransactionHash);
     return false;
   }
 
