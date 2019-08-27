@@ -723,4 +723,24 @@ struct K_COMMAND_RPC_CHECK_TX_KEY {
 	};
 };
 
+struct COMMAND_RPC_VALIDATE_ADDRESS {
+	struct request {
+		std::string address;
+
+		void serialize(ISerializer &s) {
+			KV_MEMBER(address)
+		}
+	};
+
+	struct response {
+		bool address_valid;
+		std::string status;
+
+		void serialize(ISerializer &s) {
+			KV_MEMBER(address_valid)
+			KV_MEMBER(status)
+		}
+	};
+};
+
 } // end namespace CryptoNote

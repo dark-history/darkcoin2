@@ -160,6 +160,7 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
       { "f_transaction_json", { makeMemberMethod(&RpcServer::f_on_transaction_json), false } },
       { "f_mempool_json", { makeMemberMethod(&RpcServer::f_on_mempool_json), false } },
       { "check_tx_key", { makeMemberMethod(&RpcServer::k_on_check_tx_key), false } },
+      { "validate_address", { makeMemberMethod(&RpcServer::on_validate_address), false } },
     };
 
     auto it = jsonRpcHandlers.find(jsonRequest.getMethod());
@@ -1083,6 +1084,27 @@ bool RpcServer::k_on_check_tx_key(const K_COMMAND_RPC_CHECK_TX_KEY::request& req
 	res.amount = received;
 	res.outputs = outputs;
 	res.status = CORE_RPC_STATUS_OK;
+	return true;
+}
+
+bool RpcServer::on_validate_address(const COMMAND_RPC_VALIDATE_ADDRESS::request& req, COMMAND_RPC_VALIDATE_ADDRESS::response& res) {
+
+	try {
+    CryptoNote::AccountPublicAddress publicKeysIgnore;
+    if (m_core.currency().parseAccountAddressString(req.address, publicKeysIgnore)) {
+      res.address_valid = true;
+    }
+    else
+    {
+      res.address_valid = false;
+    }
+	}
+	catch (...)
+	{
+		throw JsonRpc::JsonRpcError{ CORE_RPC_ERROR_CODE_INTERNAL_ERROR, "Unknown error" };
+	}
+
+  res.status = CORE_RPC_STATUS_OK;
 	return true;
 }
 
