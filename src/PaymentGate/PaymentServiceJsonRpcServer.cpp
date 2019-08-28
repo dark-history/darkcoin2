@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
-// Copyright (c) 2018, Karbo developers
+// Copyright (c) 2016-2019, The Karbo Developers
 // Copyright (c) 2018-2019 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -13,6 +13,7 @@
 
 #include "Serialization/JsonInputValueSerializer.h"
 #include "Serialization/JsonOutputStreamSerializer.h"
+#include "version.h"
 
 namespace PaymentService {
 
@@ -175,6 +176,7 @@ std::error_code PaymentServiceJsonRpcServer::handleGetViewKey(const GetViewKey::
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleGetStatus(const GetStatus::Request& request, GetStatus::Response& response) {
+  response.cash2_software_version = PROJECT_VERSION_LONG;
   return service.getStatus(response.blockCount, response.knownBlockCount, response.lastBlockHash, response.peerCount, response.minimalFee);
 }
 
