@@ -1030,6 +1030,30 @@ std::error_code WalletService::getStatus(uint32_t& blockCount, uint32_t& knownBl
   return std::error_code();
 }
 
+std::error_code WalletService::validateAddress(const std::string& address, bool& addressValid) {
+  try {
+    System::EventLock lk(readyEvent);
+
+    CryptoNote::AccountPublicAddress acc = boost::value_initialized<CryptoNote::AccountPublicAddress>();
+    if (currency.parseAccountAddressString(address, acc)) {
+      addressValid = true;
+    }
+    else {
+      addressValid = false;
+    }
+  }
+  catch (std::system_error& x) {
+    logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Error while validating address: " << x.what();
+     return x.code();
+  }
+  catch (std::exception& x) {
+    logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Error while validating address: " << x.what();
+    return make_error_code(CryptoNote::error::BAD_ADDRESS);
+  }
+
+  return std::error_code();
+}
+
 void WalletService::refresh() {
   try {
     logger(Logging::DEBUGGING) << "Refresh is started";
