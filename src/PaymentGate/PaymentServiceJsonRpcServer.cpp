@@ -17,8 +17,8 @@
 
 namespace PaymentService {
 
-PaymentServiceJsonRpcServer::PaymentServiceJsonRpcServer(System::Dispatcher& sys, System::Event& stopEvent, WalletService& service, Logging::ILogger& loggerGroup) 
-  : JsonRpcServer(sys, stopEvent, loggerGroup)
+PaymentServiceJsonRpcServer::PaymentServiceJsonRpcServer(System::Dispatcher& sys, System::Event& stopEvent, WalletService& service, Logging::ILogger& loggerGroup, std::string rpcConfigurationPassword) 
+  : JsonRpcServer(sys, stopEvent, loggerGroup, rpcConfigurationPassword)
   , service(service)
   , logger(loggerGroup, "PaymentServiceJsonRpcServer")
 {
@@ -49,6 +49,47 @@ PaymentServiceJsonRpcServer::PaymentServiceJsonRpcServer(System::Dispatcher& sys
 void PaymentServiceJsonRpcServer::processJsonRpcRequest(const Common::JsonValue& req, Common::JsonValue& resp) {
   try {
     prepareJsonResponse(req, resp);
+
+    // Check that the wallet RPC password of the request matches the RPC password set when the server was started
+    std::string rpcConfigurationPassword = getRpcConfigurationPassword();
+
+    if (rpcConfigurationPassword != "")
+    {
+      std::string clientRpcPassword = "";
+    
+      if (req.contains("rpc_password") && req("rpc_password").isString())
+      {
+        clientRpcPassword = req("rpc_password").getString();
+      }
+      else if (!req.contains("rpc_password"))
+      {
+        logger(Logging::WARNING) << "Missing rpc_password key in JSON RPC request";
+        makeMissingRpcPasswordKeyResponse(resp);
+        return;
+      }
+      else
+      {
+        logger(Logging::WARNING) << "RPC password provided is invalid";
+        makeInvalidRpcPasswordResponse(resp);
+        return;
+      }
+
+      if (clientRpcPassword != rpcConfigurationPassword)
+      {
+        if (clientRpcPassword == "")
+        {
+          logger(Logging::WARNING) << "Your request does not include an RPC password";
+        }
+        else
+        {
+          logger(Logging::WARNING) << "Incorrect RPC password : " << clientRpcPassword;
+        }
+
+        makeIncorrectRpcPasswordResponse(resp);
+        return;
+      }
+
+    }
 
     if (!req.contains("method")) {
       logger(Logging::WARNING) << "Field \"method\" is not found in json request: " << req;
