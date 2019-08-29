@@ -97,10 +97,16 @@ void PaymentGateService::run() {
 
   Logging::LoggerRef log(logger, "run");
 
-  if (config.startInprocess) {
-    runInProcess(log);
-  } else {
-    runRpcProxy(log);
+  try {
+    if (config.startInprocess) {
+      runInProcess(log);
+    } else {
+      runRpcProxy(log);
+    }
+  } catch (const std::exception& ec) {
+    this->dispatcher = nullptr;
+    this->stopEvent = nullptr;
+    throw std::exception(ec);
   }
 
   this->dispatcher = nullptr;
@@ -193,15 +199,22 @@ void PaymentGateService::runInProcess(Logging::LoggerRef& log) {
 }
 
 void PaymentGateService::runRpcProxy(Logging::LoggerRef& log) {
-  log(Logging::INFO) << "Starting Payment Gate with remote node";
+  log(Logging::INFO) << "Starting Payment Gate with remote daemon";
   CryptoNote::Currency currency = currencyBuilder.currency();
   
-  std::unique_ptr<CryptoNote::INode> node(
-    PaymentService::NodeFactory::createNode(
-      config.remoteNodeConfig.daemonHost, 
-      config.remoteNodeConfig.daemonPort));
+  try {
+    std::unique_ptr<CryptoNote::INode> node(
+      PaymentService::NodeFactory::createNode(
+        config.remoteNodeConfig.daemonHost, 
+        config.remoteNodeConfig.daemonPort));
 
-  runWalletService(currency, *node);
+    log(Logging::INFO, Logging::BRIGHT_GREEN) << "Successfully connected to remote daemon";
+
+    runWalletService(currency, *node);
+  } catch (const std::exception& ec) {
+    log(Logging::INFO, Logging::BRIGHT_RED) << "Error connecting to remote daemon";
+    throw std::exception(ec);
+  }
 }
 
 void PaymentGateService::runWalletService(const CryptoNote::Currency& currency, CryptoNote::INode& node) {

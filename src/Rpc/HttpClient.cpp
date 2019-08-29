@@ -14,6 +14,12 @@ namespace CryptoNote {
 
 HttpClient::HttpClient(System::Dispatcher& dispatcher, const std::string& address, uint16_t port) :
   m_dispatcher(dispatcher), m_address(address), m_port(port) {
+
+  try {
+    connect();
+  } catch (const std::exception& e) {
+    throw ConnectException(e.what());
+  }
 }
 
 HttpClient::~HttpClient() {
@@ -24,7 +30,11 @@ HttpClient::~HttpClient() {
 
 void HttpClient::request(const HttpRequest &req, HttpResponse &res) {
   if (!m_connected) {
-    connect();
+    try {
+      connect();
+    } catch (const std::exception& e) {
+      throw ConnectException(e.what());
+    }
   }
 
   try {
