@@ -156,10 +156,7 @@ void NodeRpcProxy::workerThread(const INode::Callback& initialized_callback) {
     contextGroup.wait();
     // Make sure all remote spawns are executed
     m_dispatcher->yield();
-  } catch (const ConnectException&) {
-    initialized_callback(make_error_code(error::CONNECT_ERROR));
-  } catch (const std::exception&) {
-    initialized_callback(make_error_code(error::NETWORK_ERROR));
+  } catch (std::exception&) {
   }
 
   m_dispatcher = nullptr;
