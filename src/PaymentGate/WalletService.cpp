@@ -590,6 +590,42 @@ std::error_code WalletService::createAddress(std::string& address, std::string& 
   return std::error_code();
 }
 
+std::error_code WalletService::createAddresses(const std::vector<std::string>& spendPrivateKeyStrs, std::vector<std::string>& addresses) {
+  try
+  {
+    System::EventLock lock(readyEvent);
+
+    logger(Logging::DEBUGGING) << "Creating addresses ...";
+
+    const std::unordered_set<std::string> uniqueSpendPrivateKeyStrs(spendPrivateKeyStrs.begin(), spendPrivateKeyStrs.end());
+
+    std::vector<Crypto::SecretKey> spendPrivateKeys;
+    spendPrivateKeys.reserve(uniqueSpendPrivateKeyStrs.size());
+
+    for (const std::string& spendPrivateKeyStr : uniqueSpendPrivateKeyStrs)
+    {
+      Crypto::SecretKey spendPrivateKey;
+      if (!Common::podFromHex(spendPrivateKeyStr, spendPrivateKey)) {
+        logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Wrong key format: " << spendPrivateKeyStr;
+        return make_error_code(CryptoNote::error::WalletServiceErrorCode::WRONG_KEY_FORMAT);
+      }
+
+      spendPrivateKeys.emplace_back(spendPrivateKey);
+    }
+
+    addresses = wallet.createAddresses(spendPrivateKeys);
+  }
+  catch (std::system_error& error)
+  {
+    logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Error while creating addresses: " << error.what();
+    return error.code();
+  }
+
+  logger(Logging::DEBUGGING) << "Created " << addresses.size() << " addresses";
+
+  return std::error_code();
+}
+
 std::error_code WalletService::createTrackingAddress(const std::string& spendPublicKeyText, std::string& address) {
   try {
     System::EventLock lk(readyEvent);

@@ -25,6 +25,7 @@ PaymentServiceJsonRpcServer::PaymentServiceJsonRpcServer(System::Dispatcher& sys
                                                                                                                                                                                 
   handlers.emplace("reset", jsonHandler<Reset::Request, Reset::Response>(std::bind(&PaymentServiceJsonRpcServer::handleReset, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("createAddress", jsonHandler<CreateAddress::Request, CreateAddress::Response>(std::bind(&PaymentServiceJsonRpcServer::handleCreateAddress, this, std::placeholders::_1, std::placeholders::_2)));
+  handlers.emplace("createAddresses", jsonHandler<CreateAddresses::Request, CreateAddresses::Response>(std::bind(&PaymentServiceJsonRpcServer::handleCreateAddresses, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("deleteAddress", jsonHandler<DeleteAddress::Request, DeleteAddress::Response>(std::bind(&PaymentServiceJsonRpcServer::handleDeleteAddress, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getSpendKeys", jsonHandler<GetSpendKeys::Request, GetSpendKeys::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetSpendKeys, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getBalance", jsonHandler<GetBalance::Request, GetBalance::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetBalance, this, std::placeholders::_1, std::placeholders::_2)));
@@ -146,6 +147,10 @@ std::error_code PaymentServiceJsonRpcServer::handleCreateAddress(const CreateAdd
   } else {
     return service.createTrackingAddress(request.spendPublicKey, response.address);
   }
+}
+
+std::error_code PaymentServiceJsonRpcServer::handleCreateAddresses(const CreateAddresses::Request& request, CreateAddresses::Response& response) {
+  return service.createAddresses(request.spend_private_keys, response.addresses);
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleDeleteAddress(const DeleteAddress::Request& request, DeleteAddress::Response& response) {

@@ -104,6 +104,20 @@ struct CreateAddress {
   };
 };
 
+struct CreateAddresses {
+  struct Request {
+    std::vector<std::string> spend_private_keys;
+
+    void serialize(CryptoNote::ISerializer& serializer);
+  };
+
+  struct Response {
+    std::vector<std::string> addresses;
+
+    void serialize(CryptoNote::ISerializer& serializer);
+  };
+};
+
 struct DeleteAddress {
   struct Request {
     std::string address;

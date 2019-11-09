@@ -45,6 +45,7 @@ public:
   std::error_code replaceWithNewWallet(const std::string& viewSecretKey);
   std::error_code createAddress(const std::string& spendSecretKeyText, std::string& address, std::string& spendPrivateKeyReturnStr);
   std::error_code createAddress(std::string& address, std::string& spendPrivateKeyStr);
+  std::error_code createAddresses(const std::vector<std::string>& spendPrivateKeyStrs, std::vector<std::string>& addresses);
   std::error_code createTrackingAddress(const std::string& spendPublicKeyText, std::string& address);
   std::error_code deleteAddress(const std::string& address);
   std::error_code getSpendkeys(const std::string& address, std::string& publicSpendKeyText, std::string& secretSpendKeyText);

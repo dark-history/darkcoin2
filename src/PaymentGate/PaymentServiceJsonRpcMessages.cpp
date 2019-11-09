@@ -64,6 +64,16 @@ void CreateAddress::Response::serialize(CryptoNote::ISerializer& serializer) {
   serializer(spend_private_key, "spend_private_key");
 }
 
+void CreateAddresses::Request::serialize(CryptoNote::ISerializer& serializer) {
+  if (!serializer(spend_private_keys, "spend_private_keys")) {
+    throw RequestSerializationError();
+  }
+}
+
+void CreateAddresses::Response::serialize(CryptoNote::ISerializer& serializer) {
+  serializer(addresses, "addresses");
+}
+
 void DeleteAddress::Request::serialize(CryptoNote::ISerializer& serializer) {
   if (!serializer(address, "address")) {
     throw RequestSerializationError();

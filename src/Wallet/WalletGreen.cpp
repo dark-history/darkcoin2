@@ -532,6 +532,53 @@ std::string WalletGreen::createAddress(const Crypto::PublicKey& spendPublicKey) 
   return doCreateAddress(spendPublicKey, NULL_SECRET_KEY, 0);
 }
 
+std::vector<std::string> WalletGreen::createAddresses(const std::vector<Crypto::SecretKey>& spendPrivateKeys) {
+
+  throwIfNotInitialized();
+  throwIfStopped();
+
+  for (const Crypto::SecretKey& spendPrivateKey : spendPrivateKeys)
+  {
+    Crypto::PublicKey spendPublicKey;
+    if (!Crypto::secret_key_to_public_key(spendPrivateKey, spendPublicKey) ) {
+      throw std::system_error(make_error_code(error::KEY_GENERATION_ERROR));
+    }
+  }
+
+
+  stopBlockchainSynchronizer();
+
+  std::vector<std::string> addresses;
+  try
+  {
+    uint64_t creationTimestamp = 0;
+
+    for (const Crypto::SecretKey& spendPrivateKey : spendPrivateKeys)
+    {
+      Crypto::PublicKey spendPublicKey;
+      Crypto::secret_key_to_public_key(spendPrivateKey, spendPublicKey);
+
+      addresses.emplace_back(addWallet(spendPublicKey, spendPrivateKey, creationTimestamp));
+    }
+
+    std::string password = m_password;
+    std::stringstream ss;
+    unsafeSave(ss, true, false);
+    shutdown();
+    load(ss, password);
+  }
+  catch (std::exception&)
+  {
+    startBlockchainSynchronizer();
+    throw;
+  }
+
+  startBlockchainSynchronizer();
+
+  return addresses;
+}
+
+
 std::string WalletGreen::doCreateAddress(const Crypto::PublicKey& spendPublicKey, const Crypto::SecretKey& spendSecretKey, uint64_t creationTimestamp) {
   assert(creationTimestamp <= std::numeric_limits<uint64_t>::max() - m_currency.blockFutureTimeLimit());
 
