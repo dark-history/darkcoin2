@@ -140,9 +140,9 @@ std::error_code PaymentServiceJsonRpcServer::handleReset(const Reset::Request& r
 
 std::error_code PaymentServiceJsonRpcServer::handleCreateAddress(const CreateAddress::Request& request, CreateAddress::Response& response) {
   if (request.spendSecretKey.empty() && request.spendPublicKey.empty()) {
-    return service.createAddress(response.address);
+    return service.createAddress(response.address, response.spend_private_key);
   } else if (!request.spendSecretKey.empty()) {
-    return service.createAddress(request.spendSecretKey, response.address);
+    return service.createAddress(request.spendSecretKey, response.address, response.spend_private_key);
   } else {
     return service.createTrackingAddress(request.spendPublicKey, response.address);
   }

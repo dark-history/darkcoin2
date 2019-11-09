@@ -183,7 +183,8 @@ TEST_F(WalletServiceTest_createAddress, returnsCorrectAddress) {
 
   std::unique_ptr<WalletService> service = createWalletService(wallet);
   std::string address;
-  std::error_code ec = service->createAddress(address);
+  std::string spendPrivateKeyIgnore;
+  std::error_code ec = service->createAddress(address, spendPrivateKeyIgnore);
 
   ASSERT_FALSE(ec);
   ASSERT_EQ(wallet.address, address);
@@ -193,7 +194,8 @@ TEST_F(WalletServiceTest_createAddress, invalidSecretKey) {
   std::unique_ptr<WalletService> service = createWalletService();
 
   std::string address;
-  std::error_code ec = service->createAddress("wrong key", address);
+  std::string spendPrivateKeyReturnIgnore;
+  std::error_code ec = service->createAddress("wrong key", address, spendPrivateKeyReturnIgnore);
   ASSERT_EQ(make_error_code(CryptoNote::error::WalletServiceErrorCode::WRONG_KEY_FORMAT), ec);
 }
 
@@ -214,7 +216,8 @@ TEST_F(WalletServiceTest_createAddress, correctSecretKey) {
   std::unique_ptr<WalletService> service = createWalletService(wallet);
 
   std::string address;
-  std::error_code ec = service->createAddress(Common::podToHex(sec), address);
+  std::string spendPrivateKeyReturnIgnore;
+  std::error_code ec = service->createAddress(Common::podToHex(sec), address, spendPrivateKeyReturnIgnore);
 
   ASSERT_FALSE(ec);
   ASSERT_EQ(wallet.address, address);

@@ -68,7 +68,8 @@ TEST_F(PaymentGateTest, addTransaction) {
   auto service = createWalletService(cfg);
 
   std::string addressStr;
-  ASSERT_TRUE(!service->createAddress(addressStr));
+  std::string spendPrivateKeyStrIgnore;
+  ASSERT_TRUE(!service->createAddress(addressStr, spendPrivateKeyStrIgnore));
 
   AccountPublicAddress address;
   ASSERT_TRUE(currency.parseAccountAddressString(addressStr, address));

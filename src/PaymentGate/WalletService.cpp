@@ -538,7 +538,7 @@ std::error_code WalletService::replaceWithNewWallet(const std::string& viewSecre
   return std::error_code();
 }
 
-std::error_code WalletService::createAddress(const std::string& spendSecretKeyText, std::string& address) {
+std::error_code WalletService::createAddress(const std::string& spendSecretKeyText, std::string& address, std::string& spendPrivateKeyReturnStr) {
   try {
     System::EventLock lk(readyEvent);
 
@@ -551,6 +551,11 @@ std::error_code WalletService::createAddress(const std::string& spendSecretKeyTe
     }
 
     address = wallet.createAddress(secretKey);
+
+    CryptoNote::KeyPair spendKeyPair = wallet.getAddressSpendKey(address);
+
+    spendPrivateKeyReturnStr = Common::podToHex(spendKeyPair.secretKey);
+
   } catch (std::system_error& x) {
     logger(Logging::WARNING) << "Error while creating address: " << x.what();
     return x.code();
@@ -561,13 +566,20 @@ std::error_code WalletService::createAddress(const std::string& spendSecretKeyTe
   return std::error_code();
 }
 
-std::error_code WalletService::createAddress(std::string& address) {
+std::error_code WalletService::createAddress(std::string& address, std::string& spendPrivateKeyStr) {
   try {
     System::EventLock lk(readyEvent);
 
     logger(Logging::DEBUGGING) << "Creating address";
 
     address = wallet.createAddress();
+
+    secureSaveWallet(wallet, config.walletFile, true, true);
+
+    CryptoNote::KeyPair spendKeyPair = wallet.getAddressSpendKey(address);
+
+    spendPrivateKeyStr = Common::podToHex(spendKeyPair.secretKey);
+
   } catch (std::system_error& x) {
     logger(Logging::WARNING) << "Error while creating address: " << x.what();
     return x.code();
