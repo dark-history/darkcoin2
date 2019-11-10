@@ -71,6 +71,7 @@ public:
   std::error_code getUnconfirmedTransactionHashes(const std::vector<std::string>& addresses, std::vector<std::string>& transactionHashes);
   std::error_code getStatus(uint32_t& blockCount, uint32_t& knownBlockCount, std::string& lastBlockHash, uint32_t& peerCount, uint64_t& minimalFee);
   std::error_code validateAddress(const std::string& address, bool& addressValid);
+  std::error_code secureSaveWalletNoThrow();
 
 private:
   void refresh();
@@ -90,11 +91,13 @@ private:
   std::vector<TransactionsInBlockRpcInfo> getRpcTransactions(const Crypto::Hash& blockHash, size_t blockCount, const TransactionsInBlockInfoFilter& filter) const;
   std::vector<TransactionsInBlockRpcInfo> getRpcTransactions(uint32_t firstBlockIndex, size_t blockCount, const TransactionsInBlockInfoFilter& filter) const;
 
+  void secureSaveWallet(const std::string& path, bool saveDetailed = true, bool saveCache = true);
+
   const CryptoNote::Currency& currency;
   CryptoNote::IWallet& wallet;
   CryptoNote::INode& node;
   const WalletConfiguration& config;
-  bool inited;
+  bool m_initialized;
   Logging::LoggerRef logger;
   System::Dispatcher& dispatcher;
   System::Event readyEvent;

@@ -297,4 +297,10 @@ void SendDelayedTransaction::Request::serialize(CryptoNote::ISerializer& seriali
 void SendDelayedTransaction::Response::serialize(CryptoNote::ISerializer& serializer) {
 }
 
+void Save::Request::serialize(CryptoNote::ISerializer& serializer) {
+}
+
+void Save::Response::serialize(CryptoNote::ISerializer& serializer) {
+}
+
 }

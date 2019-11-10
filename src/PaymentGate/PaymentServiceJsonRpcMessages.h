@@ -363,4 +363,14 @@ struct SendDelayedTransaction {
   };
 };
 
+struct Save {
+  struct Request {
+    void serialize(CryptoNote::ISerializer& serializer);
+  };
+
+  struct Response {
+    void serialize(CryptoNote::ISerializer& serializer);
+  };
+};
+
 } //namespace PaymentService

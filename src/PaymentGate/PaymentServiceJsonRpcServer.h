@@ -81,6 +81,7 @@ private:
   std::error_code handleGetStatus(const GetStatus::Request& request, GetStatus::Response& response);
   std::error_code handleGetAddresses(const GetAddresses::Request& request, GetAddresses::Response& response);
   std::error_code handleValidateAddress(const ValidateAddress::Request& request, ValidateAddress::Response& response);
+  std::error_code handleSave(const Save::Request& request, Save::Response& response);
 
 };
 

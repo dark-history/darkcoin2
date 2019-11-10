@@ -361,27 +361,6 @@ void createWalletFile(std::fstream& walletFile, const std::string& filename) {
   walletFile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
 }
 
-void saveWallet(CryptoNote::IWallet& wallet, std::fstream& walletFile, bool saveDetailed = true, bool saveCache = true) {
-  wallet.save(walletFile, saveDetailed, saveCache);
-  walletFile.flush();
-}
-
-void secureSaveWallet(CryptoNote::IWallet& wallet, const std::string& path, bool saveDetailed = true, bool saveCache = true) {
-  std::fstream tempFile;
-  std::string tempFilePath = createTemporaryFile(path, tempFile);
-
-  try {
-    saveWallet(wallet, tempFile, saveDetailed, saveCache);
-  } catch (std::exception&) {
-    deleteFile(tempFilePath);
-    tempFile.close();
-    throw;
-  }
-  tempFile.close();
-
-  replaceWalletFiles(path, tempFilePath);
-}
-
 void generateNewWallet(const CryptoNote::Currency &currency, const WalletConfiguration &conf, Logging::ILogger& logger, System::Dispatcher& dispatcher) {
   Logging::LoggerRef log(logger, "generateNewWallet");
 
@@ -409,7 +388,9 @@ void generateNewWallet(const CryptoNote::Currency &currency, const WalletConfigu
   log(Logging::INFO) <<  "Address : " << address << "\nSpend secret key : " << spendSecretKey <<
     "\nView secret key : " << viewSecretKey;
 
-  saveWallet(*wallet, walletFile, false, false);
+  wallet->save(walletFile, false, false);
+  walletFile.flush();
+
   log(Logging::INFO) << "Wallet is saved";
 }
 
@@ -432,7 +413,7 @@ WalletService::WalletService(const CryptoNote::Currency& currency, System::Dispa
     wallet(wallet),
     node(node),
     config(conf),
-    inited(false),
+    m_initialized(false),
     logger(logger, "WalletService"),
     dispatcher(sys),
     readyEvent(dispatcher),
@@ -442,7 +423,7 @@ WalletService::WalletService(const CryptoNote::Currency& currency, System::Dispa
 }
 
 WalletService::~WalletService() {
-  if (inited) {
+  if (m_initialized) {
     wallet.stop();
     refreshContext.wait();
     wallet.shutdown();
@@ -455,12 +436,36 @@ void WalletService::init() {
 
   refreshContext.spawn([this] { refresh(); });
 
-  inited = true;
+  m_initialized = true;
 }
 
 void WalletService::saveWallet() {
-  PaymentService::secureSaveWallet(wallet, config.walletFile, true, true);
+  secureSaveWallet(config.walletFile, true, true);
   logger(Logging::INFO) << "Wallet is saved";
+}
+
+void WalletService::secureSaveWallet(const std::string& path, bool saveDetailed, bool saveCache) {
+  std::fstream tempFile;
+  std::string tempFilePath = createTemporaryFile(path, tempFile);
+
+  try {
+
+    if (!m_initialized) {
+      logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Wallet is not initialized";
+      throw make_error_code(CryptoNote::error::NOT_INITIALIZED);
+    }
+
+    wallet.save(tempFile, saveDetailed, saveCache);
+    tempFile.flush();
+
+  } catch (std::exception&) {
+    deleteFile(tempFilePath);
+    tempFile.close();
+    throw;
+  }
+  tempFile.close();
+
+  replaceWalletFiles(path, tempFilePath);
 }
 
 void WalletService::loadWallet() {
@@ -491,7 +496,7 @@ std::error_code WalletService::resetWallet() {
 
     logger(Logging::INFO) << "Reseting wallet";
 
-    if (!inited) {
+    if (!m_initialized) {
       logger(Logging::WARNING) << "Reset impossible: Wallet Service is not initialized";
       return make_error_code(CryptoNote::error::NOT_INITIALIZED);
     }
@@ -574,7 +579,7 @@ std::error_code WalletService::createAddress(std::string& address, std::string& 
 
     address = wallet.createAddress();
 
-    secureSaveWallet(wallet, config.walletFile, true, true);
+    secureSaveWallet(config.walletFile, true, true);
 
     CryptoNote::KeyPair spendKeyPair = wallet.getAddressSpendKey(address);
 
@@ -1111,6 +1116,39 @@ std::error_code WalletService::validateAddress(const std::string& address, bool&
   return std::error_code();
 }
 
+std::error_code WalletService::secureSaveWalletNoThrow() {
+  std::fstream tempFile;
+  std::string tempFilePath = createTemporaryFile(config.walletFile, tempFile);
+
+  try {
+
+    if (!m_initialized) {
+      logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Wallet is not initialized";
+      return make_error_code(CryptoNote::error::NOT_INITIALIZED);
+    }
+
+    bool saveDetailed = true;
+    bool saveCache = true;
+    wallet.save(tempFile, saveDetailed, saveCache);
+
+    tempFile.flush();
+
+  } catch (std::exception& e) {
+    logger(Logging::WARNING) << "Error while saving wallet : " << e.what();
+
+    deleteFile(tempFilePath);
+    tempFile.close();
+    return make_error_code(CryptoNote::error::INTERNAL_WALLET_ERROR);
+  }
+  tempFile.close();
+
+  replaceWalletFiles(config.walletFile, tempFilePath);
+
+  logger(Logging::INFO) << "Wallet is saved";
+
+  return std::error_code();
+}
+
 void WalletService::refresh() {
   try {
     logger(Logging::DEBUGGING) << "Refresh is started";
@@ -1129,10 +1167,10 @@ void WalletService::refresh() {
 }
 
 void WalletService::reset() {
-  PaymentService::secureSaveWallet(wallet, config.walletFile, false, false);
+  secureSaveWallet(config.walletFile, false, false);
   wallet.stop();
   wallet.shutdown();
-  inited = false;
+  m_initialized = false;
   refreshContext.wait();
 
   wallet.start();
@@ -1142,14 +1180,14 @@ void WalletService::reset() {
 void WalletService::replaceWithNewWallet(const Crypto::SecretKey& viewSecretKey) {
   wallet.stop();
   wallet.shutdown();
-  inited = false;
+  m_initialized = false;
   refreshContext.wait();
 
   transactionIdIndex.clear();
 
   wallet.start();
   wallet.initializeWithViewKey(viewSecretKey, config.walletPassword);
-  inited = true;
+  m_initialized = true;
 }
 
 std::vector<CryptoNote::TransactionsInBlockInfo> WalletService::getTransactions(const Crypto::Hash& blockHash, size_t blockCount) const {

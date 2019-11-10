@@ -43,8 +43,7 @@ PaymentServiceJsonRpcServer::PaymentServiceJsonRpcServer(System::Dispatcher& sys
   handlers.emplace("getStatus", jsonHandler<GetStatus::Request, GetStatus::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetStatus, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getAddresses", jsonHandler<GetAddresses::Request, GetAddresses::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetAddresses, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("validate_address", jsonHandler<ValidateAddress::Request, ValidateAddress::Response>(std::bind(&PaymentServiceJsonRpcServer::handleValidateAddress, this, std::placeholders::_1, std::placeholders::_2)));                                                                                                                                                                                                                                                  
-                                                                                                                                                                                                                        
-                                                                                                                                                                                                                            
+  handlers.emplace("save", jsonHandler<Save::Request, Save::Response>(std::bind(&PaymentServiceJsonRpcServer::handleSave, this, std::placeholders::_1, std::placeholders::_2)));                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
 }
 
 void PaymentServiceJsonRpcServer::processJsonRpcRequest(const Common::JsonValue& req, Common::JsonValue& resp) {
@@ -234,12 +233,8 @@ std::error_code PaymentServiceJsonRpcServer::handleGetAddresses(const GetAddress
   return service.getAddresses(response.addresses);
 }
 
-                                                                                                                                                                    
-                                                                                                                                                      
+std::error_code PaymentServiceJsonRpcServer::handleSave(const Save::Request& request, Save::Response& response) {
+  return service.secureSaveWalletNoThrow();
 }
 
-                                                                                                                                               
-                                                                                                                            
- 
-
- 
+} // end namespace PaymentService
