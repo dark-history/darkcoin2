@@ -557,6 +557,10 @@ std::error_code WalletService::createAddress(const std::string& spendSecretKeyTe
 
     address = wallet.createAddress(secretKey);
 
+    bool saveDetailed = false;
+    bool saveCache = false;
+    secureSaveWallet(config.walletFile, saveDetailed, saveCache);
+
     CryptoNote::KeyPair spendKeyPair = wallet.getAddressSpendKey(address);
 
     spendPrivateKeyReturnStr = Common::podToHex(spendKeyPair.secretKey);
@@ -579,7 +583,9 @@ std::error_code WalletService::createAddress(std::string& address, std::string& 
 
     address = wallet.createAddress();
 
-    secureSaveWallet(config.walletFile, true, true);
+    bool saveDetailed = true;
+    bool saveCache = true;
+    secureSaveWallet(config.walletFile, saveDetailed, saveCache);
 
     CryptoNote::KeyPair spendKeyPair = wallet.getAddressSpendKey(address);
 
@@ -619,6 +625,10 @@ std::error_code WalletService::createAddresses(const std::vector<std::string>& s
     }
 
     addresses = wallet.createAddresses(spendPrivateKeys);
+
+    bool saveDetailed = false;
+    bool saveCache = false;
+    secureSaveWallet(config.walletFile, saveDetailed, saveCache);
   }
   catch (std::system_error& error)
   {
