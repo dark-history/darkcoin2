@@ -94,6 +94,16 @@ void GetSpendKeys::Response::serialize(CryptoNote::ISerializer& serializer) {
   serializer(spendPublicKey, "spendPublicKey");
 }
 
+void GetSpendPrivateKey::Request::serialize(CryptoNote::ISerializer& serializer) {
+  if (!serializer(address, "address")) {
+    throw RequestSerializationError();
+  }
+}
+
+void GetSpendPrivateKey::Response::serialize(CryptoNote::ISerializer& serializer) {
+  serializer(spend_private_key, "spend_private_key");
+}
+
 void GetBalance::Request::serialize(CryptoNote::ISerializer& serializer) {
   serializer(address, "address");
 }

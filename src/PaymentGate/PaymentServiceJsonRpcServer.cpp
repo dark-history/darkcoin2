@@ -28,6 +28,7 @@ PaymentServiceJsonRpcServer::PaymentServiceJsonRpcServer(System::Dispatcher& sys
   handlers.emplace("createAddresses", jsonHandler<CreateAddresses::Request, CreateAddresses::Response>(std::bind(&PaymentServiceJsonRpcServer::handleCreateAddresses, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("deleteAddress", jsonHandler<DeleteAddress::Request, DeleteAddress::Response>(std::bind(&PaymentServiceJsonRpcServer::handleDeleteAddress, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getSpendKeys", jsonHandler<GetSpendKeys::Request, GetSpendKeys::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetSpendKeys, this, std::placeholders::_1, std::placeholders::_2)));
+  handlers.emplace("getSpendPrivateKey", jsonHandler<GetSpendPrivateKey::Request, GetSpendPrivateKey::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetSpendPrivateKey, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getBalance", jsonHandler<GetBalance::Request, GetBalance::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetBalance, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getBlockHashes", jsonHandler<GetBlockHashes::Request, GetBlockHashes::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetBlockHashes, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getTransactionHashes", jsonHandler<GetTransactionHashes::Request, GetTransactionHashes::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetTransactionHashes, this, std::placeholders::_1, std::placeholders::_2)));
@@ -158,6 +159,10 @@ std::error_code PaymentServiceJsonRpcServer::handleDeleteAddress(const DeleteAdd
 
 std::error_code PaymentServiceJsonRpcServer::handleGetSpendKeys(const GetSpendKeys::Request& request, GetSpendKeys::Response& response) {
   return service.getSpendkeys(request.address, response.spendPublicKey, response.spendSecretKey);
+}
+
+std::error_code PaymentServiceJsonRpcServer::handleGetSpendPrivateKey(const GetSpendPrivateKey::Request& request, GetSpendPrivateKey::Response& response) {
+  return service.getSpendPrivateKey(request.address, response.spend_private_key);
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleGetBalance(const GetBalance::Request& request, GetBalance::Response& response) {
