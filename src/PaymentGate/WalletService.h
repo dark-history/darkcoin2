@@ -48,7 +48,6 @@ public:
   std::error_code createAddresses(const std::vector<std::string>& spendPrivateKeyStrs, std::vector<std::string>& addresses);
   std::error_code createTrackingAddress(const std::string& spendPublicKeyText, std::string& address);
   std::error_code deleteAddress(const std::string& address);
-  std::error_code getSpendkeys(const std::string& address, std::string& publicSpendKeyText, std::string& secretSpendKeyText);
   std::error_code getSpendPrivateKey(const std::string& address, std::string& spendPrivateKeyText);
   std::error_code getBalance(const std::string& address, uint64_t& availableBalance, uint64_t& lockedAmount);
   std::error_code getBalance(uint64_t& availableBalance, uint64_t& lockedAmount);

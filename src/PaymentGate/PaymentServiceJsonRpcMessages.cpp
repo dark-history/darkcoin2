@@ -83,17 +83,6 @@ void DeleteAddress::Request::serialize(CryptoNote::ISerializer& serializer) {
 void DeleteAddress::Response::serialize(CryptoNote::ISerializer& serializer) {
 }
 
-void GetSpendKeys::Request::serialize(CryptoNote::ISerializer& serializer) {
-  if (!serializer(address, "address")) {
-    throw RequestSerializationError();
-  }
-}
-
-void GetSpendKeys::Response::serialize(CryptoNote::ISerializer& serializer) {
-  serializer(spendSecretKey, "spendSecretKey");
-  serializer(spendPublicKey, "spendPublicKey");
-}
-
 void GetSpendPrivateKey::Request::serialize(CryptoNote::ISerializer& serializer) {
   if (!serializer(address, "address")) {
     throw RequestSerializationError();
