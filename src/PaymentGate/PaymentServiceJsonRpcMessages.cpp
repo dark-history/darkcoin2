@@ -97,6 +97,13 @@ void GetBalance::Request::serialize(CryptoNote::ISerializer& serializer) {
   serializer(address, "address");
 }
 
+void GetSpendPrivateKeys::Request::serialize(CryptoNote::ISerializer& serializer) {
+}
+
+void GetSpendPrivateKeys::Response::serialize(CryptoNote::ISerializer& serializer) {
+  serializer(spend_private_keys, "spend_private_keys");
+}
+
 void GetBalance::Response::serialize(CryptoNote::ISerializer& serializer) {
   serializer(availableBalance, "availableBalance");
   serializer(lockedAmount, "lockedAmount");
