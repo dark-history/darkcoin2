@@ -1,6 +1,5 @@
 // Copyright (c) 2011-2016 The Cryptonote developers
 // Copyright (c) 2018 The Turtlecoin developers
-// Copyright (c) 2016-2019, The Karbo Developers
 // Copyright (c) 2018-2019 The Cash2 developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -47,8 +46,6 @@ void Configuration::initOptions(boost::program_options::options_description& des
       ("log-file,l", po::value<std::string>(), "log file")
       ("server-root", po::value<std::string>(), "server root. The service will use it as working directory. Don't set it if don't want to change it")
       ("log-level", po::value<size_t>(), "log level")
-      ("spend-private-key", po::value<std::string>(), "Specify the spend private key that you want your first wallet file to have")
-      ("view-private-key", po::value<std::string>(), "Specify the view private key that you want your wallet container")
       ("address", "print wallet addresses and exit");
 }
 
@@ -107,27 +104,6 @@ void Configuration::init(const boost::program_options::variables_map& options) {
 
   if (options.count("generate-container") != 0) {
     generateNewContainer = true;
-  }
-
-   if (options.count("spend-private-key") != 0) {
-    if (!generateNewContainer) {
-      throw ConfigurationError("generate-container parameter is required");
-    }
-
-    spendPrivateKey = options["spend-private-key"].as<std::string>();
-  }
-
-  if (options.count("view-private-key") != 0) {
-    if (!generateNewContainer) {
-      throw ConfigurationError("generate-container parameter is required");
-    }
-
-    viewPrivateKey = options["view-private-key"].as<std::string>();
-  }
-
-  if((!spendPrivateKey.empty() && viewPrivateKey.empty()) || (spendPrivateKey.empty() && !viewPrivateKey.empty()))
-  {
-    throw ConfigurationError("Must specify both spend private key and view private key to restore wallet");
   }
 
   if (options.count("address") != 0) {
