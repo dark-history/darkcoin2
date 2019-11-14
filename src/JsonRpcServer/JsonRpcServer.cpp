@@ -163,7 +163,7 @@ void JsonRpcServer::makeMissingRpcPasswordKeyResponse(Common::JsonValue& resp) {
   code = static_cast<int64_t>(-32604);
 
   JsonValue message;
-  message = "Missing rpc_password key in JSON RPC request";
+  message = "Missing rpcPassword key in JSON RPC request";
 
   error.insert("code", code);
   error.insert("message", message);

@@ -58,13 +58,13 @@ void PaymentServiceJsonRpcServer::processJsonRpcRequest(const Common::JsonValue&
     {
       std::string clientRpcPassword = "";
     
-      if (req.contains("rpc_password") && req("rpc_password").isString())
+      if (req.contains("rpcPassword") && req("rpcPassword").isString())
       {
-        clientRpcPassword = req("rpc_password").getString();
+        clientRpcPassword = req("rpcPassword").getString();
       }
-      else if (!req.contains("rpc_password"))
+      else if (!req.contains("rpcPassword"))
       {
-        logger(Logging::WARNING) << "Missing rpc_password key in JSON RPC request";
+        logger(Logging::WARNING) << "Missing rpcPassword key in JSON RPC request";
         makeMissingRpcPasswordKeyResponse(resp);
         return;
       }
