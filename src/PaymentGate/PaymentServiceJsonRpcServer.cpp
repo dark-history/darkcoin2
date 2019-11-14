@@ -141,16 +141,16 @@ std::error_code PaymentServiceJsonRpcServer::handleReset(const Reset::Request& r
 
 std::error_code PaymentServiceJsonRpcServer::handleCreateAddress(const CreateAddress::Request& request, CreateAddress::Response& response) {
   if (request.spendSecretKey.empty() && request.spendPublicKey.empty()) {
-    return service.createAddress(response.address, response.spend_private_key);
+    return service.createAddress(response.address, response.spendPrivateKey);
   } else if (!request.spendSecretKey.empty()) {
-    return service.createAddress(request.spendSecretKey, response.address, response.spend_private_key);
+    return service.createAddress(request.spendSecretKey, response.address, response.spendPrivateKey);
   } else {
     return service.createTrackingAddress(request.spendPublicKey, response.address);
   }
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleCreateAddresses(const CreateAddresses::Request& request, CreateAddresses::Response& response) {
-  return service.createAddresses(request.spend_private_keys, response.addresses);
+  return service.createAddresses(request.spendPrivateKeys, response.addresses);
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleDeleteAddress(const DeleteAddress::Request& request, DeleteAddress::Response& response) {
@@ -158,11 +158,11 @@ std::error_code PaymentServiceJsonRpcServer::handleDeleteAddress(const DeleteAdd
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleGetSpendPrivateKey(const GetSpendPrivateKey::Request& request, GetSpendPrivateKey::Response& response) {
-  return service.getSpendPrivateKey(request.address, response.spend_private_key);
+  return service.getSpendPrivateKey(request.address, response.spendPrivateKey);
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleGetSpendPrivateKeys(const GetSpendPrivateKeys::Request& request, GetSpendPrivateKeys::Response& response) {
-  return service.getSpendPrivateKeys(response.spend_private_keys);
+  return service.getSpendPrivateKeys(response.spendPrivateKeys);
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleGetBalance(const GetBalance::Request& request, GetBalance::Response& response) {

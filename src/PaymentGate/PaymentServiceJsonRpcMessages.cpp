@@ -61,11 +61,11 @@ void CreateAddress::Request::serialize(CryptoNote::ISerializer& serializer) {
 
 void CreateAddress::Response::serialize(CryptoNote::ISerializer& serializer) {
   serializer(address, "address");
-  serializer(spend_private_key, "spend_private_key");
+  serializer(spendPrivateKey, "spendPrivateKey");
 }
 
 void CreateAddresses::Request::serialize(CryptoNote::ISerializer& serializer) {
-  if (!serializer(spend_private_keys, "spend_private_keys")) {
+  if (!serializer(spendPrivateKeys, "spendPrivateKeys")) {
     throw RequestSerializationError();
   }
 }
@@ -90,7 +90,7 @@ void GetSpendPrivateKey::Request::serialize(CryptoNote::ISerializer& serializer)
 }
 
 void GetSpendPrivateKey::Response::serialize(CryptoNote::ISerializer& serializer) {
-  serializer(spend_private_key, "spend_private_key");
+  serializer(spendPrivateKey, "spendPrivateKey");
 }
 
 void GetBalance::Request::serialize(CryptoNote::ISerializer& serializer) {
@@ -101,7 +101,7 @@ void GetSpendPrivateKeys::Request::serialize(CryptoNote::ISerializer& serializer
 }
 
 void GetSpendPrivateKeys::Response::serialize(CryptoNote::ISerializer& serializer) {
-  serializer(spend_private_keys, "spend_private_keys");
+  serializer(spendPrivateKeys, "spendPrivateKeys");
 }
 
 void GetBalance::Response::serialize(CryptoNote::ISerializer& serializer) {

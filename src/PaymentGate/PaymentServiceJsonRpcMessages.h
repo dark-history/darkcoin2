@@ -98,7 +98,7 @@ struct CreateAddress {
 
   struct Response {
     std::string address;
-    std::string spend_private_key;
+    std::string spendPrivateKey;
 
     void serialize(CryptoNote::ISerializer& serializer);
   };
@@ -106,7 +106,7 @@ struct CreateAddress {
 
 struct CreateAddresses {
   struct Request {
-    std::vector<std::string> spend_private_keys;
+    std::vector<std::string> spendPrivateKeys;
 
     void serialize(CryptoNote::ISerializer& serializer);
   };
@@ -138,7 +138,7 @@ struct GetSpendPrivateKey {
   };
 
   struct Response {
-    std::string spend_private_key;
+    std::string spendPrivateKey;
 
     void serialize(CryptoNote::ISerializer& serializer);
   };
@@ -150,7 +150,7 @@ struct GetSpendPrivateKeys {
   };
 
   struct Response {
-    std::vector<std::string> spend_private_keys;
+    std::vector<std::string> spendPrivateKeys;
 
     void serialize(CryptoNote::ISerializer& serializer);
   };
