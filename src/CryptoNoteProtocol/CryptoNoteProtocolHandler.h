@@ -8,7 +8,7 @@
 #include <atomic>
 
 #include <Common/ObserverManager.h>
-
+#include "CryptoNoteConfig.h"
 #include "CryptoNoteCore/ICore.h"
 
 #include "CryptoNoteProtocol/CryptoNoteProtocolDefinitions.h"
