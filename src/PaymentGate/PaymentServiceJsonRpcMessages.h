@@ -99,7 +99,6 @@ struct CreateAddress {
 
   struct Response {
     std::string address;
-    std::string spendPrivateKey;
 
     void serialize(CryptoNote::ISerializer& serializer);
   };

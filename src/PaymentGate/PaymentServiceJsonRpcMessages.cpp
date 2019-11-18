@@ -61,7 +61,6 @@ void CreateAddress::Request::serialize(CryptoNote::ISerializer& serializer) {
 
 void CreateAddress::Response::serialize(CryptoNote::ISerializer& serializer) {
   serializer(address, "address");
-  serializer(spendPrivateKey, "spendPrivateKey");
 }
 
 void CreateAddresses::Request::serialize(CryptoNote::ISerializer& serializer) {
